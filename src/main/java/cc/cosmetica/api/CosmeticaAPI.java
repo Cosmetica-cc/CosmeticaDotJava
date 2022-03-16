@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * A general interface with the Cosmetica Web API. Methods that throw IOException typically throw it when there is an issue contacting the API server, and {@link CosmeticaAPIException} if the api server can be contacted, but returns an error.
@@ -44,6 +45,21 @@ public interface CosmeticaAPI {
 	 * @throws IllegalStateException if this instance was created without an auth token (i.e directly with api tokens), as there is nothing to exchange.
 	 */
 	boolean exchangeTokens(UUID uuid, String minecraftToken) throws IllegalStateException, IOException, CosmeticaAPIException;
+
+	/**
+	 * Retrieves user info from the api server via either the UUID, username, or both. UUID is used preferentially.
+	 * @param uuid the uuid of the player to retrieve data of.
+	 * @param username the username of the player to retrieve data of.
+	 * @return a representation of the cosmetics data of the given player.
+	 * @throws IllegalArgumentException if both {@code uuid} and {@code username} are null.
+	 */
+	UserInfo getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IOException, IllegalArgumentException;
+
+	/**
+	 * Pass a consumer to be invoked with the URL whenever a URL is contacted. This can be useful for debug logging purposes.
+	 * @param logger the logger to pass.
+	 */
+	void setUrlLogger(@Nullable Consumer<String> logger);
 
 	/**
 	 * Creates an instance with the given authentication token. This can then be exchanged with the cosmetica api for a valid new master and get token with which the cosmetica api instance will be configured.

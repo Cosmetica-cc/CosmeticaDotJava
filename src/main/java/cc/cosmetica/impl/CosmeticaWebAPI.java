@@ -18,6 +18,7 @@ package cc.cosmetica.impl;
 
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.CosmeticaAPIException;
+import cc.cosmetica.api.UserInfo;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.Nullable;
@@ -77,6 +78,44 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			return true;
 		}
+	}
+
+	@Override
+	public UserInfo getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IOException, IllegalArgumentException {
+		String target = createLimitedGet("/get/info?username=" + Util.urlEncode(username) + "&uuid=" + uuid);
+		this.urlLogger.accept(target);
+
+		try (Response response = Response.request(target)) {
+			JsonObject jsonObject = response.getAsJson();
+			JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
+			JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
+			JsonObject cloak = jsonObject.has("cape") ? jsonObject.get("cape").getAsJsonObject() : null;
+
+			return new UserInfo(
+					jsonObject.get("lore").getAsString(),
+					jsonObject.get("upside-down").getAsBoolean(),
+					jsonObject.get("prefix").getAsString(),
+					jsonObject.get("suffix").getAsString(),
+					BaseModel.parse(hat),
+					BaseModel.parse(shoulderBuddy),
+					BaseCape.parse(cloak)
+			);
+		}
+	}
+
+	@Override
+	public void setUrlLogger(Consumer<String> urlLogger) {
+		this.urlLogger = urlLogger;
+	}
+
+	private String createLimitedGet(String target) {
+		if (this.limitedToken != null) return fastInsecureApiServerHost + target + "&token=" + this.limitedToken + "&timestamp=" + System.currentTimeMillis();
+		else return createGet(target);
+	}
+
+	private String createGet(String target) {
+		if (this.masterToken != null) return apiServerHost + target + "&token=" + this.masterToken + "&timestamp=" + System.currentTimeMillis();
+		else return apiServerHost + target + "&token=&timestamp=" + System.currentTimeMillis();
 	}
 
 	private static String apiServerHost;
