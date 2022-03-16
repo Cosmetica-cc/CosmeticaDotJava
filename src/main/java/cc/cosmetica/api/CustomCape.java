@@ -17,7 +17,7 @@
 package cc.cosmetica.api;
 
 /**
- * Represents a cape retrieved specifically from the cosmetica cape servers (as opposed to Optifine, Mantle, etc.)
+ * Represents a cape hosted specifically from the cosmetica cape servers (as opposed to Optifine, Mantle, etc.)
  */
 public interface CustomCape extends Cape {
 	/**
