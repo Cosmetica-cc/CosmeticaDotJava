@@ -17,10 +17,12 @@
 package cc.cosmetica.api;
 
 import cc.cosmetica.impl.CosmeticaWebAPI;
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -29,6 +31,10 @@ import java.util.function.Consumer;
  * A general interface with the Cosmetica Web API. Methods that throw IOException typically throw it when there is an issue contacting the API server, and {@link CosmeticaAPIException} if the api server can be contacted, but returns an error.
  */
 public interface CosmeticaAPI {
+	//////////////////////
+	//  Web-API Methods //
+	//////////////////////
+
 	/**
 	 * Contacts the API version checker.
 	 * @param minecraftVersion the minecraft version string.
@@ -56,10 +62,35 @@ public interface CosmeticaAPI {
 	UserInfo getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IOException, IllegalArgumentException;
 
 	/**
+	 * Head on the safari to check out the lion king's new cosmetics! I mean, uh, ping this to get updates on any cosmetic changes you may have missed in the last 4 minutes from users on the server you're on, and allow other cosmetica users on the same server to receive cosmetics updates for you.<br>
+	 * If you provide a timestamp of 0, the endpoint will not send any users nor notifications, but instead only respond with a timestamp to use next time. The cosmetica mod calls this endpoint with a timestamp of 0 upon first joining a server to get its initial timestamp for this server.
+	 * @param serverAddress the address of the minecraft server you're on. This {@link InetSocketAddress} must have an IP and port associated.
+	 * @return the updates from this endpoint.
+	 * @throws IllegalArgumentException if the InetSocketAddress does not have an IP and port.
+	 * @apiNote the response to this endpoint provides a timestamp to use when you next call it from the same server.
+	 */
+	CosmeticsUpdates everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IOException, CosmeticaAPIException, IllegalArgumentException;
+
+	///////////////////////////
+	//   Non-Web-API Methods //
+	///////////////////////////
+
+	/**
 	 * Pass a consumer to be invoked with the URL whenever a URL is contacted. This can be useful for debug logging purposes.
 	 * @param logger the logger to pass.
 	 */
 	void setUrlLogger(@Nullable Consumer<String> logger);
+
+	/**
+	 * @return whether this cosmetica api instance has an API token.
+	 */
+	@Nullable
+	boolean hasToken();
+
+	/**
+	 * Sets a new authentication token for this instance to use. This resets the master and limited tokens stored on this instance, so {@link CosmeticaAPI#exchangeTokens(UUID, String)} must be called after this.
+	 */
+	void setAuthToken(String authenticationToken);
 
 	/**
 	 * Creates an instance with the given authentication token. This can then be exchanged with the cosmetica api for a valid new master and get token with which the cosmetica api instance will be configured.
@@ -89,6 +120,15 @@ public interface CosmeticaAPI {
 	 */
 	static CosmeticaAPI fromTokens(String masterToken, String limitedToken) throws IllegalStateException {
 		return CosmeticaWebAPI.fromTokens(masterToken, limitedToken);
+	}
+
+	/**
+	 * Creates a new instance which is not authenticated. The provided instance will be very limited in what endpoints it can call.
+	 * @return an instance of the cosmetica web api with no associated token.
+	 * @throws IllegalStateException if an api instance cannot be retrieved.
+	 */
+	static CosmeticaAPI newUnauthenticatedInstance() throws IllegalStateException {
+		return CosmeticaWebAPI.newUnauthenticatedInstance();
 	}
 
 	/**

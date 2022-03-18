@@ -18,14 +18,24 @@ package cc.cosmetica.impl;
 
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.CosmeticaAPIException;
+import cc.cosmetica.api.CosmeticsUpdates;
+import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserInfo;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -36,8 +46,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private CosmeticaWebAPI(String authenticationToken) {
-		this.masterToken = "";
-		this.limitedToken = "";
+		this.masterToken = null;
+		this.limitedToken = null;
 		this.authToken = authenticationToken;
 	}
 
@@ -70,7 +80,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject object = response.getAsJson();
 
 			if (object.has("error")) {
-				throw new CosmeticaAPIException("Error exchanging tokens!"); // TODO do we send a message here?
+				throw new CosmeticaAPIException("Error exchanging tokens! " + object.get("error").getAsString());
 			}
 
 			this.masterToken = object.get("master_token").getAsString();
@@ -104,18 +114,75 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public void setUrlLogger(Consumer<String> urlLogger) {
-		this.urlLogger = urlLogger;
+	public CosmeticsUpdates everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IOException, CosmeticaAPIException, IllegalArgumentException {
+		String awimbawe = createGet("/get/everythirtysecondsinafricahalfaminutepasses?ip=" + Util.base64Ip(serverAddress), OptionalLong.of(timestamp));
+
+		this.urlLogger.accept(awimbawe);
+
+		try (Response theLionSleepsTonight = Response.request(awimbawe)) {
+			JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
+
+			if (theMightyJungle.has("error")) {
+				throw new CosmeticaAPIException("Server responded with error while checking for cosmetic updates : " + theMightyJungle.get("error").getAsString());
+			}
+
+			List<String> notifications = List.of();
+
+			if (theMightyJungle.has("notifications")) {
+				JsonArray jNotif = theMightyJungle.get("notifications").getAsJsonArray();
+				notifications = new ArrayList<>(jNotif.size());
+
+				for (JsonElement elem : jNotif) {
+					notifications.add(elem.getAsString());
+				}
+			}
+
+			JsonObject updates = theMightyJungle.get("updates").getAsJsonObject();
+
+			List<User> users = List.of();
+
+			if (updates.has("list")) {
+				JsonArray jUpdates = updates.getAsJsonArray("list");
+				users = new ArrayList<>(jUpdates.size());
+
+				for (JsonElement element : jUpdates) {
+					JsonObject individual = element.getAsJsonObject();
+
+					UUID uuid = UUID.fromString(Util.dashifyUUID(individual.get("uuid").getAsString()));
+
+					users.add(new User(uuid, individual.get("username").getAsString()));
+				}
+			}
+
+			return new CosmeticsUpdates(notifications, users, updates.get("timestamp").getAsLong());
+		}
 	}
 
 	private String createLimitedGet(String target) {
 		if (this.limitedToken != null) return fastInsecureApiServerHost + target + "&token=" + this.limitedToken + "&timestamp=" + System.currentTimeMillis();
-		else return createGet(target);
+		else return createGet(target, OptionalLong.empty());
 	}
 
-	private String createGet(String target) {
-		if (this.masterToken != null) return apiServerHost + target + "&token=" + this.masterToken + "&timestamp=" + System.currentTimeMillis();
-		else return apiServerHost + target + "&token=&timestamp=" + System.currentTimeMillis();
+	private String createGet(String target, OptionalLong timestamp) {
+		if (this.masterToken != null) return apiServerHost + target + "&token=" + this.masterToken + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis);
+		else return apiServerHost + target + "&token=&timestamp=" + timestamp.orElseGet(System::currentTimeMillis);
+	}
+
+	@Override
+	public void setUrlLogger(Consumer<String> urlLogger) {
+		this.urlLogger = urlLogger;
+	}
+
+	@Override
+	public @Nullable boolean hasToken() {
+		return this.masterToken != null;
+	}
+
+	@Override
+	public void setAuthToken(String authToken) {
+		this.authToken = authToken;
+		this.masterToken = null;
+		this.limitedToken = null;
 	}
 
 	private static String apiServerHost;
@@ -150,6 +217,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		retrieveAPIIfNoneCached();
 		return new CosmeticaWebAPI(masterToken, getToken);
 	}
+
+	public static CosmeticaAPI newUnauthenticatedInstance() throws IllegalStateException {
+		retrieveAPIIfNoneCached();
+		return new CosmeticaWebAPI(null, null);
+	}
+
 
 	public static void setAPICaches(File api, File apiGet) {
 		apiCache = api;
