@@ -200,10 +200,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return message;
 	}
 
-	public static String getApiServer() {
-		return apiServerHost;
-	}
-
 	public static String getWebsite() {
 		return websiteHost;
 	}
@@ -223,6 +219,17 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return new CosmeticaWebAPI(null, null);
 	}
 
+	@Nullable
+	public static String getApiServerHost(boolean requireResult) throws IllegalStateException {
+		if (requireResult) retrieveAPIIfNoneCached();
+		return apiServerHost;
+	}
+
+	@Nullable
+	public static String getFastInsecureApiServerHost(boolean requireResult) throws IllegalStateException {
+		if (requireResult) retrieveAPIIfNoneCached();
+		return fastInsecureApiServerHost;
+	}
 
 	public static void setAPICaches(File api, File apiGet) {
 		apiCache = api;

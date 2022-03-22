@@ -159,6 +159,14 @@ public interface CosmeticaAPI {
 	 */
 	@Nullable
 	static String getAPIServer() {
-		return CosmeticaWebAPI.getApiServer();
+		return CosmeticaWebAPI.getApiServerHost(false);
+	}
+
+	/**
+	 * Get the cosmetica api server url being used as an insecure http:// url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}.
+	 */
+	@Nullable
+	static String getHttpAPIServer() {
+		return CosmeticaWebAPI.getFastInsecureApiServerHost(false);
 	}
 }
