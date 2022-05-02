@@ -41,7 +41,7 @@ public interface CosmeticaAPI {
 	 * @param cosmeticaVersion the cosmetica version string.
 	 * @return a message sent by the API if the cosmetica version is outdated or old enough that it may not function correctly.
 	 */
-	Optional<String> checkVersion(String minecraftVersion, String cosmeticaVersion) throws IOException;
+	ServerResponse<Optional<String>> checkVersion(String minecraftVersion, String cosmeticaVersion);
 
 	/**
 	 * Exchanges the auth token in this API instance for a 'master' and 'limited' token, if it does not already have them stored.

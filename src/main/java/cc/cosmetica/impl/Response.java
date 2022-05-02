@@ -16,6 +16,7 @@
 
 package cc.cosmetica.impl;
 
+import cc.cosmetica.api.HttpNotOkException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -74,6 +75,19 @@ class Response implements Closeable {
 	public JsonObject getAsJson() throws IOException, JsonParseException {
 		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
 		return JsonParser.parseString(s).getAsJsonObject();
+	}
+
+	public static Response requestAndVerify(String request) throws ParseException, IOException, HttpNotOkException {
+		return requestAndVerify(request, request);
+	}
+
+	/**
+	 * @param cleanRequest the URL that can be printed in the case of an error. Does not prevent other 3rd party libraries used by Cosmetica-API from printing it, but cosmetica api itself will include this in an {@link HttpNotOkException}.
+	 */
+	public static Response requestAndVerify(String request, String cleanRequest) throws ParseException, IOException, HttpNotOkException {
+		Response result = request(request);
+		if (result.getError().isPresent()) throw new HttpNotOkException(request, result.getError().getAsInt());
+		return result;
 	}
 
 	public static Response request(String request) throws ParseException, IOException {

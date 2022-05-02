@@ -19,6 +19,7 @@ package cc.cosmetica.impl;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.CosmeticaAPIException;
 import cc.cosmetica.api.CosmeticsUpdates;
+import cc.cosmetica.api.ServerResponse;
 import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserInfo;
 import com.google.gson.JsonArray;
@@ -57,17 +58,18 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private Consumer<String> urlLogger = s -> {};
 
 	@Override
-	public Optional<String> checkVersion(String minecraftVersion, String cosmeticaVersion) throws IOException {
+	public ServerResponse<Optional<String>> checkVersion(String minecraftVersion, String cosmeticaVersion) {
 		String versionCheck = apiServerHost + "/get/versioncheck?modversion="
 				+ Util.urlEncode(cosmeticaVersion)
 				+ "&mcversion=" + Util.urlEncode(minecraftVersion);
 
 		this.urlLogger.accept(versionCheck);
 
-		try (Response response = Response.request(versionCheck)) {
+		try (Response response = Response.requestAndVerify(versionCheck)) {
 			String s = response.getAsString();
-
-			return s.isEmpty() ? Optional.empty() : Optional.of(s);
+			return new ServerResponse<>(s.isEmpty() ? Optional.empty() : Optional.of(s));
+		} catch (Exception e) {
+			return new ServerResponse<>(e);
 		}
 	}
 
