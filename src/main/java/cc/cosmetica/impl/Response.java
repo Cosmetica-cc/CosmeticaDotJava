@@ -78,15 +78,15 @@ class Response implements Closeable {
 	}
 
 	public static Response requestAndVerify(String request) throws ParseException, IOException, HttpNotOkException {
-		return requestAndVerify(request, request);
+		return requestAndVerify(new SafeURL(request, request));
 	}
 
 	/**
-	 * @param cleanRequest the URL that can be printed in the case of an error. Does not prevent other 3rd party libraries used by Cosmetica-API from printing it, but cosmetica api itself will include this in an {@link HttpNotOkException}.
+	 * @apiNote cosmetica api will include the safe url in an {@link HttpNotOkException}.
 	 */
-	public static Response requestAndVerify(String request, String cleanRequest) throws ParseException, IOException, HttpNotOkException {
-		Response result = request(request);
-		if (result.getError().isPresent()) throw new HttpNotOkException(request, result.getError().getAsInt());
+	public static Response requestAndVerify(SafeURL request) throws ParseException, IOException, HttpNotOkException {
+		Response result = request(request.url());
+		if (result.getError().isPresent()) throw new HttpNotOkException(request.safeUrl(), result.getError().getAsInt());
 		return result;
 	}
 

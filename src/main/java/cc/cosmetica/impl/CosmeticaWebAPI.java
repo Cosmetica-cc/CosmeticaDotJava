@@ -32,8 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -93,17 +91,21 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public UserInfo getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IOException, IllegalArgumentException {
-		String target = createLimitedGet("/get/info?username=" + Util.urlEncode(username) + "&uuid=" + uuid);
-		this.urlLogger.accept(target);
+	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException {
+		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
 
-		try (Response response = Response.request(target)) {
+		SafeURL target = createLimitedGet("/get/info?username=" + Util.urlEncode(username) + "&uuid=" + Util.urlEncode(uuid));
+		this.urlLogger.accept(target.safeUrl());
+
+		try (Response response = Response.requestAndVerify(target)) {
 			JsonObject jsonObject = response.getAsJson();
+			CosmeticaAPIException.checkErrors(jsonObject);
+
 			JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
 			JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
 			JsonObject cloak = jsonObject.has("cape") ? jsonObject.get("cape").getAsJsonObject() : null;
 
-			return new UserInfo(
+			return new ServerResponse<>(new UserInfo(
 					jsonObject.get("lore").getAsString(),
 					jsonObject.get("upside-down").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
@@ -111,22 +113,21 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					BaseModel.parse(hat),
 					BaseModel.parse(shoulderBuddy),
 					BaseCape.parse(cloak)
-			);
+			));
+		} catch (Exception e) {
+			return new ServerResponse<>(e);
 		}
 	}
 
 	@Override
-	public CosmeticsUpdates everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IOException, CosmeticaAPIException, IllegalArgumentException {
-		String awimbawe = createGet("/get/everythirtysecondsinafricahalfaminutepasses?ip=" + Util.base64Ip(serverAddress), OptionalLong.of(timestamp));
+	public ServerResponse<CosmeticsUpdates> everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IllegalArgumentException {
+		SafeURL awimbawe = createGet("/get/everythirtysecondsinafricahalfaminutepasses?ip=" + Util.base64Ip(serverAddress), OptionalLong.of(timestamp));
 
-		this.urlLogger.accept(awimbawe);
+		this.urlLogger.accept(awimbawe.safeUrl());
 
-		try (Response theLionSleepsTonight = Response.request(awimbawe)) {
+		try (Response theLionSleepsTonight = Response.requestAndVerify(awimbawe)) {
 			JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
-
-			if (theMightyJungle.has("error")) {
-				throw new CosmeticaAPIException("Server responded with error while checking for cosmetic updates : " + theMightyJungle.get("error").getAsString());
-			}
+			CosmeticaAPIException.checkErrors(theMightyJungle);
 
 			List<String> notifications = List.of();
 
@@ -156,18 +157,20 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				}
 			}
 
-			return new CosmeticsUpdates(notifications, users, updates.get("timestamp").getAsLong());
+			return new ServerResponse<>(new CosmeticsUpdates(notifications, users, updates.get("timestamp").getAsLong()));
+		} catch (Exception e) {
+			return new ServerResponse<>(e);
 		}
 	}
 
-	private String createLimitedGet(String target) {
-		if (this.limitedToken != null) return fastInsecureApiServerHost + target + "&token=" + this.limitedToken + "&timestamp=" + System.currentTimeMillis();
+	private SafeURL createLimitedGet(String target) {
+		if (this.limitedToken != null) return SafeURL.of(fastInsecureApiServerHost + target + "&timestamp=" + System.currentTimeMillis(), this.limitedToken);
 		else return createGet(target, OptionalLong.empty());
 	}
 
-	private String createGet(String target, OptionalLong timestamp) {
-		if (this.masterToken != null) return apiServerHost + target + "&token=" + this.masterToken + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis);
-		else return apiServerHost + target + "&token=&timestamp=" + timestamp.orElseGet(System::currentTimeMillis);
+	private SafeURL createGet(String target, OptionalLong timestamp) {
+		if (this.masterToken != null) return SafeURL.of(apiServerHost + target + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
+		else return SafeURL.of(apiServerHost + target + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
 	@Override

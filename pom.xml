@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.eyezahmc</groupId>
-    <artifactId>Cosmetica-API</artifactId>
+    <artifactId>Cosmetica-Dot-Java</artifactId>
     <description>A java library to interface with the Cosmetica web API.</description>
     <version>0.1.0</version>
 

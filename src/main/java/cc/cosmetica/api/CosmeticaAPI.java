@@ -59,7 +59,7 @@ public interface CosmeticaAPI {
 	 * @return a representation of the cosmetics data of the given player.
 	 * @throws IllegalArgumentException if both {@code uuid} and {@code username} are null.
 	 */
-	UserInfo getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IOException, IllegalArgumentException;
+	ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException;
 
 	/**
 	 * Head on the safari to check out the lion king's new cosmetics! I mean, uh, ping this to get updates on any cosmetic changes you may have missed in the last 4 minutes from users on the server you're on, and allow other cosmetica users on the same server to receive cosmetics updates for you.<br>
@@ -69,7 +69,7 @@ public interface CosmeticaAPI {
 	 * @throws IllegalArgumentException if the InetSocketAddress does not have an IP and port.
 	 * @apiNote the response to this endpoint provides a timestamp to use when you next call it from the same server.
 	 */
-	CosmeticsUpdates everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IOException, CosmeticaAPIException, IllegalArgumentException;
+	ServerResponse<CosmeticsUpdates> everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IllegalArgumentException;
 
 	///////////////////////////
 	//   Non-Web-API Methods //

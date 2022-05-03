@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
-
-import com.google.gson.JsonObject;
+package cc.cosmetica.impl;
 
 /**
- * Thrown when the cosmetica web api returns a response, but that response is an error.
+ * Safe URL thing for keeping tokens safe.
  */
-public class CosmeticaAPIException extends RuntimeException {
-	public CosmeticaAPIException(String message) {
-		super(message);
+record SafeURL(String url, String safeUrl) {
+	static SafeURL of(String baseUrl, String token) {
+		return new SafeURL(baseUrl + (baseUrl.contains("?") ? "&" : "?") + "token=" + token, baseUrl);
 	}
 
-	public static void checkErrors(JsonObject response) {
-		if (response.has("error")) {
-			throw new CosmeticaAPIException("API server responded with error: " + response.get("error").getAsString());
-		}
+	static SafeURL of(String baseUrl) {
+		return new SafeURL(baseUrl + (baseUrl.contains("?") ? "&" : "?") + "token=", baseUrl);
+	}
+
+	@Override
+	public String toString() {
+		return "SafeURL{" + this.safeUrl + "}";
 	}
 }
