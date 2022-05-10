@@ -16,12 +16,18 @@
 
 package cc.cosmetica.impl;
 
+import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.CosmeticaAPIException;
 import cc.cosmetica.api.CosmeticsUpdates;
+import cc.cosmetica.api.HttpNotOkException;
 import cc.cosmetica.api.ServerResponse;
 import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserInfo;
+import cc.cosmetica.api.UserSettings;
+import cc.cosmetica.util.Response;
+import cc.cosmetica.util.SafeURL;
+import cc.cosmetica.util.Util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -32,7 +38,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
@@ -72,11 +80,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public boolean exchangeTokens(UUID uuid, String accessToken) throws IllegalStateException, IOException, CosmeticaAPIException {
+	public ServerResponse<Boolean> exchangeTokens(UUID uuid) throws IllegalStateException {
 		if (this.authToken == null) throw new IllegalStateException("This instance does not have a stored auth token! Perhaps it was created directly with API tokens.");
-		if (this.masterToken != null) return false;
+		if (this.masterToken != null || this.limitedToken != null) return new ServerResponse<>(false);
 
-		try (Response response = Response.request(apiServerHost + "/client/verifyforauthtokens?token=" + this.authToken + "&uuid=" + uuid + "&access-token=" + accessToken)) {
+		SafeURL url = new SafeURL(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, this.authToken);
+
+		try (Response response = Response.requestAndVerify(url)) {
 			JsonObject object = response.getAsJson();
 
 			if (object.has("error")) {
@@ -86,7 +96,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			this.masterToken = object.get("master_token").getAsString();
 			this.limitedToken = object.get("limited_token").getAsString();
 
-			return true;
+			return new ServerResponse<>(true);
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e);
 		}
 	}
 
@@ -99,7 +112,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		try (Response response = Response.requestAndVerify(target)) {
 			JsonObject jsonObject = response.getAsJson();
-			CosmeticaAPIException.checkErrors(jsonObject);
+			checkErrors(target, jsonObject);
 
 			JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
 			JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
@@ -120,6 +133,47 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public ServerResponse<UserSettings> getUserSettings() {
+		SafeURL target = createLimitedGet("/get/settings");
+		this.urlLogger.accept(target.safeUrl());
+
+		try (Response response = Response.requestAndVerify(target)) {
+			JsonObject data = response.getAsJson();
+			checkErrors(target, data);
+
+			JsonObject capeSettings = data.get("capeSettings").getAsJsonObject();
+			Map<String, CapeDisplay> oCapeSettings = new HashMap<>();
+
+			for (String key : capeSettings.keySet()) {
+				oCapeSettings.put(key, CapeDisplay.byId(capeSettings.get(key).getAsInt()));
+			}
+
+			return new ServerResponse<>(new UserSettings(
+					UUID.fromString(Util.dashifyUUID(data.get("uuid").getAsString())),
+					// cosmetics
+					data.get("cape").getAsString(),
+					data.get("hat").getAsString(),
+					data.get("doHats").getAsBoolean(),
+					data.get("shoulderBuddy").getAsString(),
+					data.get("doShoulderBuddies").getAsBoolean(),
+					data.get("lore").getAsString(),
+					data.get("doLore").getAsBoolean(),
+					// other stuff
+					data.get("joined").getAsLong(),
+					data.get("role").getAsString(),
+					data.get("countryCode").getAsString(),
+					data.get("perRegionEffects").getAsBoolean(),
+					data.get("perRegionEffectsSet").getAsBoolean(),
+					data.get("panorama").getAsInt(),
+					oCapeSettings
+			));
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e);
+		}
+	}
+
+	@Override
 	public ServerResponse<CosmeticsUpdates> everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IllegalArgumentException {
 		SafeURL awimbawe = createGet("/get/everythirtysecondsinafricahalfaminutepasses?ip=" + Util.base64Ip(serverAddress), OptionalLong.of(timestamp));
 
@@ -127,7 +181,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		try (Response theLionSleepsTonight = Response.requestAndVerify(awimbawe)) {
 			JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
-			CosmeticaAPIException.checkErrors(theMightyJungle);
+			checkErrors(awimbawe, theMightyJungle);
 
 			List<String> notifications = List.of();
 
@@ -277,6 +331,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject auth = data.get("auth-server").getAsJsonObject();
 			authServerHost = auth.get("hostname").getAsString() + ":" + auth.get("port").getAsInt();
 			message = data.get("message").getAsString();
+		}
+	}
+
+	private static void checkErrors(SafeURL url, JsonObject response) {
+		if (response.has("error")) {
+			throw new CosmeticaAPIException("API server request to " + url.safeUrl() + "responded with error: " + response.get("error").getAsString());
 		}
 	}
 }

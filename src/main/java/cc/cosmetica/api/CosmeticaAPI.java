@@ -46,11 +46,20 @@ public interface CosmeticaAPI {
 	/**
 	 * Exchanges the auth token in this API instance for a 'master' and 'limited' token, if it does not already have them stored.
 	 * @param uuid the UUID of the player we are requesting to have cosmetica api access tokens for.
-	 * @param minecraftToken the minecraft access token. This is used to verify you are who you say you are.
 	 * @return whether this changed the tokens stored in the API.
 	 * @throws IllegalStateException if this instance was created without an auth token (i.e directly with api tokens), as there is nothing to exchange.
 	 */
-	boolean exchangeTokens(UUID uuid, String minecraftToken) throws IllegalStateException, IOException, CosmeticaAPIException;
+	ServerResponse<Boolean> exchangeTokens(UUID uuid) throws IllegalStateException;
+
+	/**
+	 * Head on the safari to check out the lion king's new cosmetics! I mean, uh, ping this to get updates on any cosmetic changes you may have missed in the last 4 minutes from users on the server you're on, and allow other cosmetica users on the same server to receive cosmetics updates for you.<br>
+	 * If you provide a timestamp of 0, the endpoint will not send any users nor notifications, but instead only respond with a timestamp to use next time. The cosmetica mod calls this endpoint with a timestamp of 0 upon first joining a server to get its initial timestamp for this server.
+	 * @param serverAddress the address of the minecraft server you're on. This {@link InetSocketAddress} must have an IP and port associated.
+	 * @return the updates from this endpoint.
+	 * @throws IllegalArgumentException if the InetSocketAddress does not have an IP and port.
+	 * @apiNote the response to this endpoint provides a timestamp to use when you next call it from the same server.
+	 */
+	ServerResponse<CosmeticsUpdates> everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IllegalArgumentException;
 
 	/**
 	 * Retrieves user info from the api server via either the UUID, username, or both. UUID is used preferentially.
@@ -62,14 +71,10 @@ public interface CosmeticaAPI {
 	ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException;
 
 	/**
-	 * Head on the safari to check out the lion king's new cosmetics! I mean, uh, ping this to get updates on any cosmetic changes you may have missed in the last 4 minutes from users on the server you're on, and allow other cosmetica users on the same server to receive cosmetics updates for you.<br>
-	 * If you provide a timestamp of 0, the endpoint will not send any users nor notifications, but instead only respond with a timestamp to use next time. The cosmetica mod calls this endpoint with a timestamp of 0 upon first joining a server to get its initial timestamp for this server.
-	 * @param serverAddress the address of the minecraft server you're on. This {@link InetSocketAddress} must have an IP and port associated.
-	 * @return the updates from this endpoint.
-	 * @throws IllegalArgumentException if the InetSocketAddress does not have an IP and port.
-	 * @apiNote the response to this endpoint provides a timestamp to use when you next call it from the same server.
+	 * Retrieves the settings of the user associated with the token and some basic data.
+	 * @return the user's settings, as JSON.
 	 */
-	ServerResponse<CosmeticsUpdates> everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IllegalArgumentException;
+	ServerResponse<UserSettings> getUserSettings();
 
 	///////////////////////////
 	//   Non-Web-API Methods //
@@ -110,6 +115,16 @@ public interface CosmeticaAPI {
 	 */
 	static CosmeticaAPI fromToken(String masterToken) throws IllegalStateException {
 		return CosmeticaWebAPI.fromTokens(masterToken, null);
+	}
+
+	/**
+	 * @param limitedToken the cosmetica 'limited' or 'get' token, a special token for use over HTTP which only has access to specific "get" endpoints.
+	 * @return an instance of the cosmetica web api, configured with the given token.
+	 *   This instance will only make requests on http, so is less secure.
+	 * @throws IllegalStateException if an api instance cannot be retrieved.
+	 */
+	static CosmeticaAPI fromLimitedToken(String limitedToken) throws IllegalStateException {
+		return CosmeticaWebAPI.fromTokens(null, limitedToken);
 	}
 
 	/**

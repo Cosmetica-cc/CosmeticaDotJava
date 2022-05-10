@@ -84,6 +84,34 @@ public class ServerResponse<T> {
 	}
 
 	/**
+	 * @param fallback the value to return if there was an error.
+	 * @return the resolved value.
+	 * @apiNote nullable if and only if the error resolver passed can return null.
+	 */
+	@Nullable
+	public T or(T fallback) {
+		if (this.value == null) return fallback;
+		return this.value;
+	}
+
+	/**
+	 * Retrieves the value stored. If there is an error instead, it logs the exception and returns the fallback value.
+	 *
+	 * @param fallback the value to return if there was an error.
+	 * @return the resolved value.
+	 * @apiNote nullable if and only if the error resolver passed can return null.
+	 */
+	@Nullable
+	public T orLogAndUse(T fallback) {
+		if (this.value == null) {
+			this.exception.printStackTrace();
+			return fallback;
+		}
+
+		return this.value;
+	}
+
+	/**
 	 * Basically your generic "isPresent" optional function.
 	 * @return whether there is a value stored in here (as opposed to an error).
 	 */

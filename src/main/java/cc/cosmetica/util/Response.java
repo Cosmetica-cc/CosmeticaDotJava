@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.impl;
+package cc.cosmetica.util;
 
 import cc.cosmetica.api.HttpNotOkException;
 import com.google.gson.JsonObject;
@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.OptionalInt;
 
-class Response implements Closeable {
+public class Response implements Closeable {
 	private Response(CloseableHttpClient client, CloseableHttpResponse response) {
 		this.client = client;
 		this.response = response;

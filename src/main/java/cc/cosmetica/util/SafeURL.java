@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.util;
 
 /**
- * Thrown when the cosmetica web api returns a response, but that response is an error.
+ * Safe URL thing for keeping tokens safe.
  */
-public class CosmeticaAPIException extends RuntimeException {
-	public CosmeticaAPIException(String message) {
-		super(message);
+public record SafeURL(String url, String safeUrl) {
+	public static SafeURL of(String baseUrl, String token) {
+		return new SafeURL(baseUrl + (baseUrl.contains("?") ? "&" : "?") + "token=" + token, baseUrl);
+	}
+
+	public static SafeURL of(String baseUrl) {
+		return new SafeURL(baseUrl + (baseUrl.contains("?") ? "&" : "?") + "token=", baseUrl);
+	}
+
+	@Override
+	public String toString() {
+		return "SafeURL{" + this.safeUrl + "}";
 	}
 }

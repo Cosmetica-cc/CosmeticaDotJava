@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.impl;
+package cc.cosmetica.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.Nullable;
@@ -33,15 +33,15 @@ import java.util.regex.Pattern;
 /**
  * General utilities used by the implementation.
  */
-class Util {
+public class Util {
 	private static final Pattern UNDASHED_UUID_GAPS = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
 	private static final String UUID_DASHIFIER_REPLACEMENT = "$1-$2-$3-$4-$5";
 
-	static String urlEncode(@Nullable UUID value) {
+	public static String urlEncode(@Nullable UUID value) {
 		return value == null ? "" : value.toString();
 	}
 
-	static String urlEncode(@Nullable String value) {
+	public static String urlEncode(@Nullable String value) {
 		if (value == null) return "";
 
 		try {
@@ -51,7 +51,7 @@ class Util {
 		}
 	}
 
-	static String loadOrCache(File file, @Nullable String value) {
+	public static String loadOrCache(File file, @Nullable String value) {
 		try {
 			if (value != null) {
 				file.createNewFile();
@@ -71,12 +71,12 @@ class Util {
 		return value;
 	}
 
-	static String base64Ip(InetSocketAddress ip) {
+	public static String base64Ip(InetSocketAddress ip) {
 		byte[] arr = (ip.getAddress().getHostAddress() + ":" + ip.getPort()).getBytes(StandardCharsets.UTF_8);
 		return Base64.encodeBase64String(arr);
 	}
 
-	static String dashifyUUID(String uuid) {
+	public static String dashifyUUID(String uuid) {
 		return UNDASHED_UUID_GAPS.matcher(uuid).replaceAll(UUID_DASHIFIER_REPLACEMENT);
 	}
 }

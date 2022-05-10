@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.impl;
+package cc.cosmetica.api;
 
 /**
- * Safe URL thing for keeping tokens safe.
+ * How the cosmetics from a cape service are handled by cosmetica for this user.
  */
-record SafeURL(String url, String safeUrl) {
-	static SafeURL of(String baseUrl, String token) {
-		return new SafeURL(baseUrl + (baseUrl.contains("?") ? "&" : "?") + "token=" + token, baseUrl);
+public enum CapeDisplay {
+	REPLACE(0),
+	HIDE(1),
+	SHOW(2);
+
+	CapeDisplay(int id) {
+		this.id = id;
 	}
 
-	static SafeURL of(String baseUrl) {
-		return new SafeURL(baseUrl + (baseUrl.contains("?") ? "&" : "?") + "token=", baseUrl);
+	public final int id;
+
+	private static final CapeDisplay[] BY_ID = new CapeDisplay[CapeDisplay.values().length]; // because apparently using ordinal is small brain
+
+	public static CapeDisplay byId(int id) {
+		return BY_ID[id];
 	}
 
-	@Override
-	public String toString() {
-		return "SafeURL{" + this.safeUrl + "}";
+	static {
+		for (CapeDisplay entry : CapeDisplay.values()) {
+			BY_ID[entry.id] = entry;
+		}
 	}
 }
