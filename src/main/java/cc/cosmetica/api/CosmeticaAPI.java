@@ -17,12 +17,11 @@
 package cc.cosmetica.api;
 
 import cc.cosmetica.impl.CosmeticaWebAPI;
-import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -76,6 +75,34 @@ public interface CosmeticaAPI {
 	 */
 	ServerResponse<UserSettings> getUserSettings();
 
+	/**
+	 * Sends a version check request to the cosmetica servers and retrieves text to give to the user if there is an update, otherwise returns an empty string.
+	 * @param modVersion the version of the cosmetica mod.
+	 * @param minecraftVersion the minecraft version, duh. {@code (Use SharedConstants.getCurrentVersion().getId()} if you're a minecraft mod using this API).
+	 * @return the text to display.
+	 */
+	ServerResponse<String> versionCheck(String modVersion, String minecraftVersion);
+
+	/**
+	 * Gets a page of 16 uploaded cosmetics, sorted in upload date.
+	 * @param type the type of cosmetic to search for.
+	 * @param page the page number to browse.
+	 * @return a page of cosmetics.
+	 */
+	default <T> ServerResponse<List<T>> getRecentCosmetics(CosmeticType<T> type, int page) {
+		return getRecentCosmetics(type, page, 16, Optional.empty());
+	}
+
+	/**
+	 * Gets a page of uploaded cosmetics that match the given query, sorted in upload date.
+	 * @param type the type of cosmetic to search for.
+	 * @param page the page number to browse.
+	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
+	 * @param query the search term. If a query is provided, 'official' cosmetica cosmetics may be returned in addition to user-uploaded cosmetics.
+	 * @return a page of cosmetics.
+	 */
+	<T> ServerResponse<List<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query);
+
 	///////////////////////////
 	//   Non-Web-API Methods //
 	///////////////////////////
@@ -93,7 +120,7 @@ public interface CosmeticaAPI {
 	boolean hasToken();
 
 	/**
-	 * Sets a new authentication token for this instance to use. This resets the master and limited tokens stored on this instance, so {@link CosmeticaAPI#exchangeTokens(UUID, String)} must be called after this.
+	 * Sets a new authentication token for this instance to use. This resets the master and limited tokens stored on this instance, so {@link CosmeticaAPI#exchangeTokens(UUID)} must be called after this.
 	 */
 	void setAuthToken(String authenticationToken);
 

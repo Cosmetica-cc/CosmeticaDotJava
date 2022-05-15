@@ -16,15 +16,7 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.CapeDisplay;
-import cc.cosmetica.api.CosmeticaAPI;
-import cc.cosmetica.api.CosmeticaAPIException;
-import cc.cosmetica.api.CosmeticsUpdates;
-import cc.cosmetica.api.HttpNotOkException;
-import cc.cosmetica.api.ServerResponse;
-import cc.cosmetica.api.User;
-import cc.cosmetica.api.UserInfo;
-import cc.cosmetica.api.UserSettings;
+import cc.cosmetica.api.*;
 import cc.cosmetica.util.Response;
 import cc.cosmetica.util.SafeURL;
 import cc.cosmetica.util.Util;
@@ -167,6 +159,27 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					data.get("panorama").getAsInt(),
 					oCapeSettings
 			));
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e);
+		}
+	}
+
+	@Override
+	public <T> ServerResponse<List<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
+		//SafeURL url = createTokenlessGet();
+		//todo
+		throw new RuntimeException("eeeee");
+	}
+
+	@Override
+	public ServerResponse<String> versionCheck(String modVersion, String minecraftVersion) {
+		SafeURL checkyThing = createLimitedGet("/get/versioncheck?modversion=" + modVersion + "&mcversion=" + minecraftVersion);
+
+		this.urlLogger.accept(checkyThing.safeUrl());
+
+		try (Response response = Response.requestAndVerify(checkyThing)) {
+			return new ServerResponse<>(response.getAsString());
 		}
 		catch (Exception e) {
 			return new ServerResponse<>(e);
