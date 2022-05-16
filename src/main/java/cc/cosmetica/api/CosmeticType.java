@@ -19,7 +19,7 @@ package cc.cosmetica.api;
 /**
  * A set of types of cosmetics.
  */
-public class CosmeticType<T> {
+public class CosmeticType<T extends CustomCosmetic> {
 	private CosmeticType(String urlstring) {
 		this.urlstring = urlstring;
 	}

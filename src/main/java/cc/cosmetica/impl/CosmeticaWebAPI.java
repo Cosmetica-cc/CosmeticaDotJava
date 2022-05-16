@@ -16,15 +16,7 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.CapeDisplay;
-import cc.cosmetica.api.CosmeticType;
-import cc.cosmetica.api.CosmeticaAPI;
-import cc.cosmetica.api.CosmeticaAPIException;
-import cc.cosmetica.api.CosmeticsUpdates;
-import cc.cosmetica.api.ServerResponse;
-import cc.cosmetica.api.User;
-import cc.cosmetica.api.UserInfo;
-import cc.cosmetica.api.UserSettings;
+import cc.cosmetica.api.*;
 import cc.cosmetica.util.Response;
 import cc.cosmetica.util.SafeURL;
 import cc.cosmetica.util.Util;
@@ -173,7 +165,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public <T> ServerResponse<List<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
+	public <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
 		SafeURL url = createTokenlessGet("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Util.base64(query.orElse("")), OptionalLong.empty());
 
 		this.urlLogger.accept(url.safeUrl());
@@ -182,7 +174,15 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject json = response.getAsJson();
 			checkErrors(url, json);
 
+			boolean nextPage = json.get("nextPage").getAsBoolean();
+			List<T> cosmetics = new ArrayList<>();
 
+			for (JsonElement element : json.getAsJsonArray("list")) {
+				// yeah i have no error handling here in case the server sends back a different type of cosmetic --- too bad! Let's just assume it won't ever do that.
+				cosmetics.add(parse(type, element.getAsJsonObject()));
+			}
+
+			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage));
 		}
 		catch (Exception e) {
 			return new ServerResponse<>(e);
@@ -371,6 +371,16 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private static void checkErrors(SafeURL url, JsonObject response) {
 		if (response.has("error")) {
 			throw new CosmeticaAPIException("API server request to " + url.safeUrl() + "responded with error: " + response.get("error").getAsString());
+		}
+	}
+
+	private static <T extends CustomCosmetic> T parse(CosmeticType<T> type, JsonObject object) {
+		// yes this code is probably bad
+		if (type == CosmeticType.CAPE) {
+			return (T) BaseCape.parse(object).get();
+		}
+		else {
+			return (T) BaseModel.parse(object).get();
 		}
 	}
 }

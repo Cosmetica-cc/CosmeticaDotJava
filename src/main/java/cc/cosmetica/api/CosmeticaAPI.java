@@ -89,7 +89,7 @@ public interface CosmeticaAPI {
 	 * @param page the page number to browse.
 	 * @return a page of cosmetics.
 	 */
-	default <T> ServerResponse<List<T>> getRecentCosmetics(CosmeticType<T> type, int page) {
+	default <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page) {
 		return getRecentCosmetics(type, page, 16, Optional.empty());
 	}
 
@@ -101,7 +101,7 @@ public interface CosmeticaAPI {
 	 * @param query the search term. If a query is provided, 'official' cosmetica cosmetics may be returned in addition to user-uploaded cosmetics.
 	 * @return a page of cosmetics.
 	 */
-	<T> ServerResponse<List<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query);
+	<T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query);
 
 	///////////////////////////
 	//   Non-Web-API Methods //
