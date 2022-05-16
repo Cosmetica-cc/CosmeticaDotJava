@@ -18,12 +18,13 @@ package cc.cosmetica.impl;
 
 import cc.cosmetica.api.Box;
 import cc.cosmetica.api.CustomModel;
+import cc.cosmetica.api.User;
 
 import java.util.UUID;
 
 class CustomModelImpl extends BaseModel implements CustomModel {
 	CustomModelImpl(String id, int flags, Box bounds,
-					String model, String base64Texture, String owner, long uploadTime, boolean usesUVRotations) {
+					String model, String base64Texture, User owner, long uploadTime, boolean usesUVRotations) {
 		super(id, flags, bounds);
 
 		this.model = model;
@@ -35,7 +36,7 @@ class CustomModelImpl extends BaseModel implements CustomModel {
 
 	private final String model;
 	private final String texture;
-	private final String owner;
+	private final User owner;
 	private final long uploadTime;
 	private final boolean usesUVRotations;
 
@@ -50,7 +51,7 @@ class CustomModelImpl extends BaseModel implements CustomModel {
 	}
 
 	@Override
-	public String getOwner() {
+	public User getOwner() {
 		return this.owner;
 	}
 

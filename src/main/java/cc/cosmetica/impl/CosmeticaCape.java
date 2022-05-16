@@ -17,17 +17,20 @@
 package cc.cosmetica.impl;
 
 import cc.cosmetica.api.CustomCape;
+import cc.cosmetica.api.User;
 
 class CosmeticaCape extends BaseCape implements CustomCape {
-	CosmeticaCape(String id, String origin, String image, boolean cosmeticaAlternative, String name, String owner) {
+	CosmeticaCape(String id, String origin, String image, boolean cosmeticaAlternative, long uploadTime, String name, User owner) {
 		super(id, origin, image, cosmeticaAlternative);
 
 		this.name = name;
 		this.owner = owner;
+		this.uploadTime = uploadTime;
 	}
 
 	private final String name;
-	private final String owner;
+	private final User owner;
+	private final long uploadTime;
 
 	@Override
 	public String getName() {
@@ -35,7 +38,12 @@ class CosmeticaCape extends BaseCape implements CustomCape {
 	}
 
 	@Override
-	public String getOwner() {
+	public User getOwner() {
 		return this.owner;
+	}
+
+	@Override
+	public long getUploadTime() {
+		return this.uploadTime;
 	}
 }

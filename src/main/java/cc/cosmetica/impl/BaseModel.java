@@ -18,6 +18,7 @@ package cc.cosmetica.impl;
 
 import cc.cosmetica.api.Box;
 import cc.cosmetica.api.Model;
+import cc.cosmetica.api.User;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
@@ -92,7 +93,7 @@ abstract class BaseModel implements Model {
 					bounds,
 					json.get("model").getAsString(),
 					json.get("texture").getAsString(),
-					json.get("owner").getAsString(),
+					new User(UUID.fromString(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
 					json.get("uploaded").getAsLong(),
 					json.get("uses uv rotations").getAsBoolean()
 			));

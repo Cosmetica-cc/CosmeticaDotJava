@@ -17,11 +17,13 @@
 package cc.cosmetica.impl;
 
 import cc.cosmetica.api.Cape;
+import cc.cosmetica.api.User;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 class BaseCape implements Cape {
 	BaseCape(String id, String origin, String image, boolean cosmeticaAlternative) {
@@ -78,7 +80,8 @@ class BaseCape implements Cape {
 		boolean cosmeticaAlternative = data.get("is-cosmetica-alternative").getAsBoolean();
 
 		if ("Cosmetica".equals(origin)) {
-			return Optional.of(new CosmeticaCape(id, origin, image, cosmeticaAlternative, data.get("name").getAsString(), data.get("owner").getAsString()));
+			User owner = new User(UUID.fromString(data.get("owner").getAsString()), data.get("ownerName").getAsString());
+			return Optional.of(new CosmeticaCape(id, origin, image, cosmeticaAlternative, data.get("uploaded").getAsLong(), data.get("name").getAsString(), owner));
 		}
 		else {
 			return Optional.of(new BaseCape(id, origin, image, cosmeticaAlternative));

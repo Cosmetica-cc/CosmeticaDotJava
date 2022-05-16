@@ -16,12 +16,11 @@
 
 package cc.cosmetica.api;
 
+import java.util.List;
+
 /**
- * Represents a cape hosted specifically on the cosmetica cape servers (as opposed to Optifine, Mantle, etc.)
+ * A page of cosmetics on the website.
+ * @param <T> the type of cosmetic found on this page. Could be {@link CustomCosmetic} if a general page.
  */
-public interface CustomCape extends Cape, CustomCosmetic {
-	/**
-	 * @return the name of this custom cape.
-	 */
-	String getName();
+public record CosmeticsPage<T extends CustomCosmetic>(List<T> cosmetics, boolean nextPage) {
 }

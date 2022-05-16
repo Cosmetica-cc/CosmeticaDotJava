@@ -16,7 +16,15 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.*;
+import cc.cosmetica.api.CapeDisplay;
+import cc.cosmetica.api.CosmeticType;
+import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.CosmeticaAPIException;
+import cc.cosmetica.api.CosmeticsUpdates;
+import cc.cosmetica.api.ServerResponse;
+import cc.cosmetica.api.User;
+import cc.cosmetica.api.UserInfo;
+import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.util.Response;
 import cc.cosmetica.util.SafeURL;
 import cc.cosmetica.util.Util;
@@ -27,7 +35,6 @@ import com.google.gson.JsonParser;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -167,9 +174,19 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public <T> ServerResponse<List<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
-		//SafeURL url = createTokenlessGet();
-		//todo
-		throw new RuntimeException("eeeee");
+		SafeURL url = createTokenlessGet("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Util.base64(query.orElse("")), OptionalLong.empty());
+
+		this.urlLogger.accept(url.safeUrl());
+
+		try (Response response = Response.requestAndVerify(url)) {
+			JsonObject json = response.getAsJson();
+			checkErrors(url, json);
+
+
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e);
+		}
 	}
 
 	@Override
@@ -238,6 +255,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private SafeURL createGet(String target, OptionalLong timestamp) {
 		if (this.masterToken != null) return SafeURL.of(apiServerHost + target + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
 		else return SafeURL.of(apiServerHost + target + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
+	}
+
+	private SafeURL createTokenlessGet(String target, OptionalLong timestamp) {
+		return SafeURL.of(apiServerHost + target + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
 	@Override

@@ -19,7 +19,7 @@ package cc.cosmetica.api;
 /**
  * A custom model which is stored on the cosmetica servers. Most models are of this type aside - the only exception a very few number of "built-in" models to cosmetica used in region specific effects.
  */
-public interface CustomModel extends Model {
+public interface CustomModel extends Model, CustomCosmetic {
 	/**
 	 * @return the model json string associated with the custom model. Follows the minecraft block model format.
 	 */
@@ -30,16 +30,6 @@ public interface CustomModel extends Model {
 	 * @implNote as of the time of building this library, this texture is guaranteed to be 32x32, however this is subject to change in the future.
 	 */
 	String getTexture();
-
-	/**
-	 * @return the owner of this model. Can be a hyphenless UUID of a player, or "system".
-	 */
-	String getOwner();
-
-	/**
-	 * @return the UTC unix timestamp, in seconds, at which this model was uploaded.
-	 */
-	long getUploadTime();
 
 	/**
 	 * @return whether this model uses UV rotations.

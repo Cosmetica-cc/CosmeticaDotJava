@@ -17,11 +17,16 @@
 package cc.cosmetica.api;
 
 /**
- * Represents a cape hosted specifically on the cosmetica cape servers (as opposed to Optifine, Mantle, etc.)
+ * Represents a cosmetic stored on cosmetica servers that is not a built-in model (such as the RSE NZ jeb sheep). This could be either a cape or model.
  */
-public interface CustomCape extends Cape, CustomCosmetic {
+public interface CustomCosmetic {
 	/**
-	 * @return the name of this custom cape.
+	 * @return the owner of this model. Can be a hyphenless UUID of a player, or "system" (e.g. for the starter capes).
 	 */
-	String getName();
+	User getOwner();
+
+	/**
+	 * @return the UTC unix timestamp, in seconds, at which this model was uploaded.
+	 */
+	long getUploadTime();
 }

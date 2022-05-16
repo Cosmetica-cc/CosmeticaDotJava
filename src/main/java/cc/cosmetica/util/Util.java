@@ -76,6 +76,10 @@ public class Util {
 		return Base64.encodeBase64String(arr);
 	}
 
+	public static String base64(String text) {
+		return Base64.encodeBase64String(text.getBytes(StandardCharsets.UTF_8));
+	}
+
 	public static String dashifyUUID(String uuid) {
 		return UNDASHED_UUID_GAPS.matcher(uuid).replaceAll(UUID_DASHIFIER_REPLACEMENT);
 	}
