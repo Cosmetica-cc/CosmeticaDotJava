@@ -16,6 +16,8 @@
 
 package cc.cosmetica.api;
 
+import java.util.Optional;
+
 /**
  * A set of types of cosmetics.
  */
@@ -29,4 +31,40 @@ public class CosmeticType<T extends CustomCosmetic> {
 	public static final CosmeticType<CustomCape> CAPE = new CosmeticType<>("cape");
 	public static final CosmeticType<CustomModel> HAT = new CosmeticType<>("hat");
 	public static final CosmeticType<CustomModel> SHOULDER_BUDDY = new CosmeticType<>("shoulderbuddy");
+
+	/**
+	 * Gets the cosmetic type instance from the case-sensitive url string.
+	 * @param urlstring the case-sensitive string associated with this cosmetic in api urls.
+	 * @return the type associated with this string. Returns Optional.empty() if none.
+	 */
+	public static Optional<CosmeticType<?>> fromUrlString(String urlstring) {
+		switch (urlstring) {
+		case "cape":
+			return Optional.of(CAPE);
+		case "hat":
+			return Optional.of(HAT);
+		case "shoulderbuddy":
+			return Optional.of(SHOULDER_BUDDY);
+		default:
+			return Optional.empty();
+		}
+	}
+
+	/**
+	 * Gets the cosmetic type instance from the case-sensitive type string.
+	 * @param typeString the case-sensitive string associated with this cosmetic in api responses.
+	 * @return the type associated with this string. Returns Optional.empty() if none.
+	 */
+	public static Optional<CosmeticType<?>> fromTypeString(String typeString) {
+		switch (typeString) {
+		case "Cape":
+			return Optional.of(CAPE);
+		case "Hat":
+			return Optional.of(HAT);
+		case "Shoulder Buddy":
+			return Optional.of(SHOULDER_BUDDY);
+		default:
+			return Optional.empty();
+		}
+	}
 }

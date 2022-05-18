@@ -17,6 +17,7 @@
 package cc.cosmetica.impl;
 
 import cc.cosmetica.api.Box;
+import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.User;
 import com.google.gson.JsonArray;
@@ -88,6 +89,7 @@ abstract class BaseModel implements Model {
 		}
 		else {
 			return Optional.of(new CustomModelImpl(
+					CosmeticType.fromTypeString(json.get("type").getAsString()).get(),
 					id,
 					flags,
 					bounds,

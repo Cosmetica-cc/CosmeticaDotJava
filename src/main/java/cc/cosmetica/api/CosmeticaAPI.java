@@ -84,7 +84,7 @@ public interface CosmeticaAPI {
 	ServerResponse<String> versionCheck(String modVersion, String minecraftVersion);
 
 	/**
-	 * Gets a page of 16 uploaded cosmetics, sorted in upload date.
+	 * Gets a page of 16 cosmetics, sorted by upload date.
 	 * @param type the type of cosmetic to search for.
 	 * @param page the page number to browse.
 	 * @return a page of cosmetics.
@@ -94,14 +94,31 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Gets a page of uploaded cosmetics that match the given query, sorted in upload date.
+	 * Gets a page of cosmetics that match the given query, sorted by upload date.
 	 * @param type the type of cosmetic to search for.
 	 * @param page the page number to browse.
 	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
 	 * @param query the search term. If a query is provided, 'official' cosmetica cosmetics may be returned in addition to user-uploaded cosmetics.
-	 * @return a page of cosmetics.
+	 * @return a page of cosmetics sorted by upload date.
 	 */
 	<T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query);
+
+	/**
+	 * Gets a page of 16 cosmetics sorted by popularity.
+	 * @param page the page number to browse.
+	 * @return a page of cosmetics sorted by popularity.
+	 */
+	default ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page) {
+		return getPopularCosmetics(page, 16);
+	}
+
+	/**
+	 * Gets a page of cosmetics sorted by popularity.
+	 * @param page the page number to browse.
+	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
+	 * @return a page of cosmetics sorted by popularity.
+	 */
+	ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize);
 
 	///////////////////////////
 	//   Non-Web-API Methods //

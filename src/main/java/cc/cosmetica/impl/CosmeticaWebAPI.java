@@ -190,6 +190,30 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize) {
+		SafeURL url = createTokenlessGet("get/popularcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
+
+		this.urlLogger.accept(url.safeUrl());
+
+		try (Response response = Response.requestAndVerify(url)) {
+			JsonObject json = response.getAsJson();
+			checkErrors(url, json);
+
+			boolean nextPage = json.get("nextPage").getAsBoolean();
+			List<CustomCosmetic> cosmetics = new ArrayList<>();
+
+			for (JsonElement element : json.getAsJsonArray("list")) {
+				cosmetics.add(parse(element.getAsJsonObject()));
+			}
+
+			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage));
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e);
+		}
+	}
+
+	@Override
 	public ServerResponse<String> versionCheck(String modVersion, String minecraftVersion) {
 		SafeURL checkyThing = createLimitedGet("/get/versioncheck?modversion=" + modVersion + "&mcversion=" + minecraftVersion);
 
@@ -381,6 +405,19 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		}
 		else {
 			return (T) BaseModel.parse(object).get();
+		}
+	}
+
+	private static CustomCosmetic parse(JsonObject object) {
+		// yes this code is (marginally) better
+		// no I will not use it instead of the above
+		CosmeticType<?> type = CosmeticType.fromTypeString(object.get("type").getAsString()).get();
+
+		if (type == CosmeticType.CAPE) {
+			return (CustomCosmetic) BaseCape.parse(object).get();
+		}
+		else {
+			return (CustomCosmetic) BaseModel.parse(object).get();
 		}
 	}
 }

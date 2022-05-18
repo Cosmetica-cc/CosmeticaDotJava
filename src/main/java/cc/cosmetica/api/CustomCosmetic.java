@@ -29,4 +29,9 @@ public interface CustomCosmetic {
 	 * @return the UTC unix timestamp, in seconds, at which this model was uploaded.
 	 */
 	long getUploadTime();
+
+	/**
+	 * @return the cosmetic type.
+	 */
+	CosmeticType<?> getType();
 }

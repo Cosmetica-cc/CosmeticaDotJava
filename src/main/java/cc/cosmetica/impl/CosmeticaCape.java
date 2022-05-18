@@ -16,6 +16,7 @@
 
 package cc.cosmetica.impl;
 
+import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.User;
 
@@ -45,5 +46,10 @@ class CosmeticaCape extends BaseCape implements CustomCape {
 	@Override
 	public long getUploadTime() {
 		return this.uploadTime;
+	}
+
+	@Override
+	public CosmeticType<?> getType() {
+		return CosmeticType.CAPE;
 	}
 }
