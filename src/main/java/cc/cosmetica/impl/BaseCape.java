@@ -77,7 +77,7 @@ class BaseCape implements Cape {
 		String id = data.get("id").getAsString();
 		String origin = data.get("origin").getAsString();
 		String image = data.get("image").getAsString();
-		boolean cosmeticaAlternative = data.get("is-cosmetica-alternative").getAsBoolean();
+		boolean cosmeticaAlternative = data.get("isCosmeticaAlternative").getAsBoolean();
 
 		if ("Cosmetica".equals(origin)) {
 			User owner = new User(UUID.fromString(data.get("owner").getAsString()), data.get("ownerName").getAsString());

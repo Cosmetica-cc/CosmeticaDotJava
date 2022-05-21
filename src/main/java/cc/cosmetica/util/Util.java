@@ -83,4 +83,8 @@ public class Util {
 	public static String dashifyUUID(String uuid) {
 		return UNDASHED_UUID_GAPS.matcher(uuid).replaceAll(UUID_DASHIFIER_REPLACEMENT);
 	}
+
+	public static UUID fromDashlessUUID(String uuid) {
+		return UUID.fromString(UNDASHED_UUID_GAPS.matcher(uuid).replaceAll(UUID_DASHIFIER_REPLACEMENT));
+	}
 }

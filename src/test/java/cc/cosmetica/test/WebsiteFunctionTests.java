@@ -16,8 +16,12 @@
 
 package cc.cosmetica.test;
 
+import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.CosmeticsPage;
 import cc.cosmetica.api.CustomCosmetic;
+
+import java.util.Optional;
 
 /**
  * Tests for contacting api endpoints that are typically used by the website. Stuff like getting a page of popular cosmetics.
@@ -26,10 +30,22 @@ public class WebsiteFunctionTests {
 	public static void main(String[] args) {
 		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
-		api.getPopularCosmetics(1, 6).ifSuccessfulOrElse(page -> {
-			for (CustomCosmetic cosmetic : page.cosmetics()) {
-				System.out.println(cosmetic.getName());
-			}
-		}, e -> {throw new RuntimeException(e);});
+		long time = System.currentTimeMillis();
+		CosmeticsPage<?> page = api.getPopularCosmetics(1, 8).getOrThrow();
+		System.out.println("Contacted popular in " + (System.currentTimeMillis() - time) + "ms");
+
+		for (CustomCosmetic cosmetic : page.cosmetics()) {
+			System.out.println(cosmetic.getName());
+		}
+
+		System.out.println();
+
+		time = System.currentTimeMillis();
+		page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, Optional.empty()).getOrThrow();
+		System.out.println("Contacted recent in " + (System.currentTimeMillis() - time) + "ms");
+
+		for (CustomCosmetic cosmetic : page.cosmetics()) {
+			System.out.println(cosmetic.getName());
+		}
 	}
 }
