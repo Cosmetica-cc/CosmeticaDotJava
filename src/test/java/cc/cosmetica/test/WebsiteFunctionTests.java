@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.test;
 
-/**
- * Represents a cape hosted specifically on the cosmetica cape servers (as opposed to Optifine, Mantle, etc.)
- */
-public interface CustomCape extends Cape, CustomCosmetic {
+import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.CustomCosmetic;
+
+public class WebsiteFunctionTests {
+	public static void main(String[] args) {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
+
+		api.getPopularCosmetics(1, 6).ifSuccessfulOrElse(page -> {
+			for (CustomCosmetic cosmetic : page.cosmetics()) {
+				System.out.println(cosmetic.getName());
+			}
+		}, System.out::println);
+	}
 }

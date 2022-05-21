@@ -24,7 +24,7 @@ import cc.cosmetica.api.User;
 import java.util.UUID;
 
 class CustomModelImpl extends BaseModel implements CustomModel {
-	CustomModelImpl(CosmeticType<?> type, String id, int flags, Box bounds,
+	CustomModelImpl(CosmeticType<?> type, String id, String name, int flags, Box bounds,
 					String model, String base64Texture, User owner, long uploadTime, boolean usesUVRotations) {
 		super(id, flags, bounds);
 
@@ -34,6 +34,7 @@ class CustomModelImpl extends BaseModel implements CustomModel {
 		this.uploadTime = uploadTime;
 		this.usesUVRotations = usesUVRotations;
 		this.type = type;
+		this.name = name;
 	}
 
 	private final String model;
@@ -42,6 +43,7 @@ class CustomModelImpl extends BaseModel implements CustomModel {
 	private final long uploadTime;
 	private final boolean usesUVRotations;
 	private final CosmeticType<?> type;
+	private final String name;
 
 	@Override
 	public String getModel() {
@@ -76,5 +78,10 @@ class CustomModelImpl extends BaseModel implements CustomModel {
 	@Override
 	public CosmeticType<?> getType() {
 		return this.type;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 }

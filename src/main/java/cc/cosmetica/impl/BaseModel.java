@@ -91,6 +91,7 @@ abstract class BaseModel implements Model {
 			return Optional.of(new CustomModelImpl(
 					CosmeticType.fromTypeString(json.get("type").getAsString()).get(),
 					id,
+					json.get("name").getAsString(),
 					flags,
 					bounds,
 					json.get("model").getAsString(),

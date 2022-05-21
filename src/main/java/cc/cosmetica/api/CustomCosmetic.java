@@ -34,4 +34,9 @@ public interface CustomCosmetic {
 	 * @return the cosmetic type.
 	 */
 	CosmeticType<?> getType();
+
+	/**
+	 * @return the name of this cosmetic.
+	 */
+	String getName();
 }
