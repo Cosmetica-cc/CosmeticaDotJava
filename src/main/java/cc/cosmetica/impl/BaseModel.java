@@ -27,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 abstract class BaseModel implements Model {
 	BaseModel(String id, int flags, Box bounds) {
@@ -97,7 +96,7 @@ abstract class BaseModel implements Model {
 					bounds,
 					json.get("model").getAsString(),
 					json.get("texture").getAsString(),
-					new User(Util.fromDashlessUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
+					new User(Util.fromUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
 					json.get("uploaded").getAsLong(),
 					json.get("usesUvRotations").getAsBoolean()
 			));
