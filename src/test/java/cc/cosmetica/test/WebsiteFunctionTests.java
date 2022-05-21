@@ -19,6 +19,9 @@ package cc.cosmetica.test;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.CustomCosmetic;
 
+/**
+ * Tests for contacting api endpoints that are typically used by the website. Stuff like getting a page of popular cosmetics.
+ */
 public class WebsiteFunctionTests {
 	public static void main(String[] args) {
 		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
@@ -27,6 +30,6 @@ public class WebsiteFunctionTests {
 			for (CustomCosmetic cosmetic : page.cosmetics()) {
 				System.out.println(cosmetic.getName());
 			}
-		}, System.out::println);
+		}, e -> {throw new RuntimeException(e);});
 	}
 }

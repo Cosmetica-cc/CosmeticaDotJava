@@ -64,16 +64,16 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		try (Response response = Response.requestAndVerify(versionCheck)) {
 			String s = response.getAsString();
-			return new ServerResponse<>(s.isEmpty() ? Optional.empty() : Optional.of(s));
+			return new ServerResponse<>(s.isEmpty() ? Optional.empty() : Optional.of(s), SafeURL.of(versionCheck));
 		} catch (Exception e) {
-			return new ServerResponse<>(e);
+			return new ServerResponse<>(e, SafeURL.of(versionCheck));
 		}
 	}
 
 	@Override
 	public ServerResponse<Boolean> exchangeTokens(UUID uuid) throws IllegalStateException {
 		if (this.authToken == null) throw new IllegalStateException("This instance does not have a stored auth token! Perhaps it was created directly with API tokens.");
-		if (this.masterToken != null || this.limitedToken != null) return new ServerResponse<>(false);
+		if (this.masterToken != null || this.limitedToken != null) return new ServerResponse<>(false, SafeURL.of("(none)")); // There's probably a better way to do this
 
 		SafeURL url = new SafeURL(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, this.authToken);
 
@@ -87,10 +87,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			this.masterToken = object.get("master_token").getAsString();
 			this.limitedToken = object.get("limited_token").getAsString();
 
-			return new ServerResponse<>(true);
+			return new ServerResponse<>(true, url);
 		}
 		catch (Exception e) {
-			return new ServerResponse<>(e);
+			return new ServerResponse<>(e, url);
 		}
 	}
 
@@ -117,9 +117,9 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					BaseModel.parse(hat),
 					BaseModel.parse(shoulderBuddy),
 					BaseCape.parse(cloak)
-			));
+			), target);
 		} catch (Exception e) {
-			return new ServerResponse<>(e);
+			return new ServerResponse<>(e, target);
 		}
 	}
 
@@ -157,10 +157,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					data.get("perRegionEffectsSet").getAsBoolean(),
 					data.get("panorama").getAsInt(),
 					oCapeSettings
-			));
+			), target);
 		}
 		catch (Exception e) {
-			return new ServerResponse<>(e);
+			return new ServerResponse<>(e, target);
 		}
 	}
 
@@ -182,16 +182,16 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				cosmetics.add(parse(type, element.getAsJsonObject()));
 			}
 
-			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage));
+			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage), url);
 		}
 		catch (Exception e) {
-			return new ServerResponse<>(e);
+			return new ServerResponse<>(e, url);
 		}
 	}
 
 	@Override
 	public ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize) {
-		SafeURL url = createTokenlessGet("get/popularcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
+		SafeURL url = createTokenlessGet("/get/popularcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
 
 		this.urlLogger.accept(url.safeUrl());
 
@@ -206,10 +206,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				cosmetics.add(parse(element.getAsJsonObject()));
 			}
 
-			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage));
+			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage), url);
 		}
 		catch (Exception e) {
-			return new ServerResponse<>(e);
+			return new ServerResponse<>(e, url);
 		}
 	}
 
@@ -220,10 +220,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		this.urlLogger.accept(checkyThing.safeUrl());
 
 		try (Response response = Response.requestAndVerify(checkyThing)) {
-			return new ServerResponse<>(response.getAsString());
+			return new ServerResponse<>(response.getAsString(), checkyThing);
 		}
 		catch (Exception e) {
-			return new ServerResponse<>(e);
+			return new ServerResponse<>(e, checkyThing);
 		}
 	}
 
@@ -265,9 +265,9 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				}
 			}
 
-			return new ServerResponse<>(new CosmeticsUpdates(notifications, users, updates.get("timestamp").getAsLong()));
+			return new ServerResponse<>(new CosmeticsUpdates(notifications, users, updates.get("timestamp").getAsLong()), awimbawe);
 		} catch (Exception e) {
-			return new ServerResponse<>(e);
+			return new ServerResponse<>(e, awimbawe);
 		}
 	}
 

@@ -98,7 +98,7 @@ abstract class BaseModel implements Model {
 					json.get("texture").getAsString(),
 					new User(UUID.fromString(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
 					json.get("uploaded").getAsLong(),
-					json.get("uses uv rotations").getAsBoolean()
+					json.get("usesUvRotations").getAsBoolean()
 			));
 		}
 	}

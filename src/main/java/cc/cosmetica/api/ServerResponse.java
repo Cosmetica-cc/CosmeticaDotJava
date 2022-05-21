@@ -16,6 +16,7 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.util.SafeURL;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -27,22 +28,32 @@ import java.util.function.Function;
  * Keep in mind HttpNotOkException extends IOException.
  */
 public class ServerResponse<T> {
-	public ServerResponse(T t) throws IllegalArgumentException {
+	public ServerResponse(T t, SafeURL url) throws IllegalArgumentException {
 		if (t == null) throw new IllegalArgumentException("Object t cannot be null.");
 		this.value = t;
 		this.exception = null;
+		this.url = url;
 	}
 
-	public ServerResponse(Exception e) throws IllegalArgumentException {
+	public ServerResponse(Exception e, SafeURL url) throws IllegalArgumentException {
 		if (e == null) throw new IllegalArgumentException("Exception e cannot be null.");
 		this.value = null;
 		this.exception = e;
+		this.url = url;
 	}
 
 	@Nullable
 	private final T value;
 	@Nullable
 	private final Exception exception;
+	private final SafeURL url;
+
+	/**
+	 * @return the url that was contacted to receive this response.
+	 */
+	public String url() {
+		return this.url.safeUrl();
+	}
 
 	/**
 	 * Tries to get the value stored. If that value is an exception, it will be thrown.
