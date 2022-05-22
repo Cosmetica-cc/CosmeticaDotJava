@@ -28,16 +28,33 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
-abstract class BaseModel implements Model {
-	BaseModel(String id, int flags, Box bounds) {
+class ModelImpl implements Model {
+	ModelImpl(CosmeticType<?> type, String id, String name, int flags, Box bounds,
+			  String model, String base64Texture, User owner, long uploadTime, boolean usesUVRotations) {
 		this.id = id;
 		this.flags = flags;
 		this.bounds = bounds;
+
+		this.model = model;
+		this.texture = base64Texture;
+		this.owner = owner;
+		this.uploadTime = uploadTime;
+		this.usesUVRotations = usesUVRotations;
+		this.type = type;
+		this.name = name;
 	}
 
 	private final String id;
 	private final int flags;
 	private final Box bounds;
+
+	private final String model;
+	private final String texture;
+	private final User owner;
+	private final long uploadTime;
+	private final boolean usesUVRotations;
+	private final CosmeticType<?> type;
+	private final String name;
 
 	@Override
 	public String getId() {
@@ -55,10 +72,50 @@ abstract class BaseModel implements Model {
 	}
 
 	@Override
+	public String getModel() {
+		return this.model;
+	}
+
+	@Override
+	public String getTexture() {
+		return this.texture;
+	}
+
+	@Override
+	public User getOwner() {
+		return this.owner;
+	}
+
+	@Override
+	public long getUploadTime() {
+		return this.uploadTime;
+	}
+
+	@Override
+	public boolean usesUVRotations() {
+		return this.usesUVRotations;
+	}
+
+	@Override
+	public boolean isBuiltin() {
+		return this.name.charAt(0) == '-';
+	}
+
+	@Override
+	public CosmeticType<?> getType() {
+		return this.type;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		BaseModel that = (BaseModel) o;
+		ModelImpl that = (ModelImpl) o;
 		return id.equals(that.id);
 	}
 
@@ -84,22 +141,17 @@ abstract class BaseModel implements Model {
 				upperBounds.get(1).getAsInt(),
 				upperBounds.get(2).getAsInt());
 
-		if (id.charAt(0) == '-') { // built-in
-			return Optional.of(new BuiltInModel(id, flags, bounds));
-		}
-		else {
-			return Optional.of(new CustomModelImpl(
-					CosmeticType.fromTypeString(json.get("type").getAsString()).get(),
-					id,
-					json.get("name").getAsString(),
-					flags,
-					bounds,
-					json.get("model").getAsString(),
-					json.get("texture").getAsString(),
-					new User(Util.fromUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
-					json.get("uploaded").getAsLong(),
-					json.get("usesUvRotations").getAsBoolean()
-			));
-		}
+		return Optional.of(new ModelImpl(
+				CosmeticType.fromTypeString(json.get("type").getAsString()).get(),
+				id,
+				json.get("name").getAsString(),
+				flags,
+				bounds,
+				json.get("model").getAsString(),
+				json.get("texture").getAsString(),
+				new User(Util.fromUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
+				json.get("uploaded").getAsLong(),
+				json.get("usesUvRotations").getAsBoolean()
+		));
 	}
 }

@@ -40,9 +40,21 @@ public class WebsiteFunctionTests {
 
 		System.out.println();
 
+		// recent
 		time = System.currentTimeMillis();
 		page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, Optional.empty()).getOrThrow();
 		System.out.println("Contacted recent in " + (System.currentTimeMillis() - time) + "ms");
+
+		for (CustomCosmetic cosmetic : page.cosmetics()) {
+			System.out.println(cosmetic.getName());
+		}
+
+		System.out.println();
+
+		// system
+		time = System.currentTimeMillis();
+		page = api.getOfficialCosmetics(1, 87).getOrThrow(); // the api seems to cap it at 30 cosmetics :thinking:. Probably a server side thing
+		System.out.println("Contacted system in " + (System.currentTimeMillis() - time) + "ms");
 
 		for (CustomCosmetic cosmetic : page.cosmetics()) {
 			System.out.println(cosmetic.getName());

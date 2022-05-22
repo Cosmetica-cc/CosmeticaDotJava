@@ -113,6 +113,23 @@ public interface CosmeticaAPI {
 	}
 
 	/**
+	 * Gets a page of official ("system") cosmetics.
+	 * @param page the page number to browse.
+	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
+	 * @return a page of official cosmetics.
+	 */
+	ServerResponse<CosmeticsPage<CustomCosmetic>> getOfficialCosmetics(int page, int pageSize);
+
+	/**
+	 * Gets a page of 16 official ("system") cosmetics.
+	 * @param page the page number to browse.
+	 * @return a page of official cosmetics.
+	 */
+	default ServerResponse<CosmeticsPage<CustomCosmetic>> getOfficialCosmetics(int page) {
+		return getOfficialCosmetics(page, 16);
+	}
+
+	/**
 	 * Gets a page of cosmetics sorted by popularity.
 	 * @param page the page number to browse.
 	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.

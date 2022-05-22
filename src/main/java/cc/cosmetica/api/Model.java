@@ -19,7 +19,7 @@ package cc.cosmetica.api;
 /**
  * A cosmetica model. Can be a built-in model, or a custom model. See {@link Model#isBuiltin()} for more details.
  */
-public interface Model {
+public interface Model extends CustomCosmetic {
 	/**
 	 * @return the id of this model.
 	 * @apiNote It is useful to use this field along with caching to ensure each model is only built once on the application end.
@@ -30,6 +30,23 @@ public interface Model {
 	 * @return the bounding box of this model.
 	 */
 	Box getBoundingBox();
+
+	/**
+	 * @return the model json string associated with the custom model. Follows the minecraft block model format.
+	 */
+	String getModel();
+
+	/**
+	 * @return the texture, in base64 format.
+	 * @implNote as of the time of building this library, this texture is guaranteed to be 32x32, however this is subject to change in the future.
+	 */
+	String getTexture();
+
+	/**
+	 * @return whether this model uses UV rotations.
+	 * @apiNote useful for applications which cannot, for whatever reason, support UV rotations in textures, or need special handling thereof.
+	 */
+	boolean usesUVRotations();
 
 	/**
 	 * Retrieves the rendering flags of this model. The exact meaning depends on the type of cosmetic. As of the time of this library build, the current options are:

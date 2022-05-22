@@ -17,7 +17,7 @@
 package cc.cosmetica.api;
 
 /**
- * Represents a cosmetic stored on cosmetica servers that is not a built-in model (such as the RSE NZ jeb sheep). This could be either a cape or model.
+ * Represents a cosmetic stored on cosmetica servers. This could be either a cape or model.
  */
 public interface CustomCosmetic {
 	/**

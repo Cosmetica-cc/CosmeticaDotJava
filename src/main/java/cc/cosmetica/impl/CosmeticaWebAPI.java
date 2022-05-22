@@ -114,8 +114,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					jsonObject.get("upside-down").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
 					jsonObject.get("suffix").getAsString(),
-					BaseModel.parse(hat),
-					BaseModel.parse(shoulderBuddy),
+					ModelImpl.parse(hat),
+					ModelImpl.parse(shoulderBuddy),
 					BaseCape.parse(cloak)
 			), target);
 		} catch (Exception e) {
@@ -164,10 +164,21 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		}
 	}
 
-	@Override
-	public <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
-		SafeURL url = createTokenlessGet("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Util.base64(query.orElse("")), OptionalLong.empty());
+	/**
+	 * Generics hack.
+	 * @param <T> the class to force it to reference through generics so the darn thing compiles.
+	 */
+	private static class GeneralCosmeticType<T extends CustomCosmetic> {
+		private static <T extends CustomCosmetic> GeneralCosmeticType<T> from(CosmeticType<T> type) {
+			return new GeneralCosmeticType<>();
+		}
 
+		private static GeneralCosmeticType<CustomCosmetic> any() {
+			return new GeneralCosmeticType<>();
+		}
+	}
+
+	private <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getCosmeticsPage(SafeURL url, GeneralCosmeticType<T> cosmeticType) {
 		this.urlLogger.accept(url.safeUrl());
 
 		try (Response response = Response.requestAndVerify(url)) {
@@ -178,8 +189,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			List<T> cosmetics = new ArrayList<>();
 
 			for (JsonElement element : json.getAsJsonArray("list")) {
-				// yeah i have no error handling here in case the server sends back a different type of cosmetic --- too bad! Let's just assume it won't ever do that.
-				cosmetics.add(parse(type, element.getAsJsonObject()));
+				cosmetics.add((T) parse(element.getAsJsonObject()));
 			}
 
 			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage), url);
@@ -190,27 +200,21 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
+		SafeURL url = createTokenlessGet("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Util.base64(query.orElse("")), OptionalLong.empty());
+		return getCosmeticsPage(url, GeneralCosmeticType.from(type));
+	}
+
+	@Override
 	public ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize) {
 		SafeURL url = createTokenlessGet("/get/popularcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
+		return getCosmeticsPage(url, GeneralCosmeticType.any());
+	}
 
-		this.urlLogger.accept(url.safeUrl());
-
-		try (Response response = Response.requestAndVerify(url)) {
-			JsonObject json = response.getAsJson();
-			checkErrors(url, json);
-
-			boolean nextPage = json.get("nextPage").getAsBoolean();
-			List<CustomCosmetic> cosmetics = new ArrayList<>();
-
-			for (JsonElement element : json.getAsJsonArray("list")) {
-				cosmetics.add(parse(element.getAsJsonObject()));
-			}
-
-			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage), url);
-		}
-		catch (Exception e) {
-			return new ServerResponse<>(e, url);
-		}
+	@Override
+	public ServerResponse<CosmeticsPage<CustomCosmetic>> getOfficialCosmetics(int page, int pageSize) {
+		SafeURL url = createTokenlessGet("/get/systemcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
+		return getCosmeticsPage(url, GeneralCosmeticType.any());
 	}
 
 	@Override
@@ -404,7 +408,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			return (T) BaseCape.parse(object).get();
 		}
 		else {
-			return (T) BaseModel.parse(object).get();
+			return (T) ModelImpl.parse(object).get();
 		}
 	}
 
@@ -417,7 +421,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			return (CustomCosmetic) BaseCape.parse(object).get();
 		}
 		else {
-			return (CustomCosmetic) BaseModel.parse(object).get();
+			return (CustomCosmetic) ModelImpl.parse(object).get();
 		}
 	}
 }
