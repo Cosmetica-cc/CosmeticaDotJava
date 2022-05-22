@@ -16,6 +16,9 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.impl.CosmeticFetcher;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Represents the data of a cape served by the cosmetica servers.
  */
@@ -41,4 +44,14 @@ public interface Cape {
 	 * @return whether the user's cape, if from an alternative cape server, has been replaced with a cosmetica cape, in accordance with the cape settings of the token this cape was obtained with.
 	 */
 	boolean isCosmeticaAlternative();
+
+	/**
+	 * Makes an api request to fetch cape data from cosmetica.
+	 * @param id the id of the cape to request
+	 * @return an object containing information on the cape. Null if there is no cape for the given id.
+	 */
+	@Nullable
+	static CustomCape fetch(String id) {
+		return CosmeticFetcher.getCape(id);
+	}
 }

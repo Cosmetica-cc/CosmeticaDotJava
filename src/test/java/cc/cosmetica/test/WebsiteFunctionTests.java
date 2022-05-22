@@ -33,7 +33,7 @@ public class WebsiteFunctionTests {
 		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
 		long time = System.currentTimeMillis();
-		CosmeticsPage<?> page = api.getPopularCosmetics(1, 8).getOrThrow();
+		CosmeticsPage<?> page = api.getPopularCosmetics(1, 8).get();
 		System.out.println("Contacted popular in " + (System.currentTimeMillis() - time) + "ms");
 
 		for (CustomCosmetic cosmetic : page.cosmetics()) {
@@ -44,7 +44,7 @@ public class WebsiteFunctionTests {
 
 		// recent
 		time = System.currentTimeMillis();
-		page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, Optional.empty()).getOrThrow();
+		page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, Optional.empty()).get();
 		System.out.println("Contacted recent in " + (System.currentTimeMillis() - time) + "ms");
 
 		for (CustomCosmetic cosmetic : page.cosmetics()) {
@@ -55,7 +55,7 @@ public class WebsiteFunctionTests {
 
 		// system
 		time = System.currentTimeMillis();
-		page = api.getOfficialCosmetics(1, 87).getOrThrow(); // the api caps it at 30 cosmetics
+		page = api.getOfficialCosmetics(1, 87).get(); // the api caps it at 30 cosmetics
 		System.out.println("Contacted system in " + (System.currentTimeMillis() - time) + "ms");
 
 		for (CustomCosmetic cosmetic : page.cosmetics()) {
@@ -66,13 +66,13 @@ public class WebsiteFunctionTests {
 
 		// lore lists
 		time = System.currentTimeMillis();
-		List<String> pronouns = api.getLoreList(LoreType.PRONOUNS).getOrThrow();
+		List<String> pronouns = api.getLoreList(LoreType.PRONOUNS).get();
 		System.out.println("Contacted lore lists in " + (System.currentTimeMillis() - time) + "ms");
 		pronouns.forEach(System.out::println);
 
 		System.out.println();
 
 		// cosmetic
-		System.out.println(api.getCosmetic(CosmeticType.CAPE, "MDhhS1ZiWmpwMVVzT3c").getOrThrow().getName());
+		System.out.println(api.getCosmetic(CosmeticType.CAPE, "MDhhS1ZiWmpwMVVzT3c").get().getName());
 	}
 }

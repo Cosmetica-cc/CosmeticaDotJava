@@ -16,6 +16,9 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.impl.CosmeticFetcher;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * A cosmetica model. Can be a built-in model, or a custom model. See {@link Model#isBuiltin()} for more details.
  */
@@ -68,4 +71,35 @@ public interface Model extends CustomCosmetic {
 	 * @return whether this is a built in model to cosmetica (e.g. for region specific effects), as opposed to a custom model stored on the server.
 	 */
 	boolean isBuiltin();
+
+	/**
+	 * Makes an api request to fetch model data from cosmetica.
+	 * @param type the type of model to request.
+	 * @param id the id of the model to request
+	 * @return an object containing information on the model. Null if there is no model for the given id.
+	 */
+	@Nullable
+	static Model fetch(CosmeticType<Model> type, String id) {
+		return CosmeticFetcher.getModel(type, id);
+	}
+
+	/**
+	 * Makes an api request to fetch hat data from cosmetica.
+	 * @param id the id of the hat to request
+	 * @return an object containing information on the hat. Null if there is no hat for the given id.
+	 */
+	@Nullable
+	static Model fetchHat(String id) {
+		return CosmeticFetcher.getModel(CosmeticType.HAT, id);
+	}
+
+	/**
+	 * Makes an api request to fetch shoulder buddy data from cosmetica.
+	 * @param id the id of the shoulder buddy to request
+	 * @return an object containing information on the shoulder buddy. Null if there is no shoulder buddy for the given id.
+	 */
+	@Nullable
+	static Model fetchShoulderBuddy(String id) {
+		return CosmeticFetcher.getModel(CosmeticType.SHOULDER_BUDDY, id);
+	}
 }
