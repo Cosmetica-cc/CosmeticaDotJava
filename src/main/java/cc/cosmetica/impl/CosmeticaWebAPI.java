@@ -31,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -218,6 +219,37 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public ServerResponse<List<String>> getLoreList(LoreType type) throws IllegalArgumentException {
+		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for getLoreList: " + type);
+
+		SafeURL url = createLimitedGet("/get/lorelists?type=" + type.toString().toLowerCase(Locale.ROOT));
+		this.urlLogger.accept(url.safeUrl());
+
+		try (Response response = Response.requestAndVerify(url)) {
+			return new ServerResponse<>(Util.toStringList(getAsArray(url, response.getAsJsonElement())), url);
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e, url);
+		}
+	}
+
+	@Override
+	public <T extends CustomCosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id) {
+		SafeURL url = createTokenlessGet("/get/cosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
+		this.urlLogger.accept(url.safeUrl());
+
+		try (Response response = Response.requestAndVerify(url)) {
+			JsonObject json = response.getAsJson();
+			checkErrors(url, json);
+
+			return new ServerResponse<>((T) parse(json), url);
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e, url);
+		}
+	}
+
+	@Override
 	public ServerResponse<String> versionCheck(String modVersion, String minecraftVersion) {
 		SafeURL checkyThing = createLimitedGet("/get/versioncheck?modversion=" + modVersion + "&mcversion=" + minecraftVersion);
 
@@ -402,16 +434,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		}
 	}
 
-	private static <T extends CustomCosmetic> T parse(CosmeticType<T> type, JsonObject object) {
-		// yes this code is probably bad
-		if (type == CosmeticType.CAPE) {
-			return (T) BaseCape.parse(object).get();
-		}
-		else {
-			return (T) ModelImpl.parse(object).get();
-		}
-	}
-
 	private static CustomCosmetic parse(JsonObject object) {
 		// yes this code is (marginally) better
 		// no I will not use it instead of the above
@@ -421,7 +443,15 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			return (CustomCosmetic) BaseCape.parse(object).get();
 		}
 		else {
-			return (CustomCosmetic) ModelImpl.parse(object).get();
+			return ModelImpl.parse(object).get();
 		}
+	}
+
+	private static JsonArray getAsArray(SafeURL url, JsonElement element) throws CosmeticaAPIException {
+		if (element.isJsonObject()) {
+			checkErrors(url, element.getAsJsonObject());
+		}
+
+		return element.getAsJsonArray();
 	}
 }

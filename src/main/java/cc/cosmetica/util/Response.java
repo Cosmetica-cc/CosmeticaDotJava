@@ -16,7 +16,10 @@
 
 package cc.cosmetica.util;
 
+import cc.cosmetica.api.CosmeticaAPIException;
 import cc.cosmetica.api.HttpNotOkException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -75,6 +78,16 @@ public class Response implements Closeable {
 	public JsonObject getAsJson() throws IOException, JsonParseException {
 		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
 		return JsonParser.parseString(s).getAsJsonObject();
+	}
+
+	public JsonArray getAsJsonArray() throws IOException, JsonParseException {
+		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
+		return JsonParser.parseString(s).getAsJsonArray();
+	}
+
+	public JsonElement getAsJsonElement() throws IOException, JsonParseException {
+		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
+		return JsonParser.parseString(s);
 	}
 
 	public static Response requestAndVerify(String request) throws ParseException, IOException, HttpNotOkException {

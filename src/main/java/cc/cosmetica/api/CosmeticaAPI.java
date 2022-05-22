@@ -137,6 +137,22 @@ public interface CosmeticaAPI {
 	 */
 	ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize);
 
+	/**
+	 * Gets the list of available lore of that type the user can set to.
+	 * @param type a type of lore that uses a list of options. Namely {@link LoreType#PRONOUNS} or {@link LoreType#TITLES}.
+	 * @return a list of lore strings the user can select from.
+	 * @throws IllegalArgumentException if the lore type does not have an associated lore list (if it's not "Pronouns" or "Titles").
+	 */
+	ServerResponse<List<String>> getLoreList(LoreType type) throws IllegalArgumentException;
+
+	/**
+	 * Gets a cosmetic from the cosmetica servers.
+	 * @param type the type of cosmetic.
+	 * @param id the id of the cosmetic.
+	 * @return an object representing the cosmetic.
+	 */
+	<T extends CustomCosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id);
+
 	///////////////////////////
 	//   Non-Web-API Methods //
 	///////////////////////////

@@ -20,7 +20,9 @@ import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.CosmeticsPage;
 import cc.cosmetica.api.CustomCosmetic;
+import cc.cosmetica.api.LoreType;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,11 +55,24 @@ public class WebsiteFunctionTests {
 
 		// system
 		time = System.currentTimeMillis();
-		page = api.getOfficialCosmetics(1, 87).getOrThrow(); // the api seems to cap it at 30 cosmetics :thinking:. Probably a server side thing
+		page = api.getOfficialCosmetics(1, 87).getOrThrow(); // the api caps it at 30 cosmetics
 		System.out.println("Contacted system in " + (System.currentTimeMillis() - time) + "ms");
 
 		for (CustomCosmetic cosmetic : page.cosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
+
+		System.out.println();
+
+		// lore lists
+		time = System.currentTimeMillis();
+		List<String> pronouns = api.getLoreList(LoreType.PRONOUNS).getOrThrow();
+		System.out.println("Contacted lore lists in " + (System.currentTimeMillis() - time) + "ms");
+		pronouns.forEach(System.out::println);
+
+		System.out.println();
+
+		// cosmetic
+		System.out.println(api.getCosmetic(CosmeticType.CAPE, "MDhhS1ZiWmpwMVVzT3c").getOrThrow().getName());
 	}
 }
