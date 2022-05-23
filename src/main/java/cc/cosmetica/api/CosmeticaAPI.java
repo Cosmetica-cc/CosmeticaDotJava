@@ -153,6 +153,41 @@ public interface CosmeticaAPI {
 	 */
 	<T extends CustomCosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id);
 
+	/**
+	 * Gets the list of panoramas the user can select from. The cosmetica website displays a panorama behind the user on their user page.
+	 *
+	 * @return a list of panoramas the user can use.
+	 * @apiNote if no token is given, returns the panoramas all users can select.
+	 */
+	ServerResponse<List<Panorama>> getPanoramas();
+
+	/**
+	 * Sets the cosmetic for this user.
+	 * @param type the type of cosmetic to set.
+	 * @param id the id of the cosmetic.
+	 * @return true if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<Boolean> setCosmetic(CosmeticType<?> type, String id);
+
+	/**
+	 *
+	 * @param type the type of lore to be set. Can be either {@link LoreType#PRONOUNS} or {@link LoreType#TITLES}.
+	 * @param lore the lore string to set as the lore.
+	 * @return the new lore string of the player (including colour codes) if successful. Otherwise the server response will have an error.
+	 * @throws IllegalArgumentException if the lore type cannot be set through this endpoint (if it's not "Pronouns" or "Titles").
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<String> setLore(LoreType type, String lore) throws IllegalArgumentException;
+
+	/**
+	 * Sets the panorama for this user.
+	 * @param id the id of the panorama to set. Panorama ids this user can use can be gotten with {@link CosmeticaAPI#getPanoramas}.
+	 * @return true if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<Boolean> setPanorama(int id);
+
 	///////////////////////////
 	//   Non-Web-API Methods //
 	///////////////////////////
@@ -164,10 +199,14 @@ public interface CosmeticaAPI {
 	void setUrlLogger(@Nullable Consumer<String> logger);
 
 	/**
-	 * @return whether this cosmetica api instance has an API token.
+	 * @return whether this cosmetica api instance has a master API token.
 	 */
-	@Nullable
-	boolean hasToken();
+	boolean isFullyAuthenticated();
+
+	/**
+	 * @return whether this cosmetica api instance has any API token (master or limited).
+	 */
+	boolean isAuthenticated();
 
 	/**
 	 * Sets a new authentication token for this instance to use. This resets the master and limited tokens stored on this instance, so {@link CosmeticaAPI#exchangeTokens(UUID)} must be called after this.

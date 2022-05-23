@@ -250,6 +250,27 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public ServerResponse<List<Panorama>> getPanoramas() {
+		SafeURL url = createLimitedGet("/get/panoramas");
+		this.urlLogger.accept(url.safeUrl());
+
+		try (Response response = Response.requestAndVerify(url)) {
+			JsonArray json = getAsArray(url, response.getAsJsonElement());
+			List<Panorama> result = new ArrayList<>();
+
+			for (JsonElement element : json) {
+				JsonObject pano = element.getAsJsonObject();
+				result.add(new Panorama(pano.get("id").getAsInt(), pano.get("name").getAsString(), pano.get("free").getAsBoolean()));
+			}
+
+			return new ServerResponse<>(result, url);
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e, url);
+		}
+	}
+
+	@Override
 	public ServerResponse<String> versionCheck(String modVersion, String minecraftVersion) {
 		SafeURL checkyThing = createLimitedGet("/get/versioncheck?modversion=" + modVersion + "&mcversion=" + minecraftVersion);
 
@@ -307,6 +328,54 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		}
 	}
 
+	// Client/ endpoints
+
+	private ServerResponse<String> requestSet(SafeURL target) {
+		this.urlLogger.accept(target.safeUrl());
+
+		try (Response response = Response.requestAndVerify(target)) {
+			JsonObject json = response.getAsJson();
+			checkErrors(target, json);
+			return new ServerResponse<>(json.get("success").getAsString(), target);
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e, target);
+		}
+	}
+
+	private ServerResponse<Boolean> requestSetZ(SafeURL target) {
+		this.urlLogger.accept(target.safeUrl());
+
+		try (Response response = Response.requestAndVerify(target)) {
+			JsonObject json = response.getAsJson();
+			checkErrors(target, json);
+			return new ServerResponse<>(json.get("success").getAsBoolean(), target);
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e, target);
+		}
+	}
+
+	@Override
+	public ServerResponse<Boolean> setCosmetic(CosmeticType<?> type, String id) {
+		SafeURL target = createGet("/client/setcosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
+		return requestSetZ(target);
+	}
+
+	@Override
+	public ServerResponse<String> setLore(LoreType type, String lore) {
+		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for getLoreList: " + type);
+
+		SafeURL target = createGet("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&lore=" + Util.urlEncode(lore), OptionalLong.empty());
+		return requestSet(target);
+	}
+
+	@Override
+	public ServerResponse<Boolean> setPanorama(int id) {
+		SafeURL target = createGet("/client/setpanorama?panorama=" + id, OptionalLong.empty());
+		return requestSetZ(target);
+	}
+
 	private SafeURL createLimitedGet(String target) {
 		if (this.limitedToken != null) return SafeURL.of(fastInsecureApiServerHost + target + "&timestamp=" + System.currentTimeMillis(), this.limitedToken);
 		else return createGet(target, OptionalLong.empty());
@@ -327,8 +396,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public @Nullable boolean hasToken() {
+	public boolean isFullyAuthenticated() {
 		return this.masterToken != null;
+	}
+
+	@Override
+	public boolean isAuthenticated() {
+		return this.isFullyAuthenticated() || this.limitedToken != null;
 	}
 
 	@Override

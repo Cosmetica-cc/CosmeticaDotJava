@@ -64,11 +64,13 @@ public class ServerResponse<T> {
 		return this.value;
 	}
 
+	// TODO surely we should only keep one of the below.
+
 	/**
 	 * Tries to get the value stored. If that value is an exception, it will be thrown wrapped in an IllegalStateException.
 	 * @throws IllegalStateException if the object stores an exception. The exception thrown wraps one stored.
 	 */
-	public T get() throws IllegalStateException { // TODO there is probably a better naming compromise for this and the above. Please figure this out before API release.
+	public T get() throws IllegalStateException {
 		if (this.value == null) throw new IllegalStateException("There was an error while/from contacting " + this.url.safeUrl() + ": ", this.exception);
 		return this.value;
 	}
