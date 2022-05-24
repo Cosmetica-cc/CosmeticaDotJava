@@ -16,6 +16,7 @@
 
 package cc.cosmetica.test;
 
+import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.CosmeticsPage;
@@ -23,6 +24,7 @@ import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.LoreType;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -74,5 +76,6 @@ public class WebsiteFunctionTests {
 
 		// cosmetic
 		System.out.println(api.getCosmetic(CosmeticType.CAPE, "MDhhS1ZiWmpwMVVzT3c").get().getName());
+
 	}
 }

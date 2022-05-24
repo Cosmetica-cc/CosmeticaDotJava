@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -187,6 +188,22 @@ public interface CosmeticaAPI {
 	 * @apiNote requires full authentication (a master token).
 	 */
 	ServerResponse<Boolean> setPanorama(int id);
+
+	/**
+	 * Sets how cosmetica should handle each cape service for this user. In addition, <b>ANY CAPE NOT SPECIFIED IS RESET TO THE DEFAULT VALUE. You should call {@link CosmeticaAPI#getUserSettings()} at least ONCE before calling this to get the current settings of the user! You have been warned.</b>
+	 * @param settings
+	 * @return true if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<Boolean> setCapeSettings(Map<String, CapeDisplay> settings);
+
+	/**
+	 * Updates the specified settings for the user. You do not need to specify every setting, unlike {@link CosmeticaAPI#setCapeSettings(Map)}
+	 * @param settings
+	 * @return true if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<Boolean> updateUserSettings(Map<String, Object> settings);
 
 	///////////////////////////
 	//   Non-Web-API Methods //

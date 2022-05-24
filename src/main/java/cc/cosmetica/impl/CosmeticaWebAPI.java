@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class CosmeticaWebAPI implements CosmeticaAPI {
 	private CosmeticaWebAPI(String masterToken, @Nullable String getToken) {
@@ -373,6 +374,18 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	@Override
 	public ServerResponse<Boolean> setPanorama(int id) {
 		SafeURL target = createGet("/client/setpanorama?panorama=" + id, OptionalLong.empty());
+		return requestSetZ(target);
+	}
+
+	@Override
+	public ServerResponse<Boolean> setCapeSettings(Map<String, CapeDisplay> settings) {
+		SafeURL target = createGet("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().toString().toLowerCase(Locale.ROOT)).collect(Collectors.joining("&")), OptionalLong.empty());
+		return requestSetZ(target);
+	}
+
+	@Override
+	public ServerResponse<Boolean> updateUserSettings(Map<String, Object> settings) {
+		SafeURL target = createGet("/client/updatesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&")), OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
