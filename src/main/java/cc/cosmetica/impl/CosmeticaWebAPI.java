@@ -477,7 +477,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private static void retrieveAPIIfNoneCached() throws IllegalStateException {
-		if (apiCache == null) {
+		if (apiServerHost == null) { // if this sequence has not already been initiated
 			String apiGetHost = null;
 
 			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json?timestamp=" + System.currentTimeMillis())) {
