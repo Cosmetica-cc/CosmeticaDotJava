@@ -287,7 +287,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the message retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}.
+	 * Get the message retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getMessage() {
@@ -295,7 +295,14 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica website url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}.
+	 * Get the auth server url. Will force the initial API data to be fetched if it is not.
+	 */
+	static String getAuthServer() {
+		return CosmeticaWebAPI.getApiServerHost(true);
+	}
+
+	/**
+	 * Get the cosmetica website url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getWebsite() {
@@ -303,7 +310,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica api server url being used, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}.
+	 * Get the cosmetica api server url being used, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getAPIServer() {
@@ -311,7 +318,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica api server url being used as an insecure http:// url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}.
+	 * Get the cosmetica api server url being used as an insecure http:// url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getHttpAPIServer() {

@@ -64,22 +64,11 @@ public class ServerResponse<T> {
 		return this.value;
 	}
 
-	// TODO surely we should only keep one of the below.
-
-	/**
-	 * Tries to get the value stored. If that value is an exception, it will be thrown wrapped in an IllegalStateException.
-	 * @throws IllegalStateException if the object stores an exception. The exception thrown wraps one stored.
-	 */
-	public T get() throws IllegalStateException {
-		if (this.value == null) throw new IllegalStateException("There was an error while/from contacting " + this.url.safeUrl() + ": ", this.exception);
-		return this.value;
-	}
-
 	/**
 	 * Returns the value stored, if present. Otherwise throws a null pointer exception with a message containing the message of the underlying exception.
 	 * @throws NullPointerException of there is no value present
 	 */
-	public T getValue() throws NullPointerException {
+	public T get() throws NullPointerException {
 		if (this.value == null) throw new NullPointerException("The server response contains an error! " + this.exception.getMessage());
 		return this.value;
 	}
