@@ -471,6 +471,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return fastInsecureApiServerHost;
 	}
 
+	@Nullable
+	public static String getAuthServerHost(boolean requireResult) throws IllegalStateException {
+		if (requireResult) retrieveAPIIfNoneCached();
+		return authServerHost;
+	}
+
 	public static void setAPICaches(File api, File apiGet) {
 		apiCache = api;
 		apiGetCache = apiGet;
