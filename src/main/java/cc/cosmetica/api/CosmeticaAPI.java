@@ -46,10 +46,10 @@ public interface CosmeticaAPI {
 	/**
 	 * Exchanges the auth token in this API instance for a 'master' and 'limited' token, if it does not already have them stored.
 	 * @param uuid the UUID of the player we are requesting to have cosmetica api access tokens for.
-	 * @return whether this changed the tokens stored in the API.
+	 * @return relevant login information.
 	 * @throws IllegalStateException if this instance was created without an auth token (i.e directly with api tokens), as there is nothing to exchange.
 	 */
-	ServerResponse<Boolean> exchangeTokens(UUID uuid) throws IllegalStateException;
+	ServerResponse<LoginInfo> exchangeTokens(UUID uuid) throws IllegalStateException;
 
 	/**
 	 * Head on the safari to check out the lion king's new cosmetics! I mean, uh, ping this to get updates on any cosmetic changes you may have missed in the last 4 minutes from users on the server you're on, and allow other cosmetica users on the same server to receive cosmetics updates for you.<br>

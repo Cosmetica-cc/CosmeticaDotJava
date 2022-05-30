@@ -73,9 +73,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<Boolean> exchangeTokens(UUID uuid) throws IllegalStateException {
+	public ServerResponse<LoginInfo> exchangeTokens(UUID uuid) throws IllegalStateException {
 		if (this.authToken == null) throw new IllegalStateException("This instance does not have a stored auth token! Perhaps it was created directly with API tokens.");
-		if (this.masterToken != null || this.limitedToken != null) return new ServerResponse<>(false, SafeURL.of("(none)")); // There's probably a better way to do this
 
 		SafeURL url = new SafeURL(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, this.authToken);
 
@@ -89,7 +88,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			this.masterToken = object.get("master_token").getAsString();
 			this.limitedToken = object.get("limited_token").getAsString();
 
-			return new ServerResponse<>(true, url);
+			return new ServerResponse<>(new LoginInfo(object.get("is_new_player").getAsBoolean(), object.has("has_special_cape") ? object.get("has_special_cape").getAsBoolean() : false), url);
 		}
 		catch (Exception e) {
 			return new ServerResponse<>(e, url);
@@ -456,7 +455,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	public static CosmeticaAPI newUnauthenticatedInstance() throws IllegalStateException {
 		retrieveAPIIfNoneCached();
-		return new CosmeticaWebAPI(null, null);
+		return new CosmeticaWebAPI(null, (String) null);
 	}
 
 	@Nullable
