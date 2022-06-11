@@ -290,7 +290,7 @@ public interface CosmeticaAPI {
 	 * Get the auth server url. Will force the initial API data to be fetched if it is not.
 	 */
 	static String getAuthServer() {
-		return CosmeticaWebAPI.getApiServerHost(true);
+		return CosmeticaWebAPI.getAuthServerHost(true);
 	}
 
 	/**
