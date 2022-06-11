@@ -58,17 +58,17 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<Optional<String>> checkVersion(String minecraftVersion, String cosmeticaVersion) {
-		String versionCheck = apiServerHost + "/get/versioncheck?modversion="
+		SafeURL versionCheck = createTokenlessGet("/get/versioncheck?modversion="
 				+ Util.urlEncode(cosmeticaVersion)
-				+ "&mcversion=" + Util.urlEncode(minecraftVersion);
+				+ "&mcversion=" + Util.urlEncode(minecraftVersion), OptionalLong.empty());
 
-		this.urlLogger.accept(versionCheck);
+		this.urlLogger.accept(versionCheck.safeUrl());
 
 		try (Response response = Response.requestAndVerify(versionCheck)) {
 			String s = response.getAsString();
-			return new ServerResponse<>(s.isEmpty() ? Optional.empty() : Optional.of(s), SafeURL.of(versionCheck));
+			return new ServerResponse<>(s.isEmpty() ? Optional.empty() : Optional.of(s), versionCheck);
 		} catch (Exception e) {
-			return new ServerResponse<>(e, SafeURL.of(versionCheck));
+			return new ServerResponse<>(e, versionCheck);
 		}
 	}
 
@@ -267,20 +267,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		}
 		catch (Exception e) {
 			return new ServerResponse<>(e, url);
-		}
-	}
-
-	@Override
-	public ServerResponse<String> versionCheck(String modVersion, String minecraftVersion) {
-		SafeURL checkyThing = createLimitedGet("/get/versioncheck?modversion=" + modVersion + "&mcversion=" + minecraftVersion);
-
-		this.urlLogger.accept(checkyThing.safeUrl());
-
-		try (Response response = Response.requestAndVerify(checkyThing)) {
-			return new ServerResponse<>(response.getAsString(), checkyThing);
-		}
-		catch (Exception e) {
-			return new ServerResponse<>(e, checkyThing);
 		}
 	}
 

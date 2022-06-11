@@ -36,9 +36,9 @@ public interface CosmeticaAPI {
 	//////////////////////
 
 	/**
-	 * Contacts the API version checker.
-	 * @param minecraftVersion the minecraft version string.
-	 * @param cosmeticaVersion the cosmetica version string.
+	 * Sends a version check request to the cosmetica servers and retrieves text to give to the user if there is an update, otherwise returns an empty string.
+	 * @param minecraftVersion the version of the cosmetica mod.
+	 * @param cosmeticaVersion the minecraft version, duh. {@code (Use SharedConstants.getCurrentVersion().getId()} if you're a minecraft mod using this API).
 	 * @return a message sent by the API if the cosmetica version is outdated or old enough that it may not function correctly.
 	 */
 	ServerResponse<Optional<String>> checkVersion(String minecraftVersion, String cosmeticaVersion);
@@ -75,14 +75,6 @@ public interface CosmeticaAPI {
 	 * @return the user's settings, as JSON.
 	 */
 	ServerResponse<UserSettings> getUserSettings();
-
-	/**
-	 * Sends a version check request to the cosmetica servers and retrieves text to give to the user if there is an update, otherwise returns an empty string.
-	 * @param modVersion the version of the cosmetica mod.
-	 * @param minecraftVersion the minecraft version, duh. {@code (Use SharedConstants.getCurrentVersion().getId()} if you're a minecraft mod using this API).
-	 * @return the text to display.
-	 */
-	ServerResponse<String> versionCheck(String modVersion, String minecraftVersion);
 
 	/**
 	 * Gets a page of 16 cosmetics, sorted by upload date.
