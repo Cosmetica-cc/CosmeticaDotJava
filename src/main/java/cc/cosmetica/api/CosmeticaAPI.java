@@ -195,10 +195,10 @@ public interface CosmeticaAPI {
 	 * @return true if successful. Otherwise the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
 	 */
-	ServerResponse<Boolean> setCapeSettings(Map<String, CapeDisplay> settings);
+	ServerResponse<Boolean> setCapeServerSettings(Map<String, CapeDisplay> settings);
 
 	/**
-	 * Updates the specified settings for the user. You do not need to specify every setting, unlike {@link CosmeticaAPI#setCapeSettings(Map)}
+	 * Updates the specified settings for the user. You do not need to specify every setting, unlike {@link CosmeticaAPI#setCapeServerSettings(Map)}
 	 * @param settings
 	 * @return true if successful. Otherwise the server response will have an error.
 	 * @apiNote requires full authentication (a master token).

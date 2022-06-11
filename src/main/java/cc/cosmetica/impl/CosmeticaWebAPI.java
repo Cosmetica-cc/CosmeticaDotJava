@@ -377,14 +377,14 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<Boolean> setCapeSettings(Map<String, CapeDisplay> settings) {
+	public ServerResponse<Boolean> setCapeServerSettings(Map<String, CapeDisplay> settings) {
 		SafeURL target = createGet("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().toString().toLowerCase(Locale.ROOT)).collect(Collectors.joining("&")), OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
 	@Override
 	public ServerResponse<Boolean> updateUserSettings(Map<String, Object> settings) {
-		SafeURL target = createGet("/client/updatesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&")), OptionalLong.empty());
+		SafeURL target = createGet("/v2/client/updatesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&")), OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
