@@ -424,6 +424,15 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		this.limitedToken = null;
 	}
 
+	/**
+	 * Use this method if you're cringe.<br/>
+	 * (exists to stop reflection being necessary for the few times it's justified to manually get the token rather than going through the api)
+	 * @return the master token on this instance
+	 */
+	public String getMasterToken() {
+		return this.masterToken;
+	}
+
 	private static String apiServerHost;
 	private static String fastInsecureApiServerHost;
 
