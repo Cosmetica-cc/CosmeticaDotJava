@@ -375,17 +375,17 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private SafeURL createLimitedGet(String target) {
-		if (this.limitedToken != null) return SafeURL.of(fastInsecureApiServerHost + target + "&timestamp=" + System.currentTimeMillis(), this.limitedToken);
+		if (this.limitedToken != null) return SafeURL.of(fastInsecureApiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
 		else return createGet(target, OptionalLong.empty());
 	}
 
 	private SafeURL createGet(String target, OptionalLong timestamp) {
-		if (this.masterToken != null) return SafeURL.of(apiServerHost + target + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
-		else return SafeURL.of(apiServerHost + target + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
+		if (this.masterToken != null) return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
+		else return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
 	private SafeURL createTokenlessGet(String target, OptionalLong timestamp) {
-		return SafeURL.of(apiServerHost + target + "&timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
+		return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
 	@Override
