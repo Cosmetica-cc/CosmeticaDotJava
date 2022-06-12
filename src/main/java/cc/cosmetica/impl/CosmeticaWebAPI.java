@@ -76,7 +76,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<LoginInfo> exchangeTokens(UUID uuid) throws IllegalStateException {
 		if (this.authToken == null) throw new IllegalStateException("This instance does not have a stored auth token! Perhaps it was created directly with API tokens.");
 
-		SafeURL url = new SafeURL(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, this.authToken);
+		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, this.authToken);
 
 		try (Response response = Response.requestAndVerify(url)) {
 			JsonObject object = response.getAsJson();
