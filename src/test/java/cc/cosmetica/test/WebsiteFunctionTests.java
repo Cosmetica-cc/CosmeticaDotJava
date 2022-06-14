@@ -75,5 +75,7 @@ public class WebsiteFunctionTests {
 		// cosmetic
 		System.out.println(api.getCosmetic(CosmeticType.CAPE, "MDhhS1ZiWmpwMVVzT3c").get().getName());
 
+		// info
+		System.out.println("Valo's lore: " + api.getUserInfo(null, "Valoeghese").get().lore());
 	}
 }

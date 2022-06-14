@@ -16,7 +16,6 @@
 
 package cc.cosmetica.util;
 
-import cc.cosmetica.api.CosmeticaAPIException;
 import cc.cosmetica.api.HttpNotOkException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -91,7 +90,7 @@ public class Response implements Closeable {
 	}
 
 	public static Response requestAndVerify(String request) throws ParseException, IOException, HttpNotOkException {
-		return requestAndVerify(new SafeURL(request, request));
+		return requestAndVerify(SafeURL.ofSafe(request));
 	}
 
 	/**

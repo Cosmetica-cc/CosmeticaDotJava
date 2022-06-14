@@ -19,7 +19,7 @@ package cc.cosmetica.impl;
 import cc.cosmetica.api.*;
 import cc.cosmetica.util.Response;
 import cc.cosmetica.util.SafeURL;
-import cc.cosmetica.util.Util;
+import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -59,8 +59,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	@Override
 	public ServerResponse<Optional<String>> checkVersion(String minecraftVersion, String cosmeticaVersion) {
 		SafeURL versionCheck = createTokenlessGet("/get/versioncheck?modversion="
-				+ Util.urlEncode(cosmeticaVersion)
-				+ "&mcversion=" + Util.urlEncode(minecraftVersion), OptionalLong.empty());
+				+ Yootil.urlEncode(cosmeticaVersion)
+				+ "&mcversion=" + Yootil.urlEncode(minecraftVersion), OptionalLong.empty());
 
 		this.urlLogger.accept(versionCheck.safeUrl());
 
@@ -99,24 +99,26 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException {
 		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
 
-		SafeURL target = createLimitedGet("/get/info?username=" + Util.urlEncode(username) + "&uuid=" + Util.urlEncode(uuid));
+		SafeURL target = createLimitedGet("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid));
 		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.requestAndVerify(target)) {
 			JsonObject jsonObject = response.getAsJson();
 			checkErrors(target, jsonObject);
 
-			JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
-			JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
+			JsonArray hats = jsonObject.has("hats") ? jsonObject.get("hats").getAsJsonArray() : null;
+			JsonObject shoulderBuddy = jsonObject.has("shoulderBuddy") ? jsonObject.get("shoulderBuddy").getAsJsonObject() : null;
+			JsonObject backBling = jsonObject.has("backBling") ? jsonObject.get("backBling").getAsJsonObject() : null;
 			JsonObject cloak = jsonObject.has("cape") ? jsonObject.get("cape").getAsJsonObject() : null;
 
 			return new ServerResponse<>(new UserInfo(
 					jsonObject.get("lore").getAsString(),
-					jsonObject.get("upside-down").getAsBoolean(),
+					jsonObject.get("upsideDown").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
 					jsonObject.get("suffix").getAsString(),
-					ModelImpl.parse(hat),
+					Yootil.mapObjects(hats, ModelImpl::_parse),
 					ModelImpl.parse(shoulderBuddy),
+					ModelImpl.parse(backBling),
 					BaseCape.parse(cloak)
 			), target);
 		} catch (Exception e) {
@@ -126,7 +128,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<UserSettings> getUserSettings() {
-		SafeURL target = createLimitedGet("/get/settings");
+		SafeURL target = createLimitedGet("/v2/get/settings");
 		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.requestAndVerify(target)) {
@@ -134,14 +136,21 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			checkErrors(target, data);
 
 			JsonObject capeSettings = data.get("capeSettings").getAsJsonObject();
-			Map<String, CapeDisplay> oCapeSettings = new HashMap<>();
+			Map<String, CapeServer> oCapeServerSettings = new HashMap<>();
 
 			for (String key : capeSettings.keySet()) {
-				oCapeSettings.put(key, CapeDisplay.byId(capeSettings.get(key).getAsInt()));
+				JsonObject setting = capeSettings.get(key).getAsJsonObject();
+
+				oCapeServerSettings.put(key, new CapeServer(
+						setting.get("name").getAsString(),
+						setting.get("warning").getAsString(),
+						setting.get("checkOrder").getAsInt(),
+						CapeDisplay.byId(setting.get("setting").getAsInt())
+				));
 			}
 
 			return new ServerResponse<>(new UserSettings(
-					UUID.fromString(Util.dashifyUUID(data.get("uuid").getAsString())),
+					UUID.fromString(Yootil.dashifyUUID(data.get("uuid").getAsString())),
 					// cosmetics
 					data.get("cape").getAsString(),
 					data.get("hat").getAsString(),
@@ -157,7 +166,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					data.get("perRegionEffects").getAsBoolean(),
 					data.get("perRegionEffectsSet").getAsBoolean(),
 					data.get("panorama").getAsInt(),
-					oCapeSettings
+					oCapeServerSettings
 			), target);
 		}
 		catch (Exception e) {
@@ -202,7 +211,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
-		SafeURL url = createTokenlessGet("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Util.base64(query.orElse("")), OptionalLong.empty());
+		SafeURL url = createTokenlessGet("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Yootil.base64(query.orElse("")), OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.from(type));
 	}
 
@@ -226,7 +235,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		this.urlLogger.accept(url.safeUrl());
 
 		try (Response response = Response.requestAndVerify(url)) {
-			return new ServerResponse<>(Util.toStringList(getAsArray(url, response.getAsJsonElement())), url);
+			return new ServerResponse<>(Yootil.toStringList(getAsArray(url, response.getAsJsonElement())), url);
 		}
 		catch (Exception e) {
 			return new ServerResponse<>(e, url);
@@ -272,7 +281,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<CosmeticsUpdates> everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IllegalArgumentException {
-		SafeURL awimbawe = createGet("/get/everythirtysecondsinafricahalfaminutepasses?ip=" + Util.base64Ip(serverAddress), OptionalLong.of(timestamp));
+		SafeURL awimbawe = createGet("/get/everythirtysecondsinafricahalfaminutepasses?ip=" + Yootil.base64Ip(serverAddress), OptionalLong.of(timestamp));
 
 		this.urlLogger.accept(awimbawe.safeUrl());
 
@@ -302,7 +311,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				for (JsonElement element : jUpdates) {
 					JsonObject individual = element.getAsJsonObject();
 
-					UUID uuid = UUID.fromString(Util.dashifyUUID(individual.get("uuid").getAsString()));
+					UUID uuid = UUID.fromString(Yootil.dashifyUUID(individual.get("uuid").getAsString()));
 
 					users.add(new User(uuid, individual.get("username").getAsString()));
 				}
@@ -352,7 +361,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<String> setLore(LoreType type, String lore) {
 		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for getLoreList: " + type);
 
-		SafeURL target = createGet("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&lore=" + Util.urlEncode(lore), OptionalLong.empty());
+		SafeURL target = createGet("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&lore=" + Yootil.urlEncode(lore), OptionalLong.empty());
 		return requestSet(target);
 	}
 
@@ -488,7 +497,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				e.printStackTrace(); // this is probably bad practise?
 			}
 
-			if (apiGetCache != null) apiGetHost = Util.loadOrCache(apiGetCache, apiGetHost);
+			if (apiGetCache != null) apiGetHost = Yootil.loadOrCache(apiGetCache, apiGetHost);
 			if (apiGetHost == null) apiGetHost = "https://cosmetica.cc/getapi"; // fallback
 
 			String apiGetData = null;
@@ -499,7 +508,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				System.err.println("(Cosmetica API) Connection error to API GET. Trying to retrieve from local cache...");
 			}
 
-			if (apiCache != null) apiGetData = Util.loadOrCache(apiCache, apiGetData);
+			if (apiCache != null) apiGetData = Yootil.loadOrCache(apiCache, apiGetData);
 
 			if (apiGetData == null) {
 				throw new IllegalStateException("Could not receive Cosmetica API host. Mod functionality will be disabled!");

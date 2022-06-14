@@ -18,6 +18,7 @@ package cc.cosmetica.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,12 +33,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 /**
  * General utilities used by the implementation.
  */
-public class Util {
+public class Yootil {
 	private static final Pattern UNDASHED_UUID_GAPS = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
 	private static final String UUID_DASHIFIER_REPLACEMENT = "$1-$2-$3-$4-$5";
 
@@ -97,6 +99,26 @@ public class Util {
 
 		for (JsonElement e : arr) {
 			result.add(e.getAsString());
+		}
+
+		return result;
+	}
+
+	public static <T> List<T> map(JsonArray arr, Function<JsonElement, T> mapping) {
+		List<T> result = new ArrayList<>();
+
+		for (JsonElement e : arr) {
+			result.add(mapping.apply(e));
+		}
+
+		return result;
+	}
+
+	public static <T> List<T> mapObjects(JsonArray arr, Function<JsonObject, T> mapping) {
+		List<T> result = new ArrayList<>();
+
+		for (JsonElement e : arr) {
+			result.add(mapping.apply(e.getAsJsonObject()));
 		}
 
 		return result;

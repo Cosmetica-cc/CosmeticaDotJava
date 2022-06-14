@@ -17,10 +17,50 @@
 package cc.cosmetica.api;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A page of cosmetics on the website.
- * @param <T> the type of cosmetic found on this page. Could be {@link CustomCosmetic} if a general page.
  */
-public record CosmeticsPage<T extends CustomCosmetic>(List<T> cosmetics, boolean nextPage) {
+public final class CosmeticsPage<T extends CustomCosmetic> {
+	private final List<T> cosmetics;
+	private final boolean nextPage;
+
+	/**
+	 * @param <T> the type of cosmetic found on this page. Could be {@link CustomCosmetic} if a general page.
+	 */
+	public CosmeticsPage(List<T> cosmetics, boolean nextPage) {
+		this.cosmetics = cosmetics;
+		this.nextPage = nextPage;
+	}
+
+	public List<T> cosmetics() {
+		return cosmetics;
+	}
+
+	public boolean nextPage() {
+		return nextPage;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) return true;
+		if (obj == null || obj.getClass() != this.getClass()) return false;
+		var that = (CosmeticsPage) obj;
+		return Objects.equals(this.cosmetics, that.cosmetics) &&
+				this.nextPage == that.nextPage;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(cosmetics, nextPage);
+	}
+
+	@Override
+	public String toString() {
+		return "CosmeticsPage[" +
+				"cosmetics=" + cosmetics + ", " +
+				"nextPage=" + nextPage + ']';
+	}
+
 }

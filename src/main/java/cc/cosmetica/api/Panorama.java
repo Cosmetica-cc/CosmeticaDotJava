@@ -16,10 +16,24 @@
 
 package cc.cosmetica.api;
 
+import java.util.Objects;
+
 /**
  * Represents information about a panorama background on the cosmetica website.
  */
-public record Panorama(int id, String name, boolean free) {
+public final class Panorama {
+	/**
+	 */
+	public Panorama(int id, String name, boolean free) {
+		this.id = id;
+		this.name = name;
+		this.free = free;
+	}
+
+	private final int id;
+	private final String name;
+	private final boolean free;
+
 	/**
 	 * @return the numerical id of the panorama.
 	 */
@@ -40,4 +54,28 @@ public record Panorama(int id, String name, boolean free) {
 	public boolean free() {
 		return free;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) return true;
+		if (obj == null || obj.getClass() != this.getClass()) return false;
+		var that = (Panorama) obj;
+		return this.id == that.id &&
+				Objects.equals(this.name, that.name) &&
+				this.free == that.free;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name, free);
+	}
+
+	@Override
+	public String toString() {
+		return "Panorama[" +
+				"id=" + id + ", " +
+				"name=" + name + ", " +
+				"free=" + free + ']';
+	}
+
 }

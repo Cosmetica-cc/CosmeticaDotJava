@@ -16,5 +16,44 @@
 
 package cc.cosmetica.api;
 
-public record LoginInfo(boolean isNewPlayer, boolean hasSpecialCape) {
+import java.util.Objects;
+
+public final class LoginInfo {
+	public LoginInfo(boolean isNewPlayer, boolean hasSpecialCape) {
+		this.isNewPlayer = isNewPlayer;
+		this.hasSpecialCape = hasSpecialCape;
+	}
+
+	private final boolean isNewPlayer;
+	private final boolean hasSpecialCape;
+
+	public boolean isNewPlayer() {
+		return isNewPlayer;
+	}
+
+	public boolean hasSpecialCape() {
+		return hasSpecialCape;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) return true;
+		if (obj == null || obj.getClass() != this.getClass()) return false;
+		var that = (LoginInfo) obj;
+		return this.isNewPlayer == that.isNewPlayer &&
+				this.hasSpecialCape == that.hasSpecialCape;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(isNewPlayer, hasSpecialCape);
+	}
+
+	@Override
+	public String toString() {
+		return "LoginInfo[" +
+				"isNewPlayer=" + isNewPlayer + ", " +
+				"hasSpecialCape=" + hasSpecialCape + ']';
+	}
+
 }

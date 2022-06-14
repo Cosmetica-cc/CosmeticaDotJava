@@ -20,7 +20,7 @@ import cc.cosmetica.api.Box;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.User;
-import cc.cosmetica.util.Util;
+import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
@@ -125,8 +125,10 @@ class ModelImpl implements Model {
 	}
 
 	static Optional<Model> parse(@Nullable JsonObject json) {
-		if (json == null) return Optional.empty();
+		return json == null ? Optional.empty() : Optional.of(_parse(json));
+	}
 
+	static Model _parse(JsonObject json) {
 		String id = json.get("id").getAsString();
 		int flags = json.get("extra info").getAsInt();
 		JsonArray unparsedBounds = json.get("bounds").getAsJsonArray();
@@ -141,7 +143,7 @@ class ModelImpl implements Model {
 				upperBounds.get(1).getAsInt(),
 				upperBounds.get(2).getAsInt());
 
-		return Optional.of(new ModelImpl(
+		return new ModelImpl(
 				CosmeticType.fromTypeString(json.get("type").getAsString()).get(),
 				id,
 				json.get("name").getAsString(),
@@ -149,9 +151,9 @@ class ModelImpl implements Model {
 				bounds,
 				json.get("model").getAsString(),
 				json.get("texture").getAsString(),
-				new User(Util.fromUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
+				new User(Yootil.fromUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
 				json.get("uploaded").getAsLong(),
 				json.get("usesUvRotations").getAsBoolean()
-		));
+		);
 	}
 }

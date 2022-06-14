@@ -31,6 +31,7 @@ public class CosmeticType<T extends CustomCosmetic> {
 	public static final CosmeticType<CustomCape> CAPE = new CosmeticType<>("cape");
 	public static final CosmeticType<Model> HAT = new CosmeticType<>("hat");
 	public static final CosmeticType<Model> SHOULDER_BUDDY = new CosmeticType<>("shoulderbuddy");
+	public static final CosmeticType<Model> BACK_BLING = new CosmeticType<>("backbling");
 
 	/**
 	 * Gets the cosmetic type instance from the case-sensitive url string.

@@ -17,9 +17,57 @@
 package cc.cosmetica.api;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * An update retrieved on the safari. Contains a list of notifications for this user, a list of users on the same server that need their cosmetics refreshed, and a timestamp to use next time you make a request to the {@code everythirtysecondsinafricahalfaminutepasses} endpoint.
  */
-public record CosmeticsUpdates(List<String> notifications, List<User> needsUpdating, long timestamp) {
+public final class CosmeticsUpdates {
+	private final List<String> notifications;
+	private final List<User> needsUpdating;
+	private final long timestamp;
+
+	/**
+	 */
+	public CosmeticsUpdates(List<String> notifications, List<User> needsUpdating, long timestamp) {
+		this.notifications = notifications;
+		this.needsUpdating = needsUpdating;
+		this.timestamp = timestamp;
+	}
+
+	public List<String> notifications() {
+		return notifications;
+	}
+
+	public List<User> needsUpdating() {
+		return needsUpdating;
+	}
+
+	public long timestamp() {
+		return timestamp;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) return true;
+		if (obj == null || obj.getClass() != this.getClass()) return false;
+		var that = (CosmeticsUpdates) obj;
+		return Objects.equals(this.notifications, that.notifications) &&
+				Objects.equals(this.needsUpdating, that.needsUpdating) &&
+				this.timestamp == that.timestamp;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(notifications, needsUpdating, timestamp);
+	}
+
+	@Override
+	public String toString() {
+		return "CosmeticsUpdates[" +
+				"notifications=" + notifications + ", " +
+				"needsUpdating=" + needsUpdating + ", " +
+				"timestamp=" + timestamp + ']';
+	}
+
 }

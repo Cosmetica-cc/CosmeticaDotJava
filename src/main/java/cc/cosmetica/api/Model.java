@@ -102,4 +102,21 @@ public interface Model extends CustomCosmetic {
 	static Model fetchShoulderBuddy(String id) {
 		return CosmeticFetcher.getModel(CosmeticType.SHOULDER_BUDDY, id);
 	}
+
+	/**
+	 * Makes an api request to fetch back bling data from cosmetica.
+	 * @param id the id of the hat to request
+	 * @return an object containing information on the back bling. Null if there is no back bling for the given id.
+	 */
+	@Nullable
+	static Model fetchBackBling(String id) {
+		return CosmeticFetcher.getModel(CosmeticType.BACK_BLING, id);
+	}
+
+	// hat flags
+	int HIDE_HAT_UNDER_HELMET = 0x1;
+	int LOCK_HAT_ORIENTATION = 0x2;
+	// shoulder buddies
+	int LOCK_SHOULDER_BUDDY_ORIENTATION = 0x1;
+	int MIRROR_SHOULDER_BUDDY = 0x2;
 }
