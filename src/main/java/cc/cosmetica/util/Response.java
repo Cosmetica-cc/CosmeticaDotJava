@@ -28,6 +28,8 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -89,21 +91,27 @@ public class Response implements Closeable {
 		return JsonParser.parseString(s);
 	}
 
-	public static Response requestAndVerify(String request) throws ParseException, IOException, HttpNotOkException {
-		return requestAndVerify(SafeURL.ofSafe(request));
+	@Override
+	public void close() throws IOException {
+		this.response.close();
+		this.client.close();
+	}
+
+	public static Response get(String request) throws ParseException, IOException, HttpNotOkException {
+		return get(SafeURL.ofSafe(request));
 	}
 
 	/**
 	 * @apiNote cosmetica api will include the safe url in an {@link HttpNotOkException}.
 	 */
-	public static Response requestAndVerify(SafeURL request) throws ParseException, IOException, HttpNotOkException {
-		Response result = request(request.url());
+	public static Response get(SafeURL request) throws ParseException, IOException, HttpNotOkException {
+		Response result = _get(request.url());
 		if (result.getError().isPresent()) throw new HttpNotOkException(request.safeUrl(), result.getError().getAsInt());
 		return result;
 	}
 
-	public static Response request(String request) throws ParseException, IOException {
-		int timeout = 15 * 1000;
+	private static Response _get(String request) throws ParseException, IOException {
+		final int timeout = 15 * 1000;
 
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setConnectionRequestTimeout(timeout)
@@ -121,9 +129,51 @@ public class Response implements Closeable {
 		return new Response(client, response);
 	}
 
-	@Override
-	public void close() throws IOException {
-		this.response.close();
-		this.client.close();
+	public static PostBuilder post(String request) {
+		return new PostBuilder(request);
+	}
+
+	public static class PostBuilder {
+		private PostBuilder(String url) {
+			this.url = url;
+		}
+
+		private final String url;
+		private final StringBuilder entity = new StringBuilder("{");
+		private boolean started = false;
+
+		public PostBuilder set(String key, String value) {
+			if (this.started) {
+				this.entity.append(',');
+			}
+			else {
+				this.started = true;
+			}
+
+			this.entity.append('"').append(key).append("\": \"").append(value).append('"');
+			return this;
+		}
+
+		public Response submit() throws ParseException, IOException {
+			final int timeout = 15 * 1000;
+
+			RequestConfig requestConfig = RequestConfig.custom()
+					.setConnectionRequestTimeout(timeout)
+					.setConnectTimeout(timeout)
+					.setSocketTimeout(timeout)
+					.build();
+
+			CloseableHttpClient client = HttpClients.custom()
+					.setDefaultRequestConfig(requestConfig)
+					.build();
+
+			final HttpPost post = new HttpPost(this.url);
+			post.setHeader("Accept", "application/json");
+			post.setHeader("Content-type", "application/json");
+			post.setEntity(new StringEntity(this.entity.append('}').toString()));
+
+			CloseableHttpResponse response = client.execute(post);
+			return new Response(client, response);
+		}
 	}
 }

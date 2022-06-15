@@ -64,7 +64,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		this.urlLogger.accept(versionCheck.safeUrl());
 
-		try (Response response = Response.requestAndVerify(versionCheck)) {
+		try (Response response = Response.get(versionCheck)) {
 			String s = response.getAsString();
 			return new ServerResponse<>(s.isEmpty() ? Optional.empty() : Optional.of(s), versionCheck);
 		} catch (Exception e) {
@@ -78,7 +78,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, this.authToken);
 
-		try (Response response = Response.requestAndVerify(url)) {
+		try (Response response = Response.get(url)) {
 			JsonObject object = response.getAsJson();
 
 			if (object.has("error")) {
@@ -102,7 +102,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL target = createLimitedGet("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid));
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.requestAndVerify(target)) {
+		try (Response response = Response.get(target)) {
 			JsonObject jsonObject = response.getAsJson();
 			checkErrors(target, jsonObject);
 
@@ -131,7 +131,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL target = createLimitedGet("/v2/get/settings");
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.requestAndVerify(target)) {
+		try (Response response = Response.get(target)) {
 			JsonObject data = response.getAsJson();
 			checkErrors(target, data);
 
@@ -191,7 +191,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getCosmeticsPage(SafeURL url, GeneralCosmeticType<T> cosmeticType) {
 		this.urlLogger.accept(url.safeUrl());
 
-		try (Response response = Response.requestAndVerify(url)) {
+		try (Response response = Response.get(url)) {
 			JsonObject json = response.getAsJson();
 			checkErrors(url, json);
 
@@ -234,7 +234,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL url = createLimitedGet("/get/lorelists?type=" + type.toString().toLowerCase(Locale.ROOT));
 		this.urlLogger.accept(url.safeUrl());
 
-		try (Response response = Response.requestAndVerify(url)) {
+		try (Response response = Response.get(url)) {
 			return new ServerResponse<>(Yootil.toStringList(getAsArray(url, response.getAsJsonElement())), url);
 		}
 		catch (Exception e) {
@@ -247,7 +247,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL url = createTokenlessGet("/get/cosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
 		this.urlLogger.accept(url.safeUrl());
 
-		try (Response response = Response.requestAndVerify(url)) {
+		try (Response response = Response.get(url)) {
 			JsonObject json = response.getAsJson();
 			checkErrors(url, json);
 
@@ -263,7 +263,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL url = createLimitedGet("/get/panoramas");
 		this.urlLogger.accept(url.safeUrl());
 
-		try (Response response = Response.requestAndVerify(url)) {
+		try (Response response = Response.get(url)) {
 			JsonArray json = getAsArray(url, response.getAsJsonElement());
 			List<Panorama> result = new ArrayList<>();
 
@@ -285,7 +285,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		this.urlLogger.accept(awimbawe.safeUrl());
 
-		try (Response theLionSleepsTonight = Response.requestAndVerify(awimbawe)) {
+		try (Response theLionSleepsTonight = Response.get(awimbawe)) {
 			JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
 			checkErrors(awimbawe, theMightyJungle);
 
@@ -328,7 +328,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private ServerResponse<String> requestSet(SafeURL target) {
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.requestAndVerify(target)) {
+		try (Response response = Response.get(target)) {
 			JsonObject json = response.getAsJson();
 			checkErrors(target, json);
 			return new ServerResponse<>(json.get("success").getAsString(), target);
@@ -341,7 +341,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private ServerResponse<Boolean> requestSetZ(SafeURL target) {
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.requestAndVerify(target)) {
+		try (Response response = Response.get(target)) {
 			JsonObject json = response.getAsJson();
 			checkErrors(target, json);
 			return new ServerResponse<>(json.get("success").getAsBoolean(), target);
@@ -489,7 +489,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		if (apiServerHost == null) { // if this sequence has not already been initiated
 			String apiGetHost = null;
 
-			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json?timestamp=" + System.currentTimeMillis())) {
+			try (Response response = Response.get("https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json?timestamp=" + System.currentTimeMillis())) {
 				if (response.getError().isEmpty()) {
 					apiGetHost = response.getAsJson().get("current_host").getAsString();
 				}
@@ -502,7 +502,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			String apiGetData = null;
 
-			try (Response apiGetResponse = Response.request(apiGetHost)) {
+			try (Response apiGetResponse = Response.get(apiGetHost)) {
 				apiGetData = apiGetResponse.getAsString();
 			} catch (Exception e) {
 				System.err.println("(Cosmetica API) Connection error to API GET. Trying to retrieve from local cache...");
