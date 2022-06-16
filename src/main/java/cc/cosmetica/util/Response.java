@@ -129,16 +129,20 @@ public class Response implements Closeable {
 		return new Response(client, response);
 	}
 
-	public static PostBuilder post(String request) {
+	public static PostBuilder post(SafeURL request) {
 		return new PostBuilder(request);
 	}
 
+	public static PostBuilder post(String request) {
+		return new PostBuilder(SafeURL.ofSafe(request));
+	}
+
 	public static class PostBuilder {
-		private PostBuilder(String url) {
+		private PostBuilder(SafeURL url) {
 			this.url = url;
 		}
 
-		private final String url;
+		private final SafeURL url;
 		private final StringBuilder entity = new StringBuilder("{");
 		private boolean started = false;
 
@@ -167,13 +171,17 @@ public class Response implements Closeable {
 					.setDefaultRequestConfig(requestConfig)
 					.build();
 
-			final HttpPost post = new HttpPost(this.url);
+			final HttpPost post = new HttpPost(this.url.url());
 			post.setHeader("Accept", "application/json");
 			post.setHeader("Content-type", "application/json");
 			post.setEntity(new StringEntity(this.entity.append('}').toString()));
 
 			CloseableHttpResponse response = client.execute(post);
-			return new Response(client, response);
+
+			// validate
+			Response r = new Response(client, response);
+			if (r.getError().isPresent()) throw new HttpNotOkException(this.url.safeUrl(), r.getError().getAsInt());
+			return r;
 		}
 	}
 }
