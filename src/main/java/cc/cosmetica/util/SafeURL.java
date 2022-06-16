@@ -65,7 +65,7 @@ public final class SafeURL {
 		return new SafeURL(baseUrl + (baseUrl.contains("?") ? "&" : "?") + "token=", baseUrl);
 	}
 
-	public static SafeURL ofSafe(String safeRequest) {
+	public static SafeURL direct(String safeRequest) {
 		return new SafeURL(safeRequest, safeRequest);
 	}
 }

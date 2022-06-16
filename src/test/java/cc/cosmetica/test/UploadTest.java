@@ -1,0 +1,32 @@
+/**
+ * Copyright (c) 2022 EyezahMC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package cc.cosmetica.test;
+
+import cc.cosmetica.api.CosmeticaAPI;
+
+import java.util.Scanner;
+
+public class UploadTest {
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		CosmeticaAPI api = CosmeticaAPI.fromToken(scanner.nextLine()); // enter master token
+
+		String capeImage = "data:image/png;base64,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";
+
+		api.uploadCape("JCA Test please don't approve", capeImage).get();
+	}
+}

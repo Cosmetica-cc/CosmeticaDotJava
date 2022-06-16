@@ -58,7 +58,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<Optional<String>> checkVersion(String minecraftVersion, String cosmeticaVersion) {
-		SafeURL versionCheck = createTokenlessGet("/get/versioncheck?modversion="
+		SafeURL versionCheck = createTokenless("/get/versioncheck?modversion="
 				+ Yootil.urlEncode(cosmeticaVersion)
 				+ "&mcversion=" + Yootil.urlEncode(minecraftVersion), OptionalLong.empty());
 
@@ -99,7 +99,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException {
 		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
 
-		SafeURL target = createLimitedGet("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid));
+		SafeURL target = createLimited("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid));
 		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.get(target)) {
@@ -128,7 +128,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<UserSettings> getUserSettings() {
-		SafeURL target = createLimitedGet("/v2/get/settings");
+		SafeURL target = createLimited("/v2/get/settings");
 		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.get(target)) {
@@ -211,19 +211,19 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
-		SafeURL url = createTokenlessGet("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Yootil.base64(query.orElse("")), OptionalLong.empty());
+		SafeURL url = createTokenless("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Yootil.base64(query.orElse("")), OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.from(type));
 	}
 
 	@Override
 	public ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize) {
-		SafeURL url = createTokenlessGet("/get/popularcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
+		SafeURL url = createTokenless("/get/popularcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.any());
 	}
 
 	@Override
 	public ServerResponse<CosmeticsPage<CustomCosmetic>> getOfficialCosmetics(int page, int pageSize) {
-		SafeURL url = createTokenlessGet("/get/systemcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
+		SafeURL url = createTokenless("/get/systemcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.any());
 	}
 
@@ -231,7 +231,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<List<String>> getLoreList(LoreType type) throws IllegalArgumentException {
 		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for getLoreList: " + type);
 
-		SafeURL url = createLimitedGet("/get/lorelists?type=" + type.toString().toLowerCase(Locale.ROOT));
+		SafeURL url = createLimited("/get/lorelists?type=" + type.toString().toLowerCase(Locale.ROOT));
 		this.urlLogger.accept(url.safeUrl());
 
 		try (Response response = Response.get(url)) {
@@ -244,7 +244,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public <T extends CustomCosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id) {
-		SafeURL url = createTokenlessGet("/get/cosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
+		SafeURL url = createTokenless("/get/cosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
 		this.urlLogger.accept(url.safeUrl());
 
 		try (Response response = Response.get(url)) {
@@ -260,7 +260,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<List<Panorama>> getPanoramas() {
-		SafeURL url = createLimitedGet("/get/panoramas");
+		SafeURL url = createLimited("/get/panoramas");
 		this.urlLogger.accept(url.safeUrl());
 
 		try (Response response = Response.get(url)) {
@@ -281,7 +281,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<CosmeticsUpdates> everyThirtySecondsInAfricaHalfAMinutePasses(InetSocketAddress serverAddress, long timestamp) throws IllegalArgumentException {
-		SafeURL awimbawe = createGet("/get/everythirtysecondsinafricahalfaminutepasses?ip=" + Yootil.base64Ip(serverAddress), OptionalLong.of(timestamp));
+		SafeURL awimbawe = create("/get/everythirtysecondsinafricahalfaminutepasses?ip=" + Yootil.base64Ip(serverAddress), OptionalLong.of(timestamp));
 
 		this.urlLogger.accept(awimbawe.safeUrl());
 
@@ -353,7 +353,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<Boolean> setCosmetic(CosmeticType<?> type, String id) {
-		SafeURL target = createGet("/client/setcosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
+		SafeURL target = create("/client/setcosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
@@ -361,39 +361,76 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<String> setLore(LoreType type, String lore) {
 		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for getLoreList: " + type);
 
-		SafeURL target = createGet("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&lore=" + Yootil.urlEncode(lore), OptionalLong.empty());
+		SafeURL target = create("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&lore=" + Yootil.urlEncode(lore), OptionalLong.empty());
 		return requestSet(target);
 	}
 
 	@Override
 	public ServerResponse<Boolean> setPanorama(int id) {
-		SafeURL target = createGet("/client/setpanorama?panorama=" + id, OptionalLong.empty());
+		SafeURL target = create("/client/setpanorama?panorama=" + id, OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
 	@Override
 	public ServerResponse<Boolean> setCapeServerSettings(Map<String, CapeDisplay> settings) {
-		SafeURL target = createGet("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().toString().toLowerCase(Locale.ROOT)).collect(Collectors.joining("&")), OptionalLong.empty());
+		SafeURL target = create("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().toString().toLowerCase(Locale.ROOT)).collect(Collectors.joining("&")), OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
 	@Override
 	public ServerResponse<Boolean> updateUserSettings(Map<String, Object> settings) {
-		SafeURL target = createGet("/v2/client/updatesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&")), OptionalLong.empty());
+		SafeURL target = create("/v2/client/updatesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&")), OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
-	private SafeURL createLimitedGet(String target) {
-		if (this.limitedToken != null) return SafeURL.of(fastInsecureApiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
-		else return createGet(target, OptionalLong.empty());
+	@Override
+	public ServerResponse<String> uploadCape(String name, String base64Image) {
+		SafeURL target = create("/client/uploadcloak", OptionalLong.empty());
+
+		try (Response response = Response.post(target)
+				.set("name", name)
+				.set("image", base64Image)
+				.submit()) {
+			JsonObject obj = response.getAsJson();
+			checkErrors(target, obj);
+
+			return new ServerResponse<>(obj.get("success").getAsString(), target);
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e, target);
+		}
 	}
 
-	private SafeURL createGet(String target, OptionalLong timestamp) {
+	@Override
+	public ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model) {
+		SafeURL target = create("/client/upload" + type.urlstring, OptionalLong.empty());
+
+		try (Response response = Response.post(target)
+				.set("name", name)
+				.set("image", base64Texture)
+				.set("model", model.toString())
+				.submit()) {
+			JsonObject obj = response.getAsJson();
+			checkErrors(target, obj);
+
+			return new ServerResponse<>(obj.get("success").getAsString(), target);
+		}
+		catch (Exception e) {
+			return new ServerResponse<>(e, target);
+		}
+	}
+
+	private SafeURL createLimited(String target) {
+		if (this.limitedToken != null) return SafeURL.of(fastInsecureApiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
+		else return create(target, OptionalLong.empty());
+	}
+
+	private SafeURL create(String target, OptionalLong timestamp) {
 		if (this.masterToken != null) return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
 		else return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
-	private SafeURL createTokenlessGet(String target, OptionalLong timestamp) {
+	private SafeURL createTokenless(String target, OptionalLong timestamp) {
 		return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
@@ -452,9 +489,9 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return new CosmeticaWebAPI(authenticationToken);
 	}
 
-	public static CosmeticaAPI fromTokens(String masterToken, @Nullable String getToken) throws IllegalStateException {
+	public static CosmeticaAPI fromTokens(String masterToken, @Nullable String limitedToken) throws IllegalStateException {
 		retrieveAPIIfNoneCached();
-		return new CosmeticaWebAPI(masterToken, getToken);
+		return new CosmeticaWebAPI(masterToken, limitedToken);
 	}
 
 	public static CosmeticaAPI newUnauthenticatedInstance() throws IllegalStateException {
@@ -526,7 +563,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	private static void checkErrors(SafeURL url, JsonObject response) {
 		if (response.has("error")) {
-			throw new CosmeticaAPIException("API server request to " + url.safeUrl() + "responded with error: " + response.get("error").getAsString());
+			throw new CosmeticaAPIException("API server request to " + url.safeUrl() + " responded with error: " + response.get("error").getAsString());
 		}
 	}
 

@@ -17,6 +17,7 @@
 package cc.cosmetica.api;
 
 import cc.cosmetica.impl.CosmeticaWebAPI;
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -197,6 +198,26 @@ public interface CosmeticaAPI {
 	 */
 	ServerResponse<Boolean> updateUserSettings(Map<String, Object> settings);
 
+	/**
+	 * Uploads a cape to the server under this account.
+	 * @param name the name of the cape to upload.
+	 * @param base64Image the image in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
+	 * @return the id of the cape if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<String> uploadCape(String name, String base64Image);
+
+	/**
+	 * Uploads a model-based cosmetic to the server under this account.
+	 * @param type the type of cosmetic to upload.
+	 * @param name the name of the cosmetic to upload.
+	 * @param base64Texture the 32x32 texture in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
+	 * @param model the json model to upload
+	 * @return the id of the cosmetic if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model);
+
 	///////////////////////////
 	//   Non-Web-API Methods //
 	///////////////////////////
@@ -223,33 +244,29 @@ public interface CosmeticaAPI {
 	void setAuthToken(String authenticationToken);
 
 	/**
-	 * Creates an instance with the given authentication token. This can then be exchanged with the cosmetica api for a valid new master and get token with which the cosmetica api instance will be configured.
-	 * @param authenticationToken the cosmetica auth token.
-	 * @return an instance of the cosmetica web api, configured with the given token.
+	 * Create an instance with which to access the cosmetica web api via one token.
+	 * @param token a cosmetica token. Can be a master token, limited token, or authentication token.
+	 * @return an instance of the cosmetica web api, configured with the given token. The instance will behave in the following way for each case:<br>
+	 * <h2>Master Token</h2>
+	 *   Uses only the master token for an account. This instance will only make requests on https, unlike other instances which make non-sensitive "get" requests under http for speed.
+	 * <h2>Limited Token</h2>
+	 *   Uses only a cosmetica 'limited' or 'get' token, a special token for use over HTTP which only has access to specific "get" endpoints. This instance will only make requests on http, so is less secure.
+	 * <h2>Authentication Token</h2>
+	 *   Uses an authentication token: a special token used as an intermediate step between initial authentication and receiving your two api tokens. After creating an instance with the authentication token, {@linkplain CosmeticaAPI#exchangeTokens(UUID) this can then be exchanged with the cosmetica api} for a valid new master and limited token with which this cosmetica api instance will be configured.
 	 * @throws IllegalStateException if an api instance cannot be retrieved.
+	 * @throws IllegalArgumentException if the token given does not match the format for any of the 3 token types.
 	 */
-	static CosmeticaAPI fromAuthToken(String authenticationToken) throws IllegalStateException {
-		return CosmeticaWebAPI.fromAuthToken(authenticationToken);
-	}
-
-	/**
-	 * @param masterToken the cosmetica master token.
-	 * @return an instance of the cosmetica web api, configured with the given token.
-	 *   This instance will only make requests on https, unlike other instances which make non-sensitive "get" requests under http for speed.
-	 * @throws IllegalStateException if an api instance cannot be retrieved.
-	 */
-	static CosmeticaAPI fromToken(String masterToken) throws IllegalStateException {
-		return CosmeticaWebAPI.fromTokens(masterToken, null);
-	}
-
-	/**
-	 * @param limitedToken the cosmetica 'limited' or 'get' token, a special token for use over HTTP which only has access to specific "get" endpoints.
-	 * @return an instance of the cosmetica web api, configured with the given token.
-	 *   This instance will only make requests on http, so is less secure.
-	 * @throws IllegalStateException if an api instance cannot be retrieved.
-	 */
-	static CosmeticaAPI fromLimitedToken(String limitedToken) throws IllegalStateException {
-		return CosmeticaWebAPI.fromTokens(null, limitedToken);
+	static CosmeticaAPI fromToken(String token) throws IllegalStateException, IllegalArgumentException {
+		switch (token.charAt(0)) {
+		case 'm':
+			return CosmeticaWebAPI.fromTokens(token, null);
+		case 'l':
+			return CosmeticaWebAPI.fromTokens(null, token);
+		case 't':
+			return CosmeticaWebAPI.fromAuthToken(token);
+		default:
+			throw new IllegalArgumentException("Cannot determine type of token " + token);
+		}
 	}
 
 	/**
@@ -279,7 +296,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the message retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}, or another method that forces initial API data to be fetched is called.
+	 * Get the message retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getMessage() {
@@ -294,7 +311,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica website url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}, or another method that forces initial API data to be fetched is called.
+	 * Get the cosmetica website url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getWebsite() {
@@ -302,7 +319,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica api server url being used, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}, or another method that forces initial API data to be fetched is called.
+	 * Get the cosmetica api server url being used, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getAPIServer() {
@@ -310,7 +327,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica api server url being used as an insecure http:// url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or {@link CosmeticaAPI#fromAuthToken}, or another method that forces initial API data to be fetched is called.
+	 * Get the cosmetica api server url being used as an insecure http:// url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getHttpAPIServer() {
