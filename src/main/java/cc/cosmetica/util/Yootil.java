@@ -30,6 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,7 @@ import java.util.regex.Pattern;
 public class Yootil {
 	private static final Pattern UNDASHED_UUID_GAPS = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
 	private static final String UUID_DASHIFIER_REPLACEMENT = "$1-$2-$3-$4-$5";
+	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
 	public static String urlEncode(@Nullable UUID value) {
 		return value == null ? "" : value.toString();
@@ -121,6 +123,12 @@ public class Yootil {
 			result.add(mapping.apply(e.getAsJsonObject()));
 		}
 
+		return result;
+	}
+
+	public static byte[] randomBytes(int number) {
+		byte[] result = new byte[number];
+		SECURE_RANDOM.nextBytes(result);
 		return result;
 	}
 }

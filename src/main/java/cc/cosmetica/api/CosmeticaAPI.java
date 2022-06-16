@@ -311,6 +311,13 @@ public interface CosmeticaAPI {
 	}
 
 	/**
+	 * Get the auth-api server url. Will force the initial API data to be fetched if it is not.
+	 */
+	static String getAuthApiServer() {
+		return CosmeticaWebAPI.getAuthApiServerHost(true);
+	}
+
+	/**
 	 * Get the cosmetica website url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable

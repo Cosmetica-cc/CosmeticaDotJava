@@ -83,6 +83,10 @@ public class Response implements Closeable {
 		return EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8);
 	}
 
+	public byte[] getAsByteArray() throws IOException {
+		return EntityUtils.toByteArray(this.getEntity());
+	}
+
 	public JsonObject getAsJson() throws IOException, JsonParseException {
 		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
 		return JsonParser.parseString(s).getAsJsonObject();

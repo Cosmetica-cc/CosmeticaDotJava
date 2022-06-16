@@ -26,8 +26,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.Nullable;
 
+import javax.crypto.Cipher;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -466,6 +474,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private static String apiServerHost;
+	private static String authApiServerHost;
 	private static String fastInsecureApiServerHost;
 
 	private static String websiteHost;
@@ -487,6 +496,30 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public static CosmeticaAPI fromAuthToken(String authenticationToken) throws IllegalStateException {
 		retrieveAPIIfNoneCached();
 		return new CosmeticaWebAPI(authenticationToken);
+	}
+
+	public static CosmeticaAPI fromMinecraftToken(String minecraftToken) throws IllegalStateException, IOException, GeneralSecurityException {
+		retrieveAPIIfNoneCached();
+
+		PublicKey publicKey;
+
+		// https://wiki.vg/Protocol_Encryption
+		try (Response response = Response.get(authApiServerHost + "/key")) {
+			byte[] rawPublicKey = response.getAsByteArray();
+			KeyFactory factory = KeyFactory.getInstance("RSA");
+			publicKey = factory.generatePublic(new X509EncodedKeySpec(rawPublicKey));
+		}
+
+		byte[] sharedSecret = Yootil.randomBytes(16);
+
+		// https://www.baeldung.com/java-rsa
+		Cipher encryptCipher = Cipher.getInstance("RSA");
+		encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+		byte[] encryptedSharedSecret = encryptCipher.doFinal(sharedSecret);
+
+		// next step: magic probably
+
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 
 	public static CosmeticaAPI fromTokens(String masterToken, @Nullable String limitedToken) throws IllegalStateException {
@@ -515,6 +548,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public static String getAuthServerHost(boolean requireResult) throws IllegalStateException {
 		if (requireResult) retrieveAPIIfNoneCached();
 		return authServerHost;
+	}
+
+	@Nullable
+	public static String getAuthApiServerHost(boolean requireResult) throws IllegalStateException {
+		if (requireResult) retrieveAPIIfNoneCached();
+		return authApiServerHost;
 	}
 
 	public static void setAPICaches(File api, File apiGet) {
@@ -553,6 +592,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			JsonObject data = JsonParser.parseString(apiGetData).getAsJsonObject();
 			apiServerHost = data.get("api").getAsString();
+			authApiServerHost = data.get("auth-api").getAsString();
 			fastInsecureApiServerHost = "http" + apiServerHost.substring(5);
 			websiteHost = data.get("website").getAsString();
 			JsonObject auth = data.get("auth-server").getAsJsonObject();
