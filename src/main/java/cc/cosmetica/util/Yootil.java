@@ -27,9 +27,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +59,29 @@ public class Yootil {
 			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
 		} catch (UnsupportedEncodingException ex) {
 			throw new RuntimeException(ex.getCause());
+		}
+	}
+
+	public static String hash(byte[]... bytes) {
+		// concatenate the arrays
+		int space = 0;
+		for (byte[] arr : bytes) space += arr.length;
+		byte[] theBigMan = new byte[space];
+
+		space = 0;
+
+		for (byte[] arr : bytes) {
+			System.arraycopy(arr, 0, theBigMan, space, arr.length);
+			space += arr.length;
+		}
+
+		try {
+			// Minecraft Hash
+			// https://gist.github.com/unascribed/70e830d471d6a3272e3f
+			return new BigInteger(MessageDigest.getInstance("SHA-1").digest(theBigMan)).toString(16);
+		}
+		catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException("For some reason your computer's java install thinks SHA-1 is not a hashing algorithm.", e);
 		}
 	}
 

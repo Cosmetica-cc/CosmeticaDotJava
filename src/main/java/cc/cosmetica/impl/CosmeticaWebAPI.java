@@ -26,17 +26,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.Nullable;
 
-import javax.crypto.Cipher;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -65,16 +60,16 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private Consumer<String> urlLogger = s -> {};
 
 	@Override
-	public ServerResponse<Optional<String>> checkVersion(String minecraftVersion, String cosmeticaVersion) {
-		SafeURL versionCheck = createTokenless("/get/versioncheck?modversion="
+	public ServerResponse<VersionInfo> checkVersion(String minecraftVersion, String cosmeticaVersion) {
+		SafeURL versionCheck = createTokenless("/v2/get/versioncheck?modversion="
 				+ Yootil.urlEncode(cosmeticaVersion)
 				+ "&mcversion=" + Yootil.urlEncode(minecraftVersion), OptionalLong.empty());
 
 		this.urlLogger.accept(versionCheck.safeUrl());
 
 		try (Response response = Response.get(versionCheck)) {
-			String s = response.getAsString();
-			return new ServerResponse<>(s.isEmpty() ? Optional.empty() : Optional.of(s), versionCheck);
+			JsonObject s = response.getAsJson();
+			return new ServerResponse<>(new VersionInfo(s.get("needsUpdate").getAsBoolean(), s.get("isVital").getAsBoolean(), s.get("minecraftMessage").getAsString(), s.get("plainMessage").getAsString()), versionCheck);
 		} catch (Exception e) {
 			return new ServerResponse<>(e, versionCheck);
 		}
@@ -493,33 +488,45 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return websiteHost;
 	}
 
-	public static CosmeticaAPI fromAuthToken(String authenticationToken) throws IllegalStateException {
+	public static CosmeticaAPI fromTempToken(String authenticationToken) throws IllegalStateException {
 		retrieveAPIIfNoneCached();
 		return new CosmeticaWebAPI(authenticationToken);
 	}
 
-	public static CosmeticaAPI fromMinecraftToken(String minecraftToken) throws IllegalStateException, IOException, GeneralSecurityException {
+	public static CosmeticaAPI fromMinecraftToken(String minecraftToken, String username, UUID uuid) throws IllegalStateException, IOException, FatalServerErrorException {
 		retrieveAPIIfNoneCached();
 
-		PublicKey publicKey;
+		byte[] publicKey;
 
 		// https://wiki.vg/Protocol_Encryption
 		try (Response response = Response.get(authApiServerHost + "/key")) {
-			byte[] rawPublicKey = response.getAsByteArray();
-			KeyFactory factory = KeyFactory.getInstance("RSA");
-			publicKey = factory.generatePublic(new X509EncodedKeySpec(rawPublicKey));
+			publicKey = response.getAsByteArray();
 		}
 
 		byte[] sharedSecret = Yootil.randomBytes(16);
+		String hash = Yootil.hash("".getBytes(StandardCharsets.US_ASCII), sharedSecret, publicKey);
 
-		// https://www.baeldung.com/java-rsa
-		Cipher encryptCipher = Cipher.getInstance("RSA");
-		encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
-		byte[] encryptedSharedSecret = encryptCipher.doFinal(sharedSecret);
+		// authenticate with minecraft
+		try (Response response = Response.postJson("https://sessionserver.mojang.com/session/minecraft/join")
+				.set("accessToken", minecraftToken)
+				.set("selectedProfile", uuid.toString().replaceAll("-", ""))
+				.set("serverId", hash)
+				.submit()) {
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 
-		// next step: magic probably
+		// Exchange Tokens with Cosmetica
+		try (Response response = Response.postJson(authApiServerHost + "/verify")
+				.set("secret", new String(Base64.getEncoder().encode(sharedSecret)))
+				.set("username", username)
+				.submit()) {
+			JsonObject data = response.getAsJson();
+			checkErrors(SafeURL.direct(authApiServerHost + "/verify"), data);
 
-		throw new UnsupportedOperationException("Not implemented yet.");
+			return fromTempToken(data.get("token").getAsString());
+		}
 	}
 
 	public static CosmeticaAPI fromTokens(String masterToken, @Nullable String limitedToken) throws IllegalStateException {
@@ -529,7 +536,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	public static CosmeticaAPI newUnauthenticatedInstance() throws IllegalStateException {
 		retrieveAPIIfNoneCached();
-		return new CosmeticaWebAPI(null, (String) null);
+		return new CosmeticaWebAPI(null, null);
 	}
 
 	@Nullable

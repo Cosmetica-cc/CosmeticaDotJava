@@ -16,7 +16,7 @@
 
 package cc.cosmetica.util;
 
-import cc.cosmetica.api.HttpNotOkException;
+import cc.cosmetica.api.FatalServerErrorException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -38,6 +38,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -75,16 +76,19 @@ public class Response implements Closeable {
 		}
 	}
 
+	@Nullable
 	public HttpEntity getEntity() {
 		return this.response.getEntity();
 	}
 
 	public String getAsString() throws IOException {
-		return EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8);
+		HttpEntity entity = this.getEntity();
+		return entity == null ? "" : EntityUtils.toString(entity, StandardCharsets.UTF_8);
 	}
 
 	public byte[] getAsByteArray() throws IOException {
-		return EntityUtils.toByteArray(this.getEntity());
+		HttpEntity entity = this.getEntity();
+		return entity == null ? new byte[0] : EntityUtils.toByteArray(this.getEntity());
 	}
 
 	public JsonObject getAsJson() throws IOException, JsonParseException {
@@ -108,17 +112,15 @@ public class Response implements Closeable {
 		this.client.close();
 	}
 
-	public static Response get(String request) throws ParseException, IOException, HttpNotOkException {
+	public static Response get(String request) throws ParseException, IOException, FatalServerErrorException {
 		return get(SafeURL.direct(request));
 	}
 
 	/**
-	 * @apiNote cosmetica api will include the safe url in an {@link HttpNotOkException}.
+	 * @apiNote cosmetica api will include the safe url in an {@link FatalServerErrorException}.
 	 */
-	public static Response get(SafeURL request) throws ParseException, IOException, HttpNotOkException {
-		Response result = _get(request.url());
-		if (result.getError().isPresent()) throw new HttpNotOkException(request.safeUrl(), result.getError().getAsInt());
-		return result;
+	public static Response get(SafeURL request) throws ParseException, IOException, FatalServerErrorException {
+		return _get(request.url()).testForFatalError(request);
 	}
 
 	private static Response _get(String request) throws ParseException, IOException {
@@ -156,6 +158,22 @@ public class Response implements Closeable {
 		return new JsonPostBuilder(SafeURL.direct(request));
 	}
 
+	private Response testForFatalError(SafeURL safeUrl) throws FatalServerErrorException, IOException {
+		final int code = this.getStatusCode();
+
+		if (code >= 500) {
+			try {
+				JsonParser.parseString(this.getAsString());
+			}
+			catch (JsonParseException e) {
+				// probably xml or something we can't handle. i.e. not an actual API response with 500
+				throw new FatalServerErrorException(safeUrl.safeUrl(), code);
+			}
+		}
+
+		return this;
+	}
+
 	public static abstract class PostBuilder {
 		private PostBuilder(SafeURL url) {
 			this.url = url;
@@ -164,7 +182,7 @@ public class Response implements Closeable {
 		private final SafeURL url;
 		private String accepts = "application/json";
 
-		public Response submit() throws ParseException, IOException {
+		public Response submit() throws ParseException, IOException, FatalServerErrorException {
 			final int timeout = 15 * 1000;
 
 			RequestConfig requestConfig = RequestConfig.custom()
@@ -183,9 +201,7 @@ public class Response implements Closeable {
 			CloseableHttpResponse response = client.execute(post);
 
 			// validate
-			Response r = new Response(client, response);
-			if (r.getError().isPresent()) throw new HttpNotOkException(this.url.safeUrl(), r.getError().getAsInt());
-			return r;
+			return new Response(client, response).testForFatalError(this.url);
 		}
 
 		abstract public PostBuilder set(String key, String value);

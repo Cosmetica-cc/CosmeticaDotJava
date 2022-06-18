@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.test;
 
-import java.io.IOException;
+import cc.cosmetica.impl.CosmeticaWebAPI;
 
-/**
- * Exception for http error codes.
- * @apiNote Not called "http exception" because that's already in use by apache httpclient.
- */
-public class HttpNotOkException extends IOException {
-	public HttpNotOkException(String url, int errorCode) {
-		super("Received error code " + errorCode + " from URL " + url);
+import java.util.Scanner;
+import java.util.UUID;
 
-		this.url = url;
-		this.errorCode = errorCode;
+public class NewAuthTest {
+	public static void main(String[] args) throws Exception {
+		Scanner scanner = new Scanner(System.in);
+
+		System.out.println("Minecraft Username");
+		String username = scanner.nextLine();
+
+		System.out.println("Minecraft UUID Dashed");
+		UUID uuid = UUID.fromString(scanner.nextLine());
+
+		System.out.println("Minecraft Access Token");
+		String token = scanner.nextLine();
+
+		CosmeticaWebAPI.fromMinecraftToken(token, username, uuid);
 	}
-
-	public final String url;
-	public final int errorCode;
 }

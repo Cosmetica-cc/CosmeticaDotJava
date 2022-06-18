@@ -24,7 +24,7 @@ import java.util.function.Function;
 
 /**
  * An immutable object of a value or an error, for use in passing API responses. Basically Optional on steroids.
- * Common errors are {@link HttpNotOkException} for a non-ok http response, {@link CosmeticaAPIException} for an error response from the cosmetica api, and {@link java.io.IOException} for various I/O exceptions.
+ * Common errors are {@link FatalServerErrorException} for a non-ok http response, {@link CosmeticaAPIException} for an error response from the cosmetica api, and {@link java.io.IOException} for various I/O exceptions.
  * Keep in mind HttpNotOkException extends IOException.
  */
 public class ServerResponse<T> {
