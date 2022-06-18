@@ -48,47 +48,47 @@ public class UserInfoImpl implements UserInfo {
 	private final Optional<Cape> cape;
 
 	@Override
-	public String lore() {
+	public String getLore() {
 		return lore;
 	}
 
 	@Override
-	public String platform() {
+	public String getPlatform() {
 		return lore;
 	}
 
 	@Override
-	public boolean upsideDown() {
+	public boolean isUpsideDown() {
 		return upsideDown;
 	}
 
 	@Override
-	public String prefix() {
+	public String getPrefix() {
 		return prefix;
 	}
 
 	@Override
-	public String suffix() {
+	public String getSuffix() {
 		return suffix;
 	}
 
 	@Override
-	public List<Model> hats() {
+	public List<Model> getHats() {
 		return hats;
 	}
 
 	@Override
-	public Optional<ShoulderBuddies> shoulderBuddy() {
+	public Optional<ShoulderBuddies> getShoulderBuddies() {
 		return shoulderBuddies;
 	}
 
 	@Override
-	public Optional<Model> backBling() {
+	public Optional<Model> getBackBling() {
 		return backBling;
 	}
 
 	@Override
-	public Optional<Cape> cape() {
+	public Optional<Cape> getCape() {
 		return cape;
 	}
 

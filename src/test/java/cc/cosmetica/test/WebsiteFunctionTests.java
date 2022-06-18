@@ -36,7 +36,7 @@ public class WebsiteFunctionTests {
 		CosmeticsPage<?> page = api.getPopularCosmetics(1, 8).get();
 		System.out.println("Contacted popular in " + (System.currentTimeMillis() - time) + "ms");
 
-		for (CustomCosmetic cosmetic : page.cosmetics()) {
+		for (CustomCosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
 
@@ -47,7 +47,7 @@ public class WebsiteFunctionTests {
 		page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, Optional.empty()).get();
 		System.out.println("Contacted recent in " + (System.currentTimeMillis() - time) + "ms");
 
-		for (CustomCosmetic cosmetic : page.cosmetics()) {
+		for (CustomCosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
 
@@ -58,7 +58,7 @@ public class WebsiteFunctionTests {
 		page = api.getOfficialCosmetics(1, 87).get(); // the api caps it at 30 cosmetics
 		System.out.println("Contacted system in " + (System.currentTimeMillis() - time) + "ms");
 
-		for (CustomCosmetic cosmetic : page.cosmetics()) {
+		for (CustomCosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
 
@@ -76,6 +76,6 @@ public class WebsiteFunctionTests {
 		System.out.println(api.getCosmetic(CosmeticType.CAPE, "MDhhS1ZiWmpwMVVzT3c").get().getName());
 
 		// info
-		System.out.println("Valo's lore: " + api.getUserInfo(null, "Valoeghese").get().lore());
+		System.out.println("Valo's lore: " + api.getUserInfo(null, "Valoeghese").get().getLore());
 	}
 }

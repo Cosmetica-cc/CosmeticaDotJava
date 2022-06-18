@@ -37,21 +37,21 @@ public final class Panorama {
 	/**
 	 * @return the numerical id of the panorama.
 	 */
-	public int id() {
+	public int getId() {
 		return id;
 	}
 
 	/**
 	 * @return the name of the panorama.
 	 */
-	public String name() {
+	public String getName() {
 		return name;
 	}
 
 	/**
 	 * @return whether this panorama can be used by all users. Some panoramas are reserved to staff, donators, etc.
 	 */
-	public boolean free() {
+	public boolean isFree() {
 		return free;
 	}
 

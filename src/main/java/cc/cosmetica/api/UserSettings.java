@@ -23,6 +23,7 @@ import java.util.UUID;
 /**
  * An object containing a user's settings and preferences.
  */
+// TODO split such a fat object into api and impl so api readers don't have to see this monstrosity
 public final class UserSettings {
 	public UserSettings(UUID uuid, String capeId, String hatId, boolean doHats, String shoulderBuddyId, boolean doShoulderBuddies, String lore, boolean doLore, long joined, String role, String countryCode, boolean perRegionEffects, boolean perRegionEffectsSet, int panorama, Map<String, CapeServer> capeServerSettings) {
 		this.uuid = uuid;
@@ -61,26 +62,26 @@ public final class UserSettings {
 	/**
 	 * @return the UTC timestamp at which this user joined.
 	 */
-	public long joined() {
+	public long getJoinTime() {
 		return joined;
 	}
 
 	/**
 	 * @return the role of the user on the Cosmetica platform. For example, "admin" or "default".
 	 */
-	public String role() {
+	public String getRole() {
 		return role;
 	}
 
-	public UUID uuid() {
+	public UUID getUUID() {
 		return uuid;
 	}
 
-	public String capeId() {
+	public String getCapeId() {
 		return capeId;
 	}
 
-	public String hatId() {
+	public String getHatId() {
 		return hatId;
 	}
 
@@ -88,7 +89,7 @@ public final class UserSettings {
 		return doHats;
 	}
 
-	public String shoulderBuddyId() {
+	public String getShoulderBuddyId() {
 		return shoulderBuddyId;
 	}
 
@@ -96,7 +97,7 @@ public final class UserSettings {
 		return doShoulderBuddies;
 	}
 
-	public String lore() {
+	public String getLore() {
 		return lore;
 	}
 
@@ -104,23 +105,23 @@ public final class UserSettings {
 		return doLore;
 	}
 
-	public String countryCode() {
+	public String getCountryCode() {
 		return countryCode;
 	}
 
-	public boolean perRegionEffects() {
+	public boolean hasPerRegionEffects() {
 		return perRegionEffects;
 	}
 
-	public boolean perRegionEffectsSet() {
+	public boolean hasPerRegionEffectsSet() {
 		return perRegionEffectsSet;
 	}
 
-	public int panorama() {
+	public int getPanorama() {
 		return panorama;
 	}
 
-	public Map<String, CapeServer> capeServerSettings() {
+	public Map<String, CapeServer> getCapeServerSettings() {
 		return capeServerSettings;
 	}
 

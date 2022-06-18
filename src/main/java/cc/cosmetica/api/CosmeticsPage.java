@@ -32,11 +32,11 @@ public final class CosmeticsPage<T extends CustomCosmetic> {
 		this.nextPage = nextPage;
 	}
 
-	public List<T> cosmetics() {
+	public List<T> getCosmetics() {
 		return cosmetics;
 	}
 
-	public boolean nextPage() {
+	public boolean hasNextPage() {
 		return nextPage;
 	}
 

@@ -26,45 +26,45 @@ public interface UserInfo {
 	/**
 	 * @return the user's lore, i.e. the text that should be displayed below their name. This may start with a minecraft colour code.
 	 */
-	String lore();
+	String getLore();
 
 	/**
 	 * @return the platform this user is registered on. Can be "java" or "bedrock".
 	 */
-	String platform();
+	String getPlatform();
 
 	/**
 	 * @return whether the user should be rendered upside down in game due to region specific effects.
 	 */
-	boolean upsideDown();
+	boolean isUpsideDown();
 
 	/**
 	 * @return A prefix to the user's name.
 	 */
-	String prefix();
+	String getPrefix();
 
 	/**
 	 * @return a suffix to the user's name.
 	 */
-	String suffix();
+	String getSuffix();
 
 	/**
 	 * @return a list of the hats worn by this user.
 	 */
-	List<Model> hats();
+	List<Model> getHats();
 
 	/**
 	 * @return the shoulder buddies worn by this user.
 	 */
-	Optional<ShoulderBuddies> shoulderBuddy();
+	Optional<ShoulderBuddies> getShoulderBuddies();
 
 	/**
 	 * @return the back bling worn by this user.
 	 */
-	Optional<Model> backBling();
+	Optional<Model> getBackBling();
 
 	/**
 	 * @return the cape worn by this user.
 	 */
-	Optional<Cape> cape();
+	Optional<Cape> getCape();
 }

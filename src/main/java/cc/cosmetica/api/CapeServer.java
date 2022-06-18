@@ -19,7 +19,7 @@ public class CapeServer {
 	/**
 	 * @return the decorated name of this cape server.
 	 */
-	public String name() {
+	public String getName() {
 		return this.name;
 	}
 
@@ -27,15 +27,15 @@ public class CapeServer {
 	 * Get the warning for enabling this or an empty string to display to users. The actual message should be chosen by the implementation.
 	 * @return the warning to display the user for enabling this setting. Will be undecorated, or an empty string if there is no warning.
 	 */
-	public String warning() {
+	public String getWarning() {
 		return this.warning;
 	}
 
-	public int checkOrder() {
+	public int getCheckOrder() {
 		return this.checkOrder;
 	}
 
-	public CapeDisplay display() {
+	public CapeDisplay getDisplay() {
 		return this.display;
 	}
 }

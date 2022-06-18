@@ -31,11 +31,11 @@ public final class User {
 	private final UUID uuid;
 	private final String username;
 
-	public UUID uuid() {
+	public UUID getUUID() {
 		return uuid;
 	}
 
-	public String username() {
+	public String getUsername() {
 		return username;
 	}
 

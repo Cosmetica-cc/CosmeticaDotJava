@@ -282,7 +282,7 @@ public interface CosmeticaAPI {
 	 * @throws IllegalStateException if an api instance cannot be retrieved.
 	 * @throws IOException if there is an I/O exception while contacting the minecraft auth servers or cosmetica servers to authenticate the user.
 	 * @throws FatalServerErrorException if there is a 5XX error while contacting the servers.
-	 * @apiNote this can take a couple seconds as it has to make 2 POST requests.
+	 * @apiNote this can take a couple seconds as it has to make 2 POST requests and a GET request to authenticate.
 	 */
 	static CosmeticaAPI fromMinecraftToken(String minecraftToken, String username, UUID uuid) throws IllegalStateException, IOException, FatalServerErrorException {
 		return CosmeticaWebAPI.fromMinecraftToken(minecraftToken, username, uuid);

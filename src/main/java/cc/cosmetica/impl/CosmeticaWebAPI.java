@@ -577,6 +577,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					apiGetHost = response.getAsJson().get("current_host").getAsString();
 				}
 			} catch (Exception e) {
+				// we just print for the sole reason that we do 2 backups so it will always at least try one endpoint
 				e.printStackTrace(); // this is probably bad practise?
 			}
 
@@ -584,17 +585,19 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			if (apiGetHost == null) apiGetHost = "https://cosmetica.cc/getapi"; // fallback
 
 			String apiGetData = null;
+			Exception eStored = new NullPointerException("Response succeeded but API GET entity was null"); // in case response succeeds but somehow get data is null
 
 			try (Response apiGetResponse = Response.get(apiGetHost)) {
 				apiGetData = apiGetResponse.getAsString();
 			} catch (Exception e) {
 				System.err.println("(Cosmetica API) Connection error to API GET. Trying to retrieve from local cache...");
+				eStored = e;
 			}
 
 			if (apiCache != null) apiGetData = Yootil.loadOrCache(apiCache, apiGetData);
 
 			if (apiGetData == null) {
-				throw new IllegalStateException("Could not receive Cosmetica API host. Mod functionality will be disabled!");
+				throw new IllegalStateException("Could not receive Cosmetica API host. Mod functionality will be disabled!", eStored);
 			}
 
 			JsonObject data = JsonParser.parseString(apiGetData).getAsJsonObject();

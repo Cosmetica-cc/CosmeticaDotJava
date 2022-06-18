@@ -49,9 +49,9 @@ public class ServerResponse<T> {
 	private final SafeURL url;
 
 	/**
-	 * @return the url that was contacted to receive this response.
+	 * @return the url that was contacted to receive this response. Will not include the token.
 	 */
-	public String url() {
+	public String getURL() {
 		return this.url.safeUrl();
 	}
 

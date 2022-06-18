@@ -23,27 +23,25 @@ import java.util.Objects;
  * An update retrieved on the safari. Contains a list of notifications for this user, a list of users on the same server that need their cosmetics refreshed, and a timestamp to use next time you make a request to the {@code everythirtysecondsinafricahalfaminutepasses} endpoint.
  */
 public final class CosmeticsUpdates {
-	private final List<String> notifications;
-	private final List<User> needsUpdating;
-	private final long timestamp;
-
-	/**
-	 */
 	public CosmeticsUpdates(List<String> notifications, List<User> needsUpdating, long timestamp) {
 		this.notifications = notifications;
 		this.needsUpdating = needsUpdating;
 		this.timestamp = timestamp;
 	}
 
-	public List<String> notifications() {
+	private final List<String> notifications;
+	private final List<User> needsUpdating;
+	private final long timestamp;
+
+	public List<String> getNotifications() {
 		return notifications;
 	}
 
-	public List<User> needsUpdating() {
+	public List<User> getNeedsUpdating() {
 		return needsUpdating;
 	}
 
-	public long timestamp() {
+	public long getTimestamp() {
 		return timestamp;
 	}
 

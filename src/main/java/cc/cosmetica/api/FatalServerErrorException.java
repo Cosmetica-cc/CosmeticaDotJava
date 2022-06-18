@@ -19,7 +19,7 @@ package cc.cosmetica.api;
 /**
  * Exception thrown when an API request returns a 5XX error with no attached JSON response, i.e. a fatal internal server error that caused the server to not respond properly.
  */
-public class FatalServerErrorException extends Exception {
+public class FatalServerErrorException extends RuntimeException {
 	public FatalServerErrorException(String url, int errorCode) {
 		super("Received fatal internal server error (code " + errorCode + ") from URL " + url);
 
