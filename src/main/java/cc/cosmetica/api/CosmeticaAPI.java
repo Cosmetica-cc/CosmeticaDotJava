@@ -46,14 +46,6 @@ public interface CosmeticaAPI {
 	ServerResponse<VersionInfo> checkVersion(String minecraftVersion, String cosmeticaVersion);
 
 	/**
-	 * Exchanges the auth token in this API instance for a 'master' and 'limited' token, if it does not already have them stored.
-	 * @param uuid the UUID of the player we are requesting to have cosmetica api access tokens for.
-	 * @return relevant login information.
-	 * @throws IllegalStateException if this instance was created without an auth token (i.e directly with api tokens), as there is nothing to exchange.
-	 */
-	ServerResponse<LoginInfo> exchangeTokens(UUID uuid) throws IllegalStateException;
-
-	/**
 	 * Head on the safari to check out the lion king's new cosmetics! I mean, uh, ping this to get updates on any cosmetic changes you may have missed in the last 4 minutes from users on the server you're on, and allow other cosmetica users on the same server to receive cosmetics updates for you.<br>
 	 * If you provide a timestamp of 0, the endpoint will not send any users nor notifications, but instead only respond with a timestamp to use next time. The cosmetica mod calls this endpoint with a timestamp of 0 upon first joining a server to get its initial timestamp for this server.
 	 * @param serverAddress the address of the minecraft server you're on. This {@link InetSocketAddress} must have an IP and port associated.
@@ -224,6 +216,12 @@ public interface CosmeticaAPI {
 	///////////////////////////
 
 	/**
+	 * Get the login info from the authentication's token exchange, if it was done to create this instance.
+	 * @return the login info as an optional
+	 */
+	Optional<LoginInfo> getLoginInfo();
+
+	/**
 	 * Pass a consumer to be invoked with the URL whenever a URL is contacted. This can be useful for debug logging purposes.
 	 * @param logger the logger to pass.
 	 */
@@ -240,20 +238,13 @@ public interface CosmeticaAPI {
 	boolean isAuthenticated();
 
 	/**
-	 * Sets a new authentication token for this instance to use. This resets the master and limited tokens stored on this instance, so {@link CosmeticaAPI#exchangeTokens(UUID)} must be called after this.
-	 */
-	void setAuthToken(String authenticationToken);
-
-	/**
-	 * Create an instance with which to access the cosmetica web api via one token.
-	 * @param token a cosmetica token. Can be a master token, limited token, or cosmetica authentication token.
+	 * Create an instance with which to access the cosmetica web api via one token. Cannot accept a temporary token. To use a cosmetica temporary authentication token, see {@link CosmeticaAPI#fromTemporaryToken(String, UUID)}.
+	 * @param token a cosmetica token. Can be a master token, or a token.
 	 * @return an instance of the cosmetica web api, configured with the given token. The instance will behave in the following way for each case:<br>
 	 * <h2>Master Token</h2>
 	 *   Uses only the master token for an account. This instance will only make requests on https, unlike other instances which make non-sensitive "get" requests under http for speed.
 	 * <h2>Limited Token</h2>
 	 *   Uses only a cosmetica 'limited' or 'get' token, a special token for use over HTTP which only has access to specific "get" endpoints. This instance will only make requests on http, so is less secure.
-	 * <h2>Temporary Token</h2>
-	 *   Uses a Cosmetica temporary authentication token: a special token used as an intermediate step between initial authentication and receiving your two api tokens. After creating an instance with the authentication token, {@linkplain CosmeticaAPI#exchangeTokens(UUID) this can then be exchanged with the cosmetica api} for a valid new master and limited token with which this cosmetica api instance will be configured.
 	 * @throws IllegalStateException if an api instance cannot be retrieved.
 	 * @throws IllegalArgumentException if the token given does not match the format for any of the 3 token types.
 	 */
@@ -264,10 +255,22 @@ public interface CosmeticaAPI {
 		case 'l':
 			return CosmeticaWebAPI.fromTokens(null, token);
 		case 't':
-			return CosmeticaWebAPI.fromTempToken(token);
+			throw new IllegalArgumentException("For temporary tokens, use fromTempToken(UUID, token)");
 		default:
 			throw new IllegalArgumentException("Cannot determine type of token " + token);
 		}
+	}
+
+	/**
+	 * Creates a new authenticated {@link CosmeticaAPI} instance using a cosmetica temporary authentication token: a special token used as an intermediate step between initial authentication and receiving the master and limited token.
+	 * @param temporaryToken the temporary token.
+	 * @param uuid the player's UUID.
+	 * @return an authenticated instance of {@link CosmeticaAPI} with both a master and limited token.
+	 * @throws FatalServerErrorException if there is a 5XX error while contacting the servers.
+	 * @throws IOException if there is an I/O exception while contacting the servers.
+	 */
+	static CosmeticaAPI fromTemporaryToken(String temporaryToken, UUID uuid) throws FatalServerErrorException, IOException {
+		return CosmeticaWebAPI.fromTempToken(temporaryToken, uuid);
 	}
 
 	/**
@@ -277,8 +280,9 @@ public interface CosmeticaAPI {
 	 * @param uuid the user's UUID.
 	 * @return an instance of the cosmetica web api, configured with the given account.
 	 * @throws IllegalStateException if an api instance cannot be retrieved.
-	 * @throws IOException if there's an I/O exception while contacting the minecraft auth servers or cosmetica servers to authenticate the user.
+	 * @throws IOException if there is an I/O exception while contacting the minecraft auth servers or cosmetica servers to authenticate the user.
 	 * @throws FatalServerErrorException if there is a 5XX error while contacting the servers.
+	 * @apiNote this can take a couple seconds as it has to make 2 POST requests.
 	 */
 	static CosmeticaAPI fromMinecraftToken(String minecraftToken, String username, UUID uuid) throws IllegalStateException, IOException, FatalServerErrorException {
 		return CosmeticaWebAPI.fromMinecraftToken(minecraftToken, username, uuid);
@@ -311,7 +315,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the message retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
+	 * Get the message retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTemporaryToken(String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getMessage() {
@@ -333,7 +337,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica website url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
+	 * Get the cosmetica website url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTemporaryToken(String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getWebsite() {
@@ -341,7 +345,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica api server url being used, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
+	 * Get the cosmetica api server url being used, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTemporaryToken(String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getAPIServer() {
@@ -349,7 +353,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Get the cosmetica api server url being used as an insecure http:// url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
+	 * Get the cosmetica api server url being used as an insecure http:// url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTemporaryToken(String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
 	 */
 	@Nullable
 	static String getHttpAPIServer() {

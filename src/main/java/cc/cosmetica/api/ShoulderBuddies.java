@@ -16,27 +16,19 @@
 
 package cc.cosmetica.api;
 
+import java.util.Optional;
+
 /**
- * Represents a cosmetic stored on cosmetica servers. This could be either a cape or model.
+ * Data class which stores the player's shoulder buddies.
  */
-public interface CustomCosmetic {
+public interface ShoulderBuddies {
 	/**
-	 * @return the cosmetic type.
+	 * @return the player's left shoulder buddy.
 	 */
-	CosmeticType<?> getType();
+	Optional<Model> getLeft();
 
 	/**
-	 * @return the owner of this model. Can be a hyphenless UUID of a player, or "system" (e.g. for the starter capes).
+	 * @return the player's right shoulder buddy.
 	 */
-	User getOwner();
-
-	/**
-	 * @return the UTC unix timestamp, in seconds, at which this model was uploaded.
-	 */
-	long getUploadTime();
-
-	/**
-	 * @return the name of this cosmetic.
-	 */
-	String getName();
+	Optional<Model> getRight();
 }

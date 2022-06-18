@@ -43,7 +43,7 @@ public final class User {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != this.getClass()) return false;
-		var that = (User) obj;
+		User that = (User) obj;
 		return Objects.equals(this.uuid, that.uuid) &&
 				Objects.equals(this.username, that.username);
 	}

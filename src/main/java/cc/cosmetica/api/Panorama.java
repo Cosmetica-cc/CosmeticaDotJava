@@ -59,7 +59,7 @@ public final class Panorama {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != this.getClass()) return false;
-		var that = (Panorama) obj;
+		Panorama that = (Panorama) obj;
 		return this.id == that.id &&
 				Objects.equals(this.name, that.name) &&
 				this.free == that.free;

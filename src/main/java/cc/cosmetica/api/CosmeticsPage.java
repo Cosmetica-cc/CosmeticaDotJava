@@ -21,14 +21,12 @@ import java.util.Objects;
 
 /**
  * A page of cosmetics on the website.
+ * @param <T> the type of cosmetic found on this page. Could be {@link CustomCosmetic} if a general page.
  */
 public final class CosmeticsPage<T extends CustomCosmetic> {
 	private final List<T> cosmetics;
 	private final boolean nextPage;
 
-	/**
-	 * @param <T> the type of cosmetic found on this page. Could be {@link CustomCosmetic} if a general page.
-	 */
 	public CosmeticsPage(List<T> cosmetics, boolean nextPage) {
 		this.cosmetics = cosmetics;
 		this.nextPage = nextPage;
@@ -46,7 +44,7 @@ public final class CosmeticsPage<T extends CustomCosmetic> {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != this.getClass()) return false;
-		var that = (CosmeticsPage) obj;
+		CosmeticsPage that = (CosmeticsPage) obj;
 		return Objects.equals(this.cosmetics, that.cosmetics) &&
 				this.nextPage == that.nextPage;
 	}

@@ -18,6 +18,9 @@ package cc.cosmetica.api;
 
 import java.util.Objects;
 
+/**
+ * Information retrieved on login.
+ */
 public final class LoginInfo {
 	public LoginInfo(boolean isNewPlayer, boolean hasSpecialCape) {
 		this.isNewPlayer = isNewPlayer;
@@ -39,7 +42,7 @@ public final class LoginInfo {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != this.getClass()) return false;
-		var that = (LoginInfo) obj;
+		LoginInfo that = (LoginInfo) obj;
 		return this.isNewPlayer == that.isNewPlayer &&
 				this.hasSpecialCape == that.hasSpecialCape;
 	}

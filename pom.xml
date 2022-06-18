@@ -7,7 +7,7 @@
     <groupId>cc.cosmetica</groupId>
     <artifactId>CosmeticaDotJava</artifactId>
     <description>A java library to interface with the Cosmetica web API.</description>
-    <version>0.3.0</version>
+    <version>1.0.0</version>
 
     <dependencies>
         <dependency>
@@ -31,7 +31,7 @@
     </dependencies>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 </project>

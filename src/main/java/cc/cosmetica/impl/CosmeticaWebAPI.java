@@ -43,21 +43,41 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class CosmeticaWebAPI implements CosmeticaAPI {
-	private CosmeticaWebAPI(String masterToken, @Nullable String getToken) {
+	private CosmeticaWebAPI(@Nullable String masterToken, @Nullable String limited) {
 		this.masterToken = masterToken;
-		this.limitedToken = getToken;
+		this.limitedToken = limited;
+		this.loginInfo = Optional.empty();
 	}
 
-	private CosmeticaWebAPI(String authenticationToken) {
-		this.masterToken = null;
-		this.limitedToken = null;
-		this.authToken = authenticationToken;
+	private CosmeticaWebAPI(UUID uuid, String limitedToken) throws FatalServerErrorException, IOException {
+		this.loginInfo = Optional.of(this.exchangeTokens(uuid, limitedToken));
 	}
 
-	@Nullable private String masterToken;
-	@Nullable private String limitedToken;
-	@Nullable private String authToken;
+	private final Optional<LoginInfo> loginInfo;
+	private String masterToken;
+	private String limitedToken;
 	private Consumer<String> urlLogger = s -> {};
+
+	private LoginInfo exchangeTokens(UUID uuid, String authToken) throws IllegalStateException, FatalServerErrorException, IOException {
+		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, authToken);
+
+		try (Response response = Response.get(url)) {
+			JsonObject object = response.getAsJson();
+
+			if (object.has("error")) {
+				throw new CosmeticaAPIException("Error exchanging tokens! " + object.get("error").getAsString());
+			}
+
+			this.masterToken = object.get("master_token").getAsString();
+			this.limitedToken = object.get("limited_token").getAsString();
+			return new LoginInfo(object.get("is_new_player").getAsBoolean(), object.has("has_special_cape") ? object.get("has_special_cape").getAsBoolean() : false);
+		}
+	}
+
+	@Override
+	public Optional<LoginInfo> getLoginInfo() {
+		return this.loginInfo;
+	}
 
 	@Override
 	public ServerResponse<VersionInfo> checkVersion(String minecraftVersion, String cosmeticaVersion) {
@@ -76,29 +96,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<LoginInfo> exchangeTokens(UUID uuid) throws IllegalStateException {
-		if (this.authToken == null) throw new IllegalStateException("This instance does not have a stored auth token! Perhaps it was created directly with API tokens.");
-
-		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, this.authToken);
-
-		try (Response response = Response.get(url)) {
-			JsonObject object = response.getAsJson();
-
-			if (object.has("error")) {
-				throw new CosmeticaAPIException("Error exchanging tokens! " + object.get("error").getAsString());
-			}
-
-			this.masterToken = object.get("master_token").getAsString();
-			this.limitedToken = object.get("limited_token").getAsString();
-
-			return new ServerResponse<>(new LoginInfo(object.get("is_new_player").getAsBoolean(), object.has("has_special_cape") ? object.get("has_special_cape").getAsBoolean() : false), url);
-		}
-		catch (Exception e) {
-			return new ServerResponse<>(e, url);
-		}
-	}
-
-	@Override
 	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException {
 		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
 
@@ -110,17 +107,27 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			checkErrors(target, jsonObject);
 
 			JsonArray hats = jsonObject.has("hats") ? jsonObject.get("hats").getAsJsonArray() : null;
-			JsonObject shoulderBuddy = jsonObject.has("shoulderBuddy") ? jsonObject.get("shoulderBuddy").getAsJsonObject() : null;
+			JsonObject shoulderBuddies = jsonObject.has("shoulderBuddies") ? jsonObject.get("shoulderBuddies").getAsJsonObject() : null;
 			JsonObject backBling = jsonObject.has("backBling") ? jsonObject.get("backBling").getAsJsonObject() : null;
 			JsonObject cloak = jsonObject.has("cape") ? jsonObject.get("cape").getAsJsonObject() : null;
 
-			return new ServerResponse<>(new UserInfo(
+			Optional<ShoulderBuddies> sbObj = Optional.empty();
+
+			if (shoulderBuddies != null) {
+				sbObj = Optional.of(new ShoulderBuddiesImpl(
+						ModelImpl.parse(shoulderBuddies.has("left") ? shoulderBuddies.get("left").getAsJsonObject() : null),
+						ModelImpl.parse(shoulderBuddies.has("right") ? shoulderBuddies.get("right").getAsJsonObject() : null)
+				));
+			}
+
+			return new ServerResponse<>(new UserInfoImpl(
 					jsonObject.get("lore").getAsString(),
+					jsonObject.get("platform").getAsString(),
 					jsonObject.get("upsideDown").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
 					jsonObject.get("suffix").getAsString(),
 					Yootil.mapObjects(hats, ModelImpl::_parse),
-					ModelImpl.parse(shoulderBuddy),
+					sbObj,
 					ModelImpl.parse(backBling),
 					BaseCape.parse(cloak)
 			), target);
@@ -292,7 +299,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
 			checkErrors(awimbawe, theMightyJungle);
 
-			List<String> notifications = List.of();
+			List<String> notifications = new ArrayList<>();
 
 			if (theMightyJungle.has("notifications")) {
 				JsonArray jNotif = theMightyJungle.get("notifications").getAsJsonArray();
@@ -305,7 +312,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			JsonObject updates = theMightyJungle.get("updates").getAsJsonObject();
 
-			List<User> users = List.of();
+			List<User> users = new ArrayList<>();
 
 			if (updates.has("list")) {
 				JsonArray jUpdates = updates.getAsJsonArray("list");
@@ -452,13 +459,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return this.isFullyAuthenticated() || this.limitedToken != null;
 	}
 
-	@Override
-	public void setAuthToken(String authToken) {
-		this.authToken = authToken;
-		this.masterToken = null;
-		this.limitedToken = null;
-	}
-
 	/**
 	 * Use this method if you're cringe.<br/>
 	 * (exists to stop reflection being necessary for the few times it's justified to manually get the token rather than going through the api)
@@ -488,9 +488,9 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return websiteHost;
 	}
 
-	public static CosmeticaAPI fromTempToken(String authenticationToken) throws IllegalStateException {
+	public static CosmeticaAPI fromTempToken(String tempToken, UUID uuid) throws IllegalStateException, IOException, FatalServerErrorException {
 		retrieveAPIIfNoneCached();
-		return new CosmeticaWebAPI(authenticationToken);
+		return new CosmeticaWebAPI(uuid, tempToken);
 	}
 
 	public static CosmeticaAPI fromMinecraftToken(String minecraftToken, String username, UUID uuid) throws IllegalStateException, IOException, FatalServerErrorException {
@@ -525,7 +525,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject data = response.getAsJson();
 			checkErrors(SafeURL.direct(authApiServerHost + "/verify"), data);
 
-			return fromTempToken(data.get("token").getAsString());
+			return new CosmeticaWebAPI(uuid, data.get("token").getAsString());
 		}
 	}
 
@@ -536,7 +536,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	public static CosmeticaAPI newUnauthenticatedInstance() throws IllegalStateException {
 		retrieveAPIIfNoneCached();
-		return new CosmeticaWebAPI(null, null);
+		return new CosmeticaWebAPI((String) null, null);
 	}
 
 	@Nullable
@@ -573,7 +573,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			String apiGetHost = null;
 
 			try (Response response = Response.get("https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json?timestamp=" + System.currentTimeMillis())) {
-				if (response.getError().isEmpty()) {
+				if (!response.getError().isPresent()) {
 					apiGetHost = response.getAsJson().get("current_host").getAsString();
 				}
 			} catch (Exception e) {

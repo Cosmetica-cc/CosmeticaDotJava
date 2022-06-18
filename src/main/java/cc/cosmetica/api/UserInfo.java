@@ -17,96 +17,54 @@
 package cc.cosmetica.api;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A record containing the response of a user info get request.
+ * An object containing the response of a user info get request.
  */
-public final class UserInfo {
-	public UserInfo(String lore, boolean upsideDown, String prefix, String suffix, List<Model> hats, Optional<Model> shoulderBuddy, Optional<Model> backBling, Optional<Cape> cape) {
-		this.lore = lore;
-		this.upsideDown = upsideDown;
-		this.prefix = prefix;
-		this.suffix = suffix;
-		this.hats = hats;
-		this.shoulderBuddy = shoulderBuddy;
-		this.backBling = backBling;
-		this.cape = cape;
-	}
+public interface UserInfo {
+	/**
+	 * @return the user's lore, i.e. the text that should be displayed below their name. This may start with a minecraft colour code.
+	 */
+	String lore();
 
-	private final String lore;
-	private final boolean upsideDown;
-	private final String prefix;
-	private final String suffix;
-	private final List<Model> hats;
-	private final Optional<Model> shoulderBuddy;
-	private final Optional<Model> backBling;
-	private final Optional<Cape> cape;
+	/**
+	 * @return the platform this user is registered on. Can be "java" or "bedrock".
+	 */
+	String platform();
 
-	public String lore() {
-		return lore;
-	}
+	/**
+	 * @return whether the user should be rendered upside down in game due to region specific effects.
+	 */
+	boolean upsideDown();
 
-	public boolean upsideDown() {
-		return upsideDown;
-	}
+	/**
+	 * @return A prefix to the user's name.
+	 */
+	String prefix();
 
-	public String prefix() {
-		return prefix;
-	}
+	/**
+	 * @return a suffix to the user's name.
+	 */
+	String suffix();
 
-	public String suffix() {
-		return suffix;
-	}
+	/**
+	 * @return a list of the hats worn by this user.
+	 */
+	List<Model> hats();
 
-	public List<Model> hats() {
-		return hats;
-	}
+	/**
+	 * @return the shoulder buddies worn by this user.
+	 */
+	Optional<ShoulderBuddies> shoulderBuddy();
 
-	public Optional<Model> shoulderBuddy() {
-		return shoulderBuddy;
-	}
+	/**
+	 * @return the back bling worn by this user.
+	 */
+	Optional<Model> backBling();
 
-	public Optional<Model> backBling() {
-		return backBling;
-	}
-
-	public Optional<Cape> cape() {
-		return cape;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this) return true;
-		if (obj == null || obj.getClass() != this.getClass()) return false;
-		var that = (UserInfo) obj;
-		return Objects.equals(this.lore, that.lore) &&
-				this.upsideDown == that.upsideDown &&
-				Objects.equals(this.prefix, that.prefix) &&
-				Objects.equals(this.suffix, that.suffix) &&
-				Objects.equals(this.hats, that.hats) &&
-				Objects.equals(this.shoulderBuddy, that.shoulderBuddy) &&
-				Objects.equals(this.backBling, that.backBling) &&
-				Objects.equals(this.cape, that.cape);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(lore, upsideDown, prefix, suffix, hats, shoulderBuddy, backBling, cape);
-	}
-
-	@Override
-	public String toString() {
-		return "UserInfo[" +
-				"lore=" + lore + ", " +
-				"upsideDown=" + upsideDown + ", " +
-				"prefix=" + prefix + ", " +
-				"suffix=" + suffix + ", " +
-				"hats=" + hats + ", " +
-				"shoulderBuddy=" + shoulderBuddy + ", " +
-				"backBling=" + backBling + ", " +
-				"cape=" + cape + ']';
-	}
-
+	/**
+	 * @return the cape worn by this user.
+	 */
+	Optional<Cape> cape();
 }

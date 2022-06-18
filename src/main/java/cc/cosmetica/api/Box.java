@@ -101,13 +101,13 @@ public final class Box {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != this.getClass()) return false;
-		var that = (Box) obj;
-		return Double.doubleToLongBits(this.x0) == Double.doubleToLongBits(that.x0) &&
-				Double.doubleToLongBits(this.y0) == Double.doubleToLongBits(that.y0) &&
-				Double.doubleToLongBits(this.z0) == Double.doubleToLongBits(that.z0) &&
-				Double.doubleToLongBits(this.x1) == Double.doubleToLongBits(that.x1) &&
-				Double.doubleToLongBits(this.y1) == Double.doubleToLongBits(that.y1) &&
-				Double.doubleToLongBits(this.z1) == Double.doubleToLongBits(that.z1);
+		Box that = (Box) obj;
+		return this.x0 == that.x0
+				&& this.y0 == that.y0
+				&& this.z0 == that.z0
+				&& this.x1 == that.x1
+				&& this.y1 == that.y1
+				&& this.z1 == that.z1;
 	}
 
 	@Override

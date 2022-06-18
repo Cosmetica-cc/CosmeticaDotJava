@@ -16,8 +16,6 @@
 
 package cc.cosmetica.api;
 
-import java.util.Objects;
-
 /**
  * Object which stores data from a version checker response.
  */
@@ -48,11 +46,6 @@ public final class VersionInfo {
 
 	public String plainMessage() {
 		return plainMessage;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(needsUpdate, minecraftMessage, plainMessage);
 	}
 
 	@Override

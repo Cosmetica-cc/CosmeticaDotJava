@@ -128,7 +128,7 @@ public final class UserSettings {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != this.getClass()) return false;
-		var that = (UserSettings) obj;
+		UserSettings that = (UserSettings) obj;
 		return Objects.equals(this.uuid, that.uuid) &&
 				Objects.equals(this.capeId, that.capeId) &&
 				Objects.equals(this.hatId, that.hatId) &&

@@ -51,7 +51,7 @@ public final class CosmeticsUpdates {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != this.getClass()) return false;
-		var that = (CosmeticsUpdates) obj;
+		CosmeticsUpdates that = (CosmeticsUpdates) obj;
 		return Objects.equals(this.notifications, that.notifications) &&
 				Objects.equals(this.needsUpdating, that.needsUpdating) &&
 				this.timestamp == that.timestamp;

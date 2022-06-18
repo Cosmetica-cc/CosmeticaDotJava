@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface Model extends CustomCosmetic {
 	/**
-	 * @return the id of this model.
+	 * @remturn the id of this model.
 	 * @apiNote It is useful to use this field along with caching to ensure each model is only built once on the application end.
 	 */
 	String getId();
