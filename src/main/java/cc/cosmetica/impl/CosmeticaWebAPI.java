@@ -90,7 +90,9 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		try (Response response = Response.get(versionCheck)) {
 			JsonObject s = response.getAsJson();
 			return new ServerResponse<>(new VersionInfo(s.get("needsUpdate").getAsBoolean(), s.get("isVital").getAsBoolean(), s.get("minecraftMessage").getAsString(), s.get("plainMessage").getAsString()), versionCheck);
-		} catch (Exception e) {
+		} catch (IOException ie) {
+			return new ServerResponse<>(ie, versionCheck);
+		} catch (RuntimeException e) {
 			return new ServerResponse<>(e, versionCheck);
 		}
 	}
@@ -131,7 +133,9 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					ModelImpl.parse(backBling),
 					BaseCape.parse(cloak)
 			), target);
-		} catch (Exception e) {
+		} catch (IOException ie) {
+			return new ServerResponse<>(ie, target);
+		} catch (RuntimeException e) {
 			return new ServerResponse<>(e, target);
 		}
 	}
@@ -159,15 +163,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				));
 			}
 
-			return new ServerResponse<>(new UserSettings(
+			return new ServerResponse<>(new UserSettingsImpl(
 					UUID.fromString(Yootil.dashifyUUID(data.get("uuid").getAsString())),
 					// cosmetics
-					data.get("cape").getAsString(),
-					data.get("hat").getAsString(),
 					data.get("doHats").getAsBoolean(),
-					data.get("shoulderBuddy").getAsString(),
 					data.get("doShoulderBuddies").getAsBoolean(),
-					data.get("lore").getAsString(),
+					data.get("doBackBlings").getAsBoolean(),
 					data.get("doLore").getAsBoolean(),
 					// other stuff
 					data.get("joined").getAsLong(),
@@ -179,7 +180,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					oCapeServerSettings
 			), target);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, target);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, target);
 		}
 	}
@@ -214,7 +218,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage), url);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, url);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, url);
 		}
 	}
@@ -247,7 +254,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		try (Response response = Response.get(url)) {
 			return new ServerResponse<>(Yootil.toStringList(getAsArray(url, response.getAsJsonElement())), url);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, url);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, url);
 		}
 	}
@@ -263,7 +273,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			return new ServerResponse<>((T) parse(json), url);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, url);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, url);
 		}
 	}
@@ -284,7 +297,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			return new ServerResponse<>(result, url);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, url);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, url);
 		}
 	}
@@ -328,7 +344,11 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			}
 
 			return new ServerResponse<>(new CosmeticsUpdates(notifications, users, updates.get("timestamp").getAsLong()), awimbawe);
-		} catch (Exception e) {
+		}
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, awimbawe);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, awimbawe);
 		}
 	}
@@ -343,7 +363,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			checkErrors(target, json);
 			return new ServerResponse<>(json.get("success").getAsString(), target);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, target);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, target);
 		}
 	}
@@ -356,7 +379,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			checkErrors(target, json);
 			return new ServerResponse<>(json.get("success").getAsBoolean(), target);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, target);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, target);
 		}
 	}
@@ -406,7 +432,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			return new ServerResponse<>(obj.get("success").getAsString(), target);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, target);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, target);
 		}
 	}
@@ -425,7 +454,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			return new ServerResponse<>(obj.get("success").getAsString(), target);
 		}
-		catch (Exception e) {
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, target);
+		}
+		catch (RuntimeException e) {
 			return new ServerResponse<>(e, target);
 		}
 	}

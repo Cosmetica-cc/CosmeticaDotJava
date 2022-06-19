@@ -20,7 +20,7 @@ Add in your dependencies block as follows:
 
 ```gradle
 dependencies {
-    implementation 'com.github.Cosmetica-cc:CosmeticaDotJava:1.0.0'
+    implementation 'com.github.Cosmetica-cc:CosmeticaDotJava:1.0.1'
 }
 ```
 
@@ -30,7 +30,7 @@ You'll likely want to distribute it as part of your project as well. To do this,
 
 ```gradle
 dependencies {
-    include 'com.github.Cosmetica-cc:CosmeticaDotJava:1.0.0'
+    include 'com.github.Cosmetica-cc:CosmeticaDotJava:1.0.1'
 }
 ```
 
@@ -53,7 +53,7 @@ Add the CosmeticaDotJava dependency:
 <dependency>
     <groupId>com.github.Cosmetica-cc</groupId>
     <artifactId>CosmeticaDotJava</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -77,4 +77,65 @@ This one is more complex. You need the user's UUID, username, and their minecraf
 
 ```java
 CosmeticaAPI cosmetica = CosmeticaAPI.fromMinecraftToken(minecraftAuthToken, username, uuid);
+```
+
+### What is `ServerResponse<T>`?
+
+All API web requests from `CosmeticaAPI` return an instance of `ServerResponse` wrapped around the type they are returning.
+`ServerResponse` as a wrapper is similar to `Optional`, but instead of purely storing the presence or absence of data, it stores either the response data or a runtime exception.
+
+The exceptions you are most likely to receive are `CosmeticaAPIException` (which represents an error response from the api),
+`UncheckedIOException` and occasionally `FatalServerErrorException`.
+
+There are a number of ways to handle these responses, 3 of which are detailed here:
+
+1. Just unwrap the response
+
+This is simple enough. Just put `.get()` after receiving your response, and it will either return the response data or throw an exception depending on which is stored in the object. 
+
+2. Use a fallback value
+
+You can provide a fallback value through the use of `.or(fallback value)`.
+
+3. Success and Error Callbacks
+
+`ServerResponse` also provides methods which take callbacks in the case of success / error.
+- `.ifSuccessful(...)` takes a single `Consumer` of whatever type the ServerResponse contains in the case of success and only runs if the response contains no exception
+- `.ifError(...)` takes a single `Consumer<RuntimeException>` and only runs if the response contains an exception
+- `.ifSuccessfulOrElse(...)` takes two consumers: a `Consumer` of whatever type the ServerResponse contains in the case of success, and a `Consumer<RuntimeException>`. The corresponding callback runs dependent on whether an exception is present or not.
+
+### Examples
+
+Here is a short example of a command line program for getting the cape worn by a user. You can check out more examples in the `src/cc/cosmetica/test` package.
+
+```java
+public static void main(String[] args) {
+	// initialise an instance
+	CosmeticaAPI cosmetica = CosmeticaAPI.newUnauthenticatedInstance();
+	
+	// command line input
+    System.out.println("Whose cape do you wish to investigate?");
+	String username = new Scanner(System.in).nextLine();
+	
+	// Make request and handle result
+	cosmetica.getUserInfo(null, username).ifSuccessfulOrElse(info -> {
+		Optional<Cape> optionalCape = info.getCape();
+		
+		if (optionalCape.isPresent()){
+			Cape cape = optionalCape.get();
+			
+			// Test whether the cape has extra properties (such as the name) we can read due to being stored on the cosmetica servers
+			if (cape instanceof CustomCape) {
+				System.out.println(username + " has the cape \"" + ((CustomCape) cape).getName() + "\" from cosmetica!");
+			} else {
+				System.out.println(username + " has a " + cape.getOrigin() + " cape.");
+			}
+		} else {
+			System.out.println(username + " has no cape :(");
+		}
+	}, err -> {
+		System.err.println("There was an error retrieving that user's info!");
+		err.printStackTrace();
+	});
+}
 ```

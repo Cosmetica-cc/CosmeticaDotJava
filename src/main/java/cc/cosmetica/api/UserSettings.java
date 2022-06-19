@@ -16,160 +16,80 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.impl.DummyUserSettings;
+
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
  * An object containing a user's settings and preferences.
  */
-// TODO split such a fat object into api and impl so api readers don't have to see this monstrosity
-public final class UserSettings {
-	public UserSettings(UUID uuid, String capeId, String hatId, boolean doHats, String shoulderBuddyId, boolean doShoulderBuddies, String lore, boolean doLore, long joined, String role, String countryCode, boolean perRegionEffects, boolean perRegionEffectsSet, int panorama, Map<String, CapeServer> capeServerSettings) {
-		this.uuid = uuid;
-		this.capeId = capeId;
-		this.hatId = hatId;
-		this.doHats = doHats;
-		this.shoulderBuddyId = shoulderBuddyId;
-		this.doShoulderBuddies = doShoulderBuddies;
-		this.lore = lore;
-		this.doLore = doLore;
-		this.joined = joined;
-		this.role = role;
-		this.countryCode = countryCode;
-		this.perRegionEffects = perRegionEffects;
-		this.perRegionEffectsSet = perRegionEffectsSet;
-		this.panorama = panorama;
-		this.capeServerSettings = capeServerSettings;
-	}
-
-	private final UUID uuid;
-	private final String capeId;
-	private final String hatId;
-	private final boolean doHats;
-	private final String shoulderBuddyId;
-	private final boolean doShoulderBuddies;
-	private final String lore;
-	private final boolean doLore;
-	private final long joined;
-	private final String role;
-	private final String countryCode;
-	private final boolean perRegionEffects;
-	private final boolean perRegionEffectsSet;
-	private final int panorama;
-	private final Map<String, CapeServer> capeServerSettings;
-
+public interface UserSettings {
 	/**
 	 * @return the UTC timestamp at which this user joined.
 	 */
-	public long getJoinTime() {
-		return joined;
-	}
+	long getJoinTime();
 
 	/**
 	 * @return the role of the user on the Cosmetica platform. For example, "admin" or "default".
 	 */
-	public String getRole() {
-		return role;
-	}
+	String getRole();
 
-	public UUID getUUID() {
-		return uuid;
-	}
+	/**
+	 * @return the player's UUID.
+	 */
+	UUID getUUID();
 
-	public String getCapeId() {
-		return capeId;
-	}
+	/**
+	 * @return whether this user sees other player's hats. If this is disabled, others will likewise not be able to see this user's hats.
+	 */
+	boolean doHats();
 
-	public String getHatId() {
-		return hatId;
-	}
+	/**
+	 * @return whether this user sees other player's shoulder buddies. If this is disabled, others will likewise not be able to see this user's shoulder buddies.
+	 */
+	boolean doShoulderBuddies();
 
-	public boolean doHats() {
-		return doHats;
-	}
+	/**
+	 * @return whether this user sees other player's bach blings. If this is disabled, others will likewise not be able to see this user's back bling.
+	 */
+	boolean doBackBlings();
 
-	public String getShoulderBuddyId() {
-		return shoulderBuddyId;
-	}
+	/**
+	 * @return whether this user sees other player's lore. If this is disabled, others will likewise not be able to see this user's lore.
+	 */
+	boolean doLore();
 
-	public boolean doShoulderBuddies() {
-		return doShoulderBuddies;
-	}
+	/**
+	 * @return the country code of this user.
+	 * @implNote Other users cannot see this user's country code. It is stored in any case so the servers can update the data they send immediately as soon as a user wishes to enable per-region effects.
+	 */
+	String getCountryCode();
 
-	public String getLore() {
-		return lore;
-	}
+	/**
+	 * @return whether per-region effects is enabled for this user. If they have it disabled, they will not be able to see the per-region effects of other users either.
+	 */
+	boolean hasPerRegionEffects();
 
-	public boolean doLore() {
-		return doLore;
-	}
+	/**
+	 * Whether the user has the per-region-effects field set. If it is not set, the server will treat it as disabled, and the mod will prompt the player to choose whether to enable or disable it.
+	 * @return whether this user has per-region effects set.
+	 */
+	boolean hasPerRegionEffectsSet();
 
-	public String getCountryCode() {
-		return countryCode;
-	}
+	/**
+	 * @return the id of the panorama this user uses on the website.
+	 */
+	int getPanorama();
 
-	public boolean hasPerRegionEffects() {
-		return perRegionEffects;
-	}
+	/**
+	 * @return this user's cape server settings.
+	 */
+	Map<String, CapeServer> getCapeServerSettings();
 
-	public boolean hasPerRegionEffectsSet() {
-		return perRegionEffectsSet;
-	}
-
-	public int getPanorama() {
-		return panorama;
-	}
-
-	public Map<String, CapeServer> getCapeServerSettings() {
-		return capeServerSettings;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this) return true;
-		if (obj == null || obj.getClass() != this.getClass()) return false;
-		UserSettings that = (UserSettings) obj;
-		return Objects.equals(this.uuid, that.uuid) &&
-				Objects.equals(this.capeId, that.capeId) &&
-				Objects.equals(this.hatId, that.hatId) &&
-				this.doHats == that.doHats &&
-				Objects.equals(this.shoulderBuddyId, that.shoulderBuddyId) &&
-				this.doShoulderBuddies == that.doShoulderBuddies &&
-				Objects.equals(this.lore, that.lore) &&
-				this.doLore == that.doLore &&
-				this.joined == that.joined &&
-				Objects.equals(this.role, that.role) &&
-				Objects.equals(this.countryCode, that.countryCode) &&
-				this.perRegionEffects == that.perRegionEffects &&
-				this.perRegionEffectsSet == that.perRegionEffectsSet &&
-				this.panorama == that.panorama &&
-				Objects.equals(this.capeServerSettings, that.capeServerSettings);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(uuid, capeId, hatId, doHats, shoulderBuddyId, doShoulderBuddies, lore, doLore, joined, role, countryCode, perRegionEffects, perRegionEffectsSet, panorama, capeServerSettings);
-	}
-
-	@Override
-	public String toString() {
-		return "UserSettings[" +
-				"uuid=" + uuid + ", " +
-				"capeId=" + capeId + ", " +
-				"hatId=" + hatId + ", " +
-				"doHats=" + doHats + ", " +
-				"shoulderBuddyId=" + shoulderBuddyId + ", " +
-				"doShoulderBuddies=" + doShoulderBuddies + ", " +
-				"lore=" + lore + ", " +
-				"doLore=" + doLore + ", " +
-				"joined=" + joined + ", " +
-				"role=" + role + ", " +
-				"countryCode=" + countryCode + ", " +
-				"perRegionEffects=" + perRegionEffects + ", " +
-				"perRegionEffectsSet=" + perRegionEffectsSet + ", " +
-				"panorama=" + panorama + ", " +
-				"capeServerSettings=" + capeServerSettings + ']';
-	}
-
+	/**
+	 * A {@link UserSettings} instance with dummy values for everything which can be used as a placeholder.
+	 * @implNote These dummy user settings have an empty map for cape server settings and a country code of AQ (antarctica).
+	 */
+	UserSettings DUMMY = new DummyUserSettings();
 }

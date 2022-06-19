@@ -16,6 +16,8 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.impl.DummyUserInfo;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -67,4 +69,9 @@ public interface UserInfo {
 	 * @return the cape worn by this user.
 	 */
 	Optional<Cape> getCape();
+
+	/**
+	 * A {@link UserInfo} instance with dummy values for everything which can be used as a placeholder.
+	 */
+	UserInfo DUMMY = new DummyUserInfo();
 }
