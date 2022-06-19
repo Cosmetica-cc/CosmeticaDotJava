@@ -123,10 +123,9 @@ public static void main(String[] args) {
 		
 		if (optionalCape.isPresent()){
 			Cape cape = optionalCape.get();
-			
-			// Test whether the cape has extra properties (such as the name) we can read due to being stored on the cosmetica servers
-			if (cape instanceof CustomCape) {
-				System.out.println(username + " has the cape \"" + ((CustomCape) cape).getName() + "\" from cosmetica!");
+
+			if (cape.getOrigin().equals("Cosmetica")) {
+				System.out.println(username + " has the cape \"" + cape.getName() + "\" from cosmetica!");
 			} else {
 				System.out.println(username + " has a " + cape.getOrigin() + " cape.");
 			}

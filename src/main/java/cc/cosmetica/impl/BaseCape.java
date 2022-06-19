@@ -26,14 +26,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 class BaseCape implements Cape {
-	BaseCape(String id, String origin, String image, boolean cosmeticaAlternative) {
+	BaseCape(String id, String name, String origin, String image, boolean cosmeticaAlternative) {
 		this.id = id;
+		this.name = name;
 		this.origin = origin;
 		this.image = image;
 		this.cosmeticaAlternative = cosmeticaAlternative;
 	}
 
 	private final String id;
+	private final String name;
 	private final String origin;
 	private final String image;
 	private final boolean cosmeticaAlternative;
@@ -41,6 +43,11 @@ class BaseCape implements Cape {
 	@Override
 	public String getId() {
 		return this.id;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 
 	@Override
@@ -77,14 +84,15 @@ class BaseCape implements Cape {
 		String id = data.get("id").getAsString();
 		String origin = data.get("origin").getAsString();
 		String image = data.get("image").getAsString();
+		String name = data.get("name").getAsString();
 		boolean cosmeticaAlternative = data.get("isCosmeticaAlternative").getAsBoolean();
 
 		if ("Cosmetica".equals(origin)) {
 			User owner = new User(UUID.fromString(data.get("owner").getAsString()), data.get("ownerName").getAsString());
-			return Optional.of(new CosmeticaCape(id, origin, image, cosmeticaAlternative, data.get("uploaded").getAsLong(), data.get("name").getAsString(), owner));
+			return Optional.of(new CosmeticaCape(id, name, origin, image, cosmeticaAlternative, data.get("uploaded").getAsLong(), owner));
 		}
 		else {
-			return Optional.of(new BaseCape(id, origin, image, cosmeticaAlternative));
+			return Optional.of(new BaseCape(id, name, origin, image, cosmeticaAlternative));
 		}
 	}
 }

@@ -41,6 +41,11 @@ public interface Cape {
 	String getImage();
 
 	/**
+	 * @return the name of this cape. May be blank if cosmetica cannot get the name from the cape server whence it originates.
+	 */
+	String getName();
+
+	/**
 	 * @return whether the user's cape, if from an alternative cape server, has been replaced with a cosmetica cape, in accordance with the cape settings of the token this cape was obtained with.
 	 */
 	boolean isCosmeticaAlternative();

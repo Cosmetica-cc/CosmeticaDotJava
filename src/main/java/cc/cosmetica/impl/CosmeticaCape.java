@@ -21,22 +21,15 @@ import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.User;
 
 class CosmeticaCape extends BaseCape implements CustomCape {
-	CosmeticaCape(String id, String origin, String image, boolean cosmeticaAlternative, long uploadTime, String name, User owner) {
-		super(id, origin, image, cosmeticaAlternative);
+	CosmeticaCape(String id, String name, String origin, String image, boolean cosmeticaAlternative, long uploadTime, User owner) {
+		super(id, name, origin, image, cosmeticaAlternative);
 
-		this.name = name;
 		this.owner = owner;
 		this.uploadTime = uploadTime;
 	}
 
-	private final String name;
 	private final User owner;
 	private final long uploadTime;
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
 
 	@Override
 	public User getOwner() {
