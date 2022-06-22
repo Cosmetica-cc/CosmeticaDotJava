@@ -99,9 +99,14 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException {
+		return getUserInfo(uuid, username, false, false);
+	}
+
+	@Override
+	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean excludeModels, boolean forceShow) throws IllegalArgumentException {
 		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
 
-		SafeURL target = createLimited("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid));
+		SafeURL target = createLimited("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid) + Yootil.urlFlag("excludemodels", excludeModels) + Yootil.urlFlag("forceshow", forceShow));
 		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.get(target)) {
@@ -418,7 +423,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<Map<String, CapeDisplay>> setCapeServerSettings(Map<String, CapeDisplay> settings) {
-		SafeURL target = create("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().toString().toLowerCase(Locale.ROOT)).collect(Collectors.joining("&")), OptionalLong.empty());
+		SafeURL target = create("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().id).collect(Collectors.joining("&")), OptionalLong.empty());
 		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.get(target)) {

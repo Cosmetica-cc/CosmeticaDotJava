@@ -50,6 +50,10 @@ public class Yootil {
 	private static final String UUID_DASHIFIER_REPLACEMENT = "$1-$2-$3-$4-$5";
 	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
+	public static String urlFlag(String flag, boolean toggle) {
+		return toggle ? flag : "";
+	}
+
 	public static String urlEncode(@Nullable UUID value) {
 		return value == null ? "" : value.toString();
 	}
