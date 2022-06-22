@@ -127,6 +127,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					jsonObject.get("slim").getAsBoolean(),
 					jsonObject.get("lore").getAsString(),
 					jsonObject.get("platform").getAsString(),
+					jsonObject.get("role").getAsString(),
 					jsonObject.get("upsideDown").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
 					jsonObject.get("suffix").getAsString(),
