@@ -419,6 +419,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	@Override
 	public ServerResponse<Map<String, CapeDisplay>> setCapeServerSettings(Map<String, CapeDisplay> settings) {
 		SafeURL target = create("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().toString().toLowerCase(Locale.ROOT)).collect(Collectors.joining("&")), OptionalLong.empty());
+		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.get(target)) {
 			JsonObject obj = response.getAsJson();
@@ -443,6 +444,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	@Override
 	public ServerResponse<String> uploadCape(String name, String base64Image) {
 		SafeURL target = create("/client/uploadcloak", OptionalLong.empty());
+		this.urlLogger.accept(target.safeUrl() + " (POST)");
 
 		try (Response response = Response.post(target)
 				.set("name", name)
@@ -464,6 +466,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	@Override
 	public ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model) {
 		SafeURL target = create("/client/upload" + type.getUrlString(), OptionalLong.empty());
+		this.urlLogger.accept(target.safeUrl() + " (POST)");
 
 		try (Response response = Response.post(target)
 				.set("name", name)
