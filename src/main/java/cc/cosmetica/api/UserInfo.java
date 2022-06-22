@@ -26,6 +26,16 @@ import java.util.Optional;
  */
 public interface UserInfo {
 	/**
+	 * @return the skin of this user, in base64 format.
+	 */
+	String getSkin();
+
+	/**
+	 * @return whether the player model is slim.
+	 */
+	boolean isSlim();
+
+	/**
 	 * @return the user's lore, i.e. the text that should be displayed below their name. This may start with a minecraft colour code.
 	 */
 	String getLore();
@@ -34,6 +44,11 @@ public interface UserInfo {
 	 * @return the platform this user is registered on. Can be "java" or "bedrock".
 	 */
 	String getPlatform();
+
+	/**
+	 * @return the role of the user on the Cosmetica platform. For example, "admin" or "default". If the user has not used cosmetica before, their role will be "none".
+	 */
+	String getRole();
 
 	/**
 	 * @return whether the user should be rendered upside down in game due to region specific effects.

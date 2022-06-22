@@ -21,8 +21,8 @@ import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.User;
 
 class CosmeticaCape extends BaseCape implements CustomCape {
-	CosmeticaCape(String id, String name, String origin, String image, boolean cosmeticaAlternative, long uploadTime, User owner) {
-		super(id, name, origin, image, cosmeticaAlternative);
+	CosmeticaCape(String id, String name, String origin, String image, boolean cosmeticaAlternative, int frameDelay, long uploadTime, User owner) {
+		super(id, name, origin, image, cosmeticaAlternative, frameDelay);
 
 		this.owner = owner;
 		this.uploadTime = uploadTime;

@@ -26,7 +26,16 @@ public class CosmeticType<T extends CustomCosmetic> {
 		this.urlstring = urlstring;
 	}
 
+	/**
+	 * @deprecated use getUrlString() instead because we definitely follow java conventions all the time (changing to method access for consistency).
+	 * Will be made private in a future update.
+	 */
+	@Deprecated
 	public final String urlstring;
+
+	public String getUrlString() {
+		return this.urlstring;
+	}
 
 	public static final CosmeticType<CustomCape> CAPE = new CosmeticType<>("cape");
 	public static final CosmeticType<Model> HAT = new CosmeticType<>("hat");

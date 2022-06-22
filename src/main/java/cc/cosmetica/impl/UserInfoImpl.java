@@ -25,9 +25,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserInfoImpl implements UserInfo {
-	public UserInfoImpl(String lore, String platform, boolean upsideDown, String prefix, String suffix, List<Model> hats, Optional<ShoulderBuddies> shoulderBuddies, Optional<Model> backBling, Optional<Cape> cape) {
+	public UserInfoImpl(String skin, boolean slim, String lore, String platform, String role, boolean upsideDown, String prefix, String suffix, List<Model> hats, Optional<ShoulderBuddies> shoulderBuddies, Optional<Model> backBling, Optional<Cape> cape) {
+		this.skin = skin;
+		this.slim = slim;
 		this.lore = lore;
 		this.platform = platform;
+		this.role = role;
 		this.upsideDown = upsideDown;
 		this.prefix = prefix;
 		this.suffix = suffix;
@@ -37,8 +40,11 @@ public class UserInfoImpl implements UserInfo {
 		this.cape = cape;
 	}
 
+	private final String skin;
+	private final boolean slim;
 	private final String lore;
 	private final String platform;
+	private final String role;
 	private final boolean upsideDown;
 	private final String prefix;
 	private final String suffix;
@@ -48,13 +54,28 @@ public class UserInfoImpl implements UserInfo {
 	private final Optional<Cape> cape;
 
 	@Override
+	public String getSkin() {
+		return this.skin;
+	}
+
+	@Override
+	public boolean isSlim() {
+		return this.slim;
+	}
+
+	@Override
 	public String getLore() {
 		return lore;
 	}
 
 	@Override
 	public String getPlatform() {
-		return lore;
+		return platform;
+	}
+
+	@Override
+	public String getRole() {
+		return role;
 	}
 
 	@Override

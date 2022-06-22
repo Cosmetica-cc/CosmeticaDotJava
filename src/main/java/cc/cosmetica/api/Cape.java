@@ -35,10 +35,22 @@ public interface Cape {
 	String getOrigin();
 
 	/**
-	 * @return the image, in base64 format.
-	 * @apiNote not all cape servers use the same format and dimensions for a cape image. Some may trim whitespace, and others may use the old pre-elytra cape format! So make sure to account for this in parsing cape data.
+	 * Get the cape base64 image string. May be different dimensions depending on how many frames it has. Each frame has a 2:1 width:height aspect ratio and they stack vertically.
+	 * @return the image, in base64 format
 	 */
 	String getImage();
+
+	/**
+	 * @return the delay between each frame of this cape, in ms. Will be 0 if static.
+	 */
+	int getFrameDelay();
+
+	/**
+	 * @return whether this cape is an animated cape.
+	 */
+	default boolean isAnimated() {
+		return this.getFrameDelay() > 0;
+	}
 
 	/**
 	 * @return the name of this cape. May be blank if cosmetica cannot get the name from the cape server whence it originates.

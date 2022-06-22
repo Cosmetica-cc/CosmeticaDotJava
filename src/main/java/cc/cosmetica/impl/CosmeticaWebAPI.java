@@ -123,12 +123,14 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			}
 
 			return new ServerResponse<>(new UserInfoImpl(
+					jsonObject.get("skin").getAsString(),
+					jsonObject.get("slim").getAsBoolean(),
 					jsonObject.get("lore").getAsString(),
 					jsonObject.get("platform").getAsString(),
 					jsonObject.get("upsideDown").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
 					jsonObject.get("suffix").getAsString(),
-					Yootil.mapObjects(hats, ModelImpl::_parse),
+					hats == null ? new ArrayList<>() : Yootil.mapObjects(hats, ModelImpl::_parse),
 					sbObj,
 					ModelImpl.parse(backBling),
 					BaseCape.parse(cloak)
@@ -228,7 +230,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
-		SafeURL url = createTokenless("/get/recentcosmetics?type=" + type.urlstring + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Yootil.base64(query.orElse("")), OptionalLong.empty());
+		SafeURL url = createTokenless("/get/recentcosmetics?type=" + type.getUrlString() + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Yootil.base64(query.orElse("")), OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.from(type));
 	}
 
@@ -264,7 +266,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public <T extends CustomCosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id) {
-		SafeURL url = createTokenless("/get/cosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
+		SafeURL url = createTokenless("/get/cosmetic?type=" + type.getUrlString() + "&id=" + id, OptionalLong.empty());
 		this.urlLogger.accept(url.safeUrl());
 
 		try (Response response = Response.get(url)) {
@@ -389,7 +391,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<Boolean> setCosmetic(CosmeticType<?> type, String id) {
-		SafeURL target = create("/client/setcosmetic?type=" + type.urlstring + "&id=" + id, OptionalLong.empty());
+		SafeURL target = create("/client/setcosmetic?type=" + type.getUrlString() + "&id=" + id, OptionalLong.empty());
+		return requestSetZ(target);
+	}
+
+	@Override
+	public ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id) {
+		SafeURL target = create("/client/setcosmetic?type=" + position.getUrlString() + "&id=" + id, OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
@@ -442,7 +450,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model) {
-		SafeURL target = create("/client/upload" + type.urlstring, OptionalLong.empty());
+		SafeURL target = create("/client/upload" + type.getUrlString(), OptionalLong.empty());
 
 		try (Response response = Response.post(target)
 				.set("name", name)

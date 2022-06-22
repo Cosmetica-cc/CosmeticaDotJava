@@ -150,11 +150,22 @@ public interface CosmeticaAPI {
 
 	/**
 	 * Sets the cosmetic for this user.
-	 * @param type the type of cosmetic to set.
-	 * @param id the id of the cosmetic.
+	 * @param position the position of the cosmetic to set.
+	 * @param id the id of the cosmetic. Set the id to "none" to remove a cosmetic.
 	 * @return true if successful. Otherwise the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
 	 */
+	ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id);
+
+	/**
+	 * Sets the cosmetic for this user.
+	 * @param type the type of cosmetic to set.
+	 * @param id the id of the cosmetic. Set the id to "none" to remove a cosmetic.
+	 * @return true if successful. Otherwise the server response will have an error.
+	 * @deprecated use {@link CosmeticaAPI#setCosmetic(CosmeticPosition, String)} instead.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	@Deprecated
 	ServerResponse<Boolean> setCosmetic(CosmeticType<?> type, String id);
 
 	/**
