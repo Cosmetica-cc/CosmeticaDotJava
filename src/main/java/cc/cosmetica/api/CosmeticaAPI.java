@@ -188,11 +188,11 @@ public interface CosmeticaAPI {
 
 	/**
 	 * Sets how cosmetica should handle each cape service for this user. In addition, <b>ANY CAPE NOT SPECIFIED IS RESET TO THE DEFAULT VALUE. You should call {@link CosmeticaAPI#getUserSettings()} at least ONCE before calling this to get the current settings of the user! You have been warned.</b>
-	 * @param settings
-	 * @return true if successful. Otherwise the server response will have an error.
+	 * @param settings the settings to set as the settings.
+	 * @return the new cape settings if successful. Otherwise, the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
 	 */
-	ServerResponse<Boolean> setCapeServerSettings(Map<String, CapeDisplay> settings);
+	ServerResponse<Map<String, CapeDisplay>> setCapeServerSettings(Map<String, CapeDisplay> settings);
 
 	/**
 	 * Updates the specified settings for the user. You do not need to specify every setting, unlike {@link CosmeticaAPI#setCapeServerSettings(Map)}

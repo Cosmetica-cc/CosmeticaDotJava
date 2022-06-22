@@ -35,7 +35,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -147,6 +149,16 @@ public class Yootil {
 
 		for (JsonElement e : arr) {
 			result.add(mapping.apply(e.getAsJsonObject()));
+		}
+
+		return result;
+	}
+
+	public static <T> Map<String, T> mapObject(JsonObject arr, Function<JsonElement, T> mapping) {
+		Map<String, T> result = new HashMap<>();
+
+		for (String key : arr.keySet()) {
+			result.put(key, mapping.apply(arr.get(key)));
 		}
 
 		return result;

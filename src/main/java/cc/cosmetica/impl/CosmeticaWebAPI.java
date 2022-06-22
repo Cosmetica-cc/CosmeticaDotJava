@@ -417,9 +417,21 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<Boolean> setCapeServerSettings(Map<String, CapeDisplay> settings) {
+	public ServerResponse<Map<String, CapeDisplay>> setCapeServerSettings(Map<String, CapeDisplay> settings) {
 		SafeURL target = create("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().toString().toLowerCase(Locale.ROOT)).collect(Collectors.joining("&")), OptionalLong.empty());
-		return requestSetZ(target);
+
+		try (Response response = Response.get(target)) {
+			JsonObject obj = response.getAsJson();
+			checkErrors(target, obj);
+
+			return new ServerResponse<>(Yootil.mapObject(obj.get("success").getAsJsonObject(), element -> CapeDisplay.byId(element.getAsInt())), target);
+		}
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, target);
+		}
+		catch (RuntimeException e) {
+			return new ServerResponse<>(e, target);
+		}
 	}
 
 	@Override

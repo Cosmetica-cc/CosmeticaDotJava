@@ -26,13 +26,11 @@ public class CosmeticType<T extends CustomCosmetic> {
 		this.urlstring = urlstring;
 	}
 
-	/**
-	 * @deprecated use getUrlString() instead because we definitely follow java conventions all the time (changing to method access for consistency).
-	 * Will be made private in a future update.
-	 */
-	@Deprecated
-	public final String urlstring;
+	private final String urlstring;
 
+	/**
+	 * @return the string of how this type of cosmetic is encoded into urls.
+	 */
 	public String getUrlString() {
 		return this.urlstring;
 	}
