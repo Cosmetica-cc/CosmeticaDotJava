@@ -82,6 +82,21 @@ public interface CosmeticaAPI {
 	 * Retrieves user info from the api server via either the UUID, username, or both. UUID is used preferentially.
 	 * @param uuid the uuid of the player to retrieve data of.
 	 * @param username the username of the player to retrieve data of.
+	 * @param excludeModels whether to exclude all models and textures from the response. Cape/Model instances from this will have an empty string for these fields instead.
+	 * @param forceShow whether to ignore your cosmetic visibility settings when retrieving data for yourself. Only has an effect when getting your own user info.
+	 * @return a representation of the cosmetics data of the given player.
+	 * @throws IllegalArgumentException if both {@code uuid} and {@code username} are null.
+	 * @deprecated use {@link CosmeticaAPI#getUserInfo(UUID, String, boolean, boolean, boolean)}.
+	 */
+	@Deprecated
+	default ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean excludeModels, boolean forceShow) throws IllegalArgumentException {
+		return this.getUserInfo(uuid, username, false, excludeModels, forceShow);
+	}
+
+	/**
+	 * Retrieves user info from the api server via either the UUID, username, or both. UUID is used preferentially.
+	 * @param uuid the uuid of the player to retrieve data of.
+	 * @param username the username of the player to retrieve data of.
 	 * @param noThirdParty whether the api should only send cosmetica capes, regardless of the user's cape server settings.
 	 * @param excludeModels whether to exclude all models and textures from the response. Cape/Model instances from this will have an empty string for these fields instead.
 	 * @param forceShow whether to ignore your cosmetic visibility settings when retrieving data for yourself. Only has an effect when getting your own user info.
