@@ -436,8 +436,9 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<String> uploadCape(String name, String base64Image, int framerate) throws IllegalArgumentException {
-		if (framerate < 0) throw new IllegalArgumentException("Framerate cannot be less than 0");
+	public ServerResponse<String> uploadCape(String name, String base64Image, int frameDelay) throws IllegalArgumentException {
+		if (frameDelay < 0 || frameDelay > 500) throw new IllegalArgumentException("Frame delay must be between 0 and 500 (inclusive)");
+		if (frameDelay % 50 != 0) throw new IllegalArgumentException("Frame delay must be a multiple of 50");
 
 		SafeURL target = create("/client/uploadcloak", OptionalLong.empty());
 		this.urlLogger.accept(target.safeUrl() + " (POST)");
@@ -445,7 +446,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		try (Response response = Response.post(target)
 				.set("name", name)
 				.set("image", base64Image)
-				.set("extrainfo", framerate)
+				.set("extrainfo", frameDelay)
 				.submit()) {
 			JsonObject obj = response.getAsJson();
 			checkErrors(target, obj);

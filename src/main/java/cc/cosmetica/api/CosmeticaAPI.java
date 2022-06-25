@@ -234,12 +234,12 @@ public interface CosmeticaAPI {
 	 * Uploads a cape to the server under this account.
 	 * @param name the name of the cape to upload.
 	 * @param base64Image the image in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
-	 * @param framerate the framerate of the cape to upload. Set to 0 if the cape is static (not animated).
+	 * @param frameDelay the frame delay (in ms) of the cape to upload. Set this to 0 if the cape is static (not animated).
 	 * @return the id of the cape if successful. Otherwise the server response will have an error.
-	 * @throws IllegalArgumentException if framerate is less than 0.
+	 * @throws IllegalArgumentException if frame delay is not between 0 and 500 inclusive, or not a multiple of 50.
 	 * @apiNote requires full authentication (a master token).
 	 */
-	ServerResponse<String> uploadCape(String name, String base64Image, int framerate) throws IllegalArgumentException;
+	ServerResponse<String> uploadCape(String name, String base64Image, int frameDelay) throws IllegalArgumentException;
 
 	/**
 	 * Uploads a model-based cosmetic to the server under this account.
