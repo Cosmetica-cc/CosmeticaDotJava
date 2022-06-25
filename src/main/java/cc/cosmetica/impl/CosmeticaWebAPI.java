@@ -98,15 +98,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException {
-		return getUserInfo(uuid, username, false, false);
-	}
-
-	@Override
-	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean excludeModels, boolean forceShow) throws IllegalArgumentException {
+	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean noThirdParty, boolean excludeModels, boolean forceShow) throws IllegalArgumentException {
 		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
 
-		SafeURL target = createLimited("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid) + Yootil.urlFlag("excludemodels", excludeModels) + Yootil.urlFlag("forceshow", forceShow));
+		SafeURL target = createLimited("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid) + Yootil.urlFlag("nothirdparty", excludeModels) + Yootil.urlFlag("excludemodels", excludeModels) + Yootil.urlFlag("forceshow", forceShow));
 		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.get(target)) {
@@ -396,12 +391,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<Boolean> setCosmetic(CosmeticType<?> type, String id) {
-		SafeURL target = create("/client/setcosmetic?type=" + type.getUrlString() + "&id=" + id, OptionalLong.empty());
-		return requestSetZ(target);
-	}
-
-	@Override
 	public ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id) {
 		SafeURL target = create("/client/setcosmetic?type=" + position.getUrlString() + "&id=" + id, OptionalLong.empty());
 		return requestSetZ(target);
@@ -409,7 +398,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<String> setLore(LoreType type, String lore) {
-		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for getLoreList: " + type);
+		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for setLore(LoreType, String): " + type);
 
 		SafeURL target = create("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&lore=" + Yootil.urlEncode(lore), OptionalLong.empty());
 		return requestSet(target);
@@ -447,13 +436,16 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<String> uploadCape(String name, String base64Image) {
+	public ServerResponse<String> uploadCape(String name, String base64Image, int framerate) throws IllegalArgumentException {
+		if (framerate < 0) throw new IllegalArgumentException("Framerate cannot be less than 0");
+
 		SafeURL target = create("/client/uploadcloak", OptionalLong.empty());
 		this.urlLogger.accept(target.safeUrl() + " (POST)");
 
 		try (Response response = Response.post(target)
 				.set("name", name)
 				.set("image", base64Image)
+				.set("extrainfo", framerate)
 				.submit()) {
 			JsonObject obj = response.getAsJson();
 			checkErrors(target, obj);
@@ -469,7 +461,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model) {
+	public ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model, int flags) {
 		SafeURL target = create("/client/upload" + type.getUrlString(), OptionalLong.empty());
 		this.urlLogger.accept(target.safeUrl() + " (POST)");
 
@@ -477,6 +469,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				.set("name", name)
 				.set("image", base64Texture)
 				.set("model", model.toString())
+				.set("extrainfo", flags)
 				.submit()) {
 			JsonObject obj = response.getAsJson();
 			checkErrors(target, obj);

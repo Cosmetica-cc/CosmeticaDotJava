@@ -62,18 +62,33 @@ public interface CosmeticaAPI {
 	 * @return a representation of the cosmetics data of the given player.
 	 * @throws IllegalArgumentException if both {@code uuid} and {@code username} are null.
 	 */
-	ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException;
+	default ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username) throws IllegalArgumentException {
+		return this.getUserInfo(uuid, username, false, false, false);
+	}
 
 	/**
 	 * Retrieves user info from the api server via either the UUID, username, or both. UUID is used preferentially.
 	 * @param uuid the uuid of the player to retrieve data of.
 	 * @param username the username of the player to retrieve data of.
+	 * @param noThirdParty whether the api should only send cosmetica capes, regardless of the user's cape server settings.
+	 * @return a representation of the cosmetics data of the given player.
+	 * @throws IllegalArgumentException if both {@code uuid} and {@code username} are null.
+	 */
+	default ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean noThirdParty) throws IllegalArgumentException {
+		return this.getUserInfo(uuid, username, noThirdParty, false, false);
+	}
+
+	/**
+	 * Retrieves user info from the api server via either the UUID, username, or both. UUID is used preferentially.
+	 * @param uuid the uuid of the player to retrieve data of.
+	 * @param username the username of the player to retrieve data of.
+	 * @param noThirdParty whether the api should only send cosmetica capes, regardless of the user's cape server settings.
 	 * @param excludeModels whether to exclude all models and textures from the response. Cape/Model instances from this will have an empty string for these fields instead.
 	 * @param forceShow whether to ignore your cosmetic visibility settings when retrieving data for yourself. Only has an effect when getting your own user info.
 	 * @return a representation of the cosmetics data of the given player.
 	 * @throws IllegalArgumentException if both {@code uuid} and {@code username} are null.
 	 */
-	ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean excludeModels, boolean forceShow) throws IllegalArgumentException;
+	ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean noThirdParty, boolean excludeModels, boolean forceShow) throws IllegalArgumentException;
 
 	/**
 	 * Retrieves the settings of the user associated with the token and some basic data.
@@ -169,17 +184,6 @@ public interface CosmeticaAPI {
 	ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id);
 
 	/**
-	 * Sets the cosmetic for this user.
-	 * @param type the type of cosmetic to set.
-	 * @param id the id of the cosmetic. Set the id to "none" to remove a cosmetic.
-	 * @return true if successful. Otherwise the server response will have an error.
-	 * @deprecated use {@link CosmeticaAPI#setCosmetic(CosmeticPosition, String)} instead.
-	 * @apiNote requires full authentication (a master token).
-	 */
-	@Deprecated
-	ServerResponse<Boolean> setCosmetic(CosmeticType<?> type, String id);
-
-	/**
 	 *
 	 * @param type the type of lore to be set. Can be either {@link LoreType#PRONOUNS} or {@link LoreType#TITLES}.
 	 * @param lore the lore string to set as the lore.
@@ -214,13 +218,28 @@ public interface CosmeticaAPI {
 	ServerResponse<Boolean> updateUserSettings(Map<String, Object> settings);
 
 	/**
-	 * Uploads a cape to the server under this account.
+	 * Uploads a static cape to the server under this account.
 	 * @param name the name of the cape to upload.
 	 * @param base64Image the image in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
 	 * @return the id of the cape if successful. Otherwise the server response will have an error.
+	 * @deprecated use {@link CosmeticaAPI#uploadCape(String, String, int)}.
 	 * @apiNote requires full authentication (a master token).
 	 */
-	ServerResponse<String> uploadCape(String name, String base64Image);
+	@Deprecated
+	default ServerResponse<String> uploadCape(String name, String base64Image) {
+		return this.uploadCape(name, base64Image, 0);
+	}
+
+	/**
+	 * Uploads a cape to the server under this account.
+	 * @param name the name of the cape to upload.
+	 * @param base64Image the image in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
+	 * @param framerate the framerate of the cape to upload. Set to 0 if the cape is static (not animated).
+	 * @return the id of the cape if successful. Otherwise the server response will have an error.
+	 * @throws IllegalArgumentException if framerate is less than 0.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<String> uploadCape(String name, String base64Image, int framerate) throws IllegalArgumentException;
 
 	/**
 	 * Uploads a model-based cosmetic to the server under this account.
@@ -229,9 +248,25 @@ public interface CosmeticaAPI {
 	 * @param base64Texture the 32x32 texture in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
 	 * @param model the json model to upload
 	 * @return the id of the cosmetic if successful. Otherwise the server response will have an error.
+	 * @deprecated use {@link CosmeticaAPI#uploadModel(CosmeticType, String, String, JsonObject, int)}.
 	 * @apiNote requires full authentication (a master token).
 	 */
-	ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model);
+	@Deprecated
+	default ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model) {
+		return this.uploadModel(type, name, base64Texture, model, type == CosmeticType.SHOULDER_BUDDY ? 1 : 0);
+	}
+
+	/**
+	 * Uploads a model-based cosmetic to the server under this account.
+	 * @param type the type of cosmetic to upload.
+	 * @param name the name of the cosmetic to upload.
+	 * @param base64Texture the 32x32 texture in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
+	 * @param model the json model to upload
+	 * @param flags the flags of the model to upload. See the constants in {@link Model}.
+	 * @return the id of the cosmetic if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model, int flags);
 
 	///////////////////////////
 	//   Non-Web-API Methods //

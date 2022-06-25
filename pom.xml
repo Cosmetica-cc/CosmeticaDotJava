@@ -7,7 +7,7 @@
     <groupId>cc.cosmetica</groupId>
     <artifactId>CosmeticaDotJava</artifactId>
     <description>A java library to interface with the Cosmetica web API.</description>
-    <version>1.2.2</version>
+    <version>1.3.0</version>
 
     <dependencies>
         <dependency>

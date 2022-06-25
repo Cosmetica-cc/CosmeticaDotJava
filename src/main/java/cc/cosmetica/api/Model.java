@@ -114,9 +114,36 @@ public interface Model extends CustomCosmetic {
 	}
 
 	// hat flags
-	int HIDE_HAT_UNDER_HELMET = 0x1;
+	/**
+	 * Flag for whether this hat should be hidden when a helmet being worn.
+	 */
+	int SHOW_HAT_WITH_HELMET = 0x1;
+	/**
+	 * Flag for whether to lock the hat orientation to the torso.
+	 */
 	int LOCK_HAT_ORIENTATION = 0x2;
-	// shoulder buddies
+
+	// shoulder buddy flags
+	/**
+	 * Flag for whether to lock the shoulder buddy orientation to the torso.
+	 */
 	int LOCK_SHOULDER_BUDDY_ORIENTATION = 0x1;
+	/**
+	 * Flag for whether the shoulder buddy should mirror when being used on the right shoulder/arm instead of the left.
+	 */
 	int MIRROR_SHOULDER_BUDDY = 0x2;
+	/**
+	 * Flag for whether this shoulder buddy should be shown when a parrot is on its shoulder.
+	 */
+	int SHOW_SHOULDER_BUDDY_WITH_PARROT = 0x4;
+
+	// back bling flags
+	/**
+	 * Flag for whether this back bling should show when the player is wearing a chestplate.
+	 */
+	int SHOW_BACK_BLING_WITH_CHESTPLATE = 0x1;
+	/**
+	 * Flag for whether this back bling should show when the player is wearing a cape or elytra.
+	 */
+	int SHOW_BACK_BLING_WITH_CAPE = 0x2;
 }

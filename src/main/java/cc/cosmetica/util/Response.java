@@ -205,6 +205,11 @@ public class Response implements Closeable {
 		}
 
 		abstract public PostBuilder set(String key, String value);
+
+		public PostBuilder set(String key, int value) {
+			return this.set(key, String.valueOf(value));
+		}
+
 		abstract protected HttpEntity getEntity();
 	}
 

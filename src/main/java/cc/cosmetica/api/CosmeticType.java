@@ -23,16 +23,16 @@ import java.util.Optional;
  */
 public class CosmeticType<T extends CustomCosmetic> {
 	private CosmeticType(String urlstring) {
-		this.urlstring = urlstring;
+		this.urlString = urlstring;
 	}
 
-	private final String urlstring;
+	private final String urlString;
 
 	/**
 	 * @return the string of how this type of cosmetic is encoded into urls.
 	 */
 	public String getUrlString() {
-		return this.urlstring;
+		return this.urlString;
 	}
 
 	public static final CosmeticType<CustomCape> CAPE = new CosmeticType<>("cape");
