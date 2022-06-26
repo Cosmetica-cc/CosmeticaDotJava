@@ -56,12 +56,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private final Optional<LoginInfo> loginInfo;
 	private String masterToken;
 	private String limitedToken;
+	private int timeout = 20 * 1000;
 	private Consumer<String> urlLogger = s -> {};
 
 	private LoginInfo exchangeTokens(UUID uuid, String authToken) throws IllegalStateException, FatalServerErrorException, IOException {
 		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, authToken);
 
-		try (Response response = Response.get(url)) {
+		try (Response response = Response.get(url, this.timeout)) {
 			JsonObject object = response.getAsJson();
 
 			if (object.has("error")) {
@@ -87,7 +88,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		this.urlLogger.accept(versionCheck.safeUrl());
 
-		try (Response response = Response.get(versionCheck)) {
+		try (Response response = Response.get(versionCheck, this.timeout)) {
 			JsonObject s = response.getAsJson();
 			return new ServerResponse<>(new VersionInfo(s.get("needsUpdate").getAsBoolean(), s.get("isVital").getAsBoolean(), s.get("minecraftMessage").getAsString(), s.get("plainMessage").getAsString()), versionCheck);
 		} catch (IOException ie) {
@@ -104,7 +105,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL target = createLimited("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid) + Yootil.urlFlag("nothirdparty", excludeModels) + Yootil.urlFlag("excludemodels", excludeModels) + Yootil.urlFlag("forceshow", forceShow));
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.get(target)) {
+		try (Response response = Response.get(target, this.timeout)) {
 			JsonObject jsonObject = response.getAsJson();
 			checkErrors(target, jsonObject);
 
@@ -148,7 +149,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL target = createLimited("/v2/get/settings");
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.get(target)) {
+		try (Response response = Response.get(target, this.timeout)) {
 			JsonObject data = response.getAsJson();
 			checkErrors(target, data);
 
@@ -208,7 +209,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getCosmeticsPage(SafeURL url, GeneralCosmeticType<T> cosmeticType) {
 		this.urlLogger.accept(url.safeUrl());
 
-		try (Response response = Response.get(url)) {
+		try (Response response = Response.get(url, this.timeout)) {
 			JsonObject json = response.getAsJson();
 			checkErrors(url, json);
 
@@ -254,7 +255,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL url = createLimited("/get/lorelists?type=" + type.toString().toLowerCase(Locale.ROOT));
 		this.urlLogger.accept(url.safeUrl());
 
-		try (Response response = Response.get(url)) {
+		try (Response response = Response.get(url, this.timeout)) {
 			return new ServerResponse<>(Yootil.toStringList(getAsArray(url, response.getAsJsonElement())), url);
 		}
 		catch (IOException ie) {
@@ -270,7 +271,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL url = createTokenless("/get/cosmetic?type=" + type.getUrlString() + "&id=" + id, OptionalLong.empty());
 		this.urlLogger.accept(url.safeUrl());
 
-		try (Response response = Response.get(url)) {
+		try (Response response = Response.get(url, this.timeout)) {
 			JsonObject json = response.getAsJson();
 			checkErrors(url, json);
 
@@ -289,7 +290,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL url = createLimited("/get/panoramas");
 		this.urlLogger.accept(url.safeUrl());
 
-		try (Response response = Response.get(url)) {
+		try (Response response = Response.get(url, this.timeout)) {
 			JsonArray json = getAsArray(url, response.getAsJsonElement());
 			List<Panorama> result = new ArrayList<>();
 
@@ -314,7 +315,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		this.urlLogger.accept(awimbawe.safeUrl());
 
-		try (Response theLionSleepsTonight = Response.get(awimbawe)) {
+		try (Response theLionSleepsTonight = Response.get(awimbawe, this.timeout)) {
 			JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
 			checkErrors(awimbawe, theMightyJungle);
 
@@ -361,7 +362,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private ServerResponse<String> requestSet(SafeURL target) {
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.get(target)) {
+		try (Response response = Response.get(target, this.timeout)) {
 			JsonObject json = response.getAsJson();
 			checkErrors(target, json);
 			return new ServerResponse<>(json.get("success").getAsString(), target);
@@ -377,7 +378,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private ServerResponse<Boolean> requestSetZ(SafeURL target) {
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.get(target)) {
+		try (Response response = Response.get(target, this.timeout)) {
 			JsonObject json = response.getAsJson();
 			checkErrors(target, json);
 			return new ServerResponse<>(json.get("success").getAsBoolean(), target);
@@ -415,7 +416,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		SafeURL target = create("/client/capesettings?" + settings.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue().id).collect(Collectors.joining("&")), OptionalLong.empty());
 		this.urlLogger.accept(target.safeUrl());
 
-		try (Response response = Response.get(target)) {
+		try (Response response = Response.get(target, this.timeout)) {
 			JsonObject obj = response.getAsJson();
 			checkErrors(target, obj);
 
@@ -502,6 +503,11 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	@Override
 	public void setUrlLogger(Consumer<String> urlLogger) {
 		this.urlLogger = urlLogger;
+	}
+
+	@Override
+	public void setRequestTimeout(int timeout) {
+		this.timeout = timeout;
 	}
 
 	@Override

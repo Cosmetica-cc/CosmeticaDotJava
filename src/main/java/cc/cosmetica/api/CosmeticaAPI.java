@@ -300,6 +300,12 @@ public interface CosmeticaAPI {
 	void setUrlLogger(@Nullable Consumer<String> logger);
 
 	/**
+	 * Sets the request timeout for this API instance. Default is 20 seconds.
+	 * @param timeout the request timeout, in milliseconds.
+	 */
+	void setRequestTimeout(int timeout);
+
+	/**
 	 * @return whether this cosmetica api instance has a master API token.
 	 */
 	boolean isFullyAuthenticated();

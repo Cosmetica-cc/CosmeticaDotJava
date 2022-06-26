@@ -112,20 +112,40 @@ public class Response implements Closeable {
 		this.client.close();
 	}
 
+	/**
+	 * @param request the url to request to.
+	 * @apiNote cosmetica api will include the safe url in an {@link FatalServerErrorException}.
+	 */
 	public static Response get(String request) throws ParseException, IOException, FatalServerErrorException {
-		return get(SafeURL.direct(request));
+		return get(SafeURL.direct(request), 20 * 1000);
 	}
 
 	/**
+	 * @param request the url to request to.
+	 * @param timeout the request timeout, in milliseconds.
+	 */
+	public static Response get(String request, int timeout) throws ParseException, IOException, FatalServerErrorException {
+		return get(SafeURL.direct(request), timeout);
+	}
+
+	/**
+	 * @param request the url to request to.
 	 * @apiNote cosmetica api will include the safe url in an {@link FatalServerErrorException}.
 	 */
 	public static Response get(SafeURL request) throws ParseException, IOException, FatalServerErrorException {
-		return _get(request.url()).testForFatalError(request);
+		return get(request, 20 * 1000);
 	}
 
-	private static Response _get(String request) throws ParseException, IOException {
-		final int timeout = 15 * 1000;
+	/**
+	 * @param request the url to request to.
+	 * @param timeout the request timeout, in milliseconds.
+	 * @apiNote cosmetica api will include the safe url in an {@link FatalServerErrorException}.
+	 */
+	public static Response get(SafeURL request, int timeout) throws ParseException, IOException, FatalServerErrorException {
+		return _get(request.url(), timeout).testForFatalError(request);
+	}
 
+	private static Response _get(String request, int timeout) throws ParseException, IOException {
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setConnectionRequestTimeout(timeout)
 				.setConnectTimeout(timeout)
@@ -180,15 +200,13 @@ public class Response implements Closeable {
 		}
 
 		private final SafeURL url;
-		private String accepts = "application/json";
+		private int timeout = 20 * 1000;
 
 		public Response submit() throws ParseException, IOException, FatalServerErrorException {
-			final int timeout = 15 * 1000;
-
 			RequestConfig requestConfig = RequestConfig.custom()
-					.setConnectionRequestTimeout(timeout)
-					.setConnectTimeout(timeout)
-					.setSocketTimeout(timeout)
+					.setConnectionRequestTimeout(this.timeout)
+					.setConnectTimeout(this.timeout)
+					.setSocketTimeout(this.timeout)
 					.build();
 
 			CloseableHttpClient client = HttpClients.custom()
@@ -208,6 +226,16 @@ public class Response implements Closeable {
 
 		public PostBuilder set(String key, int value) {
 			return this.set(key, String.valueOf(value));
+		}
+
+		/**
+		 * Sets the request timeout, in milliseconds.
+		 * @param timeout the timeout, in milliseconds.
+		 * @return this
+		 */
+		public PostBuilder setTimeout(int timeout) {
+			this.timeout = timeout;
+			return this;
 		}
 
 		abstract protected HttpEntity getEntity();
