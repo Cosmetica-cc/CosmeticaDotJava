@@ -53,6 +53,8 @@ public class CosmeticType<T extends CustomCosmetic> {
 			return Optional.of(HAT);
 		case "shoulderbuddy":
 			return Optional.of(SHOULDER_BUDDY);
+		case "backbling":
+			return Optional.of(BACK_BLING);
 		default:
 			return Optional.empty();
 		}
@@ -71,6 +73,8 @@ public class CosmeticType<T extends CustomCosmetic> {
 			return Optional.of(HAT);
 		case "Shoulder Buddy":
 			return Optional.of(SHOULDER_BUDDY);
+		case "Back Bling":
+			return Optional.of(BACK_BLING);
 		default:
 			return Optional.empty();
 		}
