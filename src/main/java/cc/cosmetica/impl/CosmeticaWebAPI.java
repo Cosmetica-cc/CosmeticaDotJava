@@ -539,7 +539,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private static String message;
 
 	private static File apiCache;
-	private static File apiGetCache;
 
 	public static String getMessage() {
 		return message;
@@ -624,26 +623,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return authApiServerHost;
 	}
 
-	public static void setAPICaches(File api, File apiGet) {
+	public static void setAPICache(File api) {
 		apiCache = api;
-		apiGetCache = apiGet;
 	}
 
 	private static void retrieveAPIIfNoneCached() throws IllegalStateException {
 		if (apiServerHost == null) { // if this sequence has not already been initiated
-			String apiGetHost = null;
-
-			try (Response response = Response.get("https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json?timestamp=" + System.currentTimeMillis())) {
-				if (!response.getError().isPresent()) {
-					apiGetHost = response.getAsJson().get("current_host").getAsString();
-				}
-			} catch (Exception e) {
-				// we just print for the sole reason that we do 2 backups so it will always at least try one endpoint
-				e.printStackTrace(); // this is probably bad practise?
-			}
-
-			if (apiGetCache != null) apiGetHost = Yootil.loadOrCache(apiGetCache, apiGetHost);
-			if (apiGetHost == null) apiGetHost = "https://cosmetica.cc/getapi"; // fallback
+			final String apiGetHost = "https://cosmetica.cc/getapi";
 
 			String apiGetData = null;
 			Exception eStored = new NullPointerException("Response succeeded but API GET entity was null"); // in case response succeeds but somehow get data is null

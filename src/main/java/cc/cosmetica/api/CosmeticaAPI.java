@@ -387,9 +387,18 @@ public interface CosmeticaAPI {
 
 	/**
 	 * Sets the file to cache the API endpoints to, and retrieve from in case of the Github CDN or "getapi" endpoints go offline.
+	 * @deprecated CosmeticaDotJava skips contacting the Github CDN now and goes straight to /getapi. Use {@link CosmeticaAPI#setAPICache(File)} instead.
 	 */
+	@Deprecated
 	static void setAPICaches(File apiCache, File apiGetCache) {
-		CosmeticaWebAPI.setAPICaches(apiCache, apiGetCache);
+		CosmeticaWebAPI.setAPICache(apiCache);
+	}
+
+	/**
+	 * Sets the file to cache the API endpoints to, and retrieve from in case the node balancer goes offline.
+	 */
+	static void setAPICache(File apiCache) {
+		CosmeticaWebAPI.setAPICache(apiCache);
 	}
 
 	/**
