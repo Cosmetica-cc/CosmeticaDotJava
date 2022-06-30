@@ -39,4 +39,10 @@ public interface CustomCosmetic {
 	 * @return the name of this cosmetic.
 	 */
 	String getName();
+
+	/**
+	 * @return the id of this cosmetic.
+	 * @apiNote It is useful to use this field along with caching to ensure each model is only built once on the application end.
+	 */
+	String getId();
 }

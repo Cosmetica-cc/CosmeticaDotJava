@@ -35,5 +35,9 @@ public enum LoreType {
 	/**
 	 * A title. Often humorous, like "Your Friendly Neighbourhood Hacker."
 	 */
-	TITLES
+	TITLES,
+	/**
+	 * No Lore. Used with {@link CosmeticaAPI#setLore(LoreType, String)} to remove the player's lore.
+	 */
+	NONE
 }

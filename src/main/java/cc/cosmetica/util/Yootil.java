@@ -120,11 +120,7 @@ public class Yootil {
 		return Base64.encodeBase64String(text.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static String dashifyUUID(String uuid) {
-		return UNDASHED_UUID_GAPS.matcher(uuid).replaceAll(UUID_DASHIFIER_REPLACEMENT);
-	}
-
-	public static UUID fromUUID(String uuid) {
+	public static UUID toUUID(String uuid) {
 		return UUID.fromString(uuid.length() == 36 ? uuid : UNDASHED_UUID_GAPS.matcher(uuid).replaceAll(UUID_DASHIFIER_REPLACEMENT));
 	}
 

@@ -151,7 +151,7 @@ class ModelImpl implements Model {
 				bounds,
 				json.get("model").getAsString(),
 				json.get("texture").getAsString(),
-				new User(Yootil.fromUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
+				new User(Yootil.toUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
 				json.get("uploaded").getAsLong(),
 				json.get("usesUvRotations").getAsBoolean()
 		);

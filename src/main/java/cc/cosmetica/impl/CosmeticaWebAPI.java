@@ -168,7 +168,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			}
 
 			return new ServerResponse<>(new UserSettingsImpl(
-					UUID.fromString(Yootil.dashifyUUID(data.get("uuid").getAsString())),
+					Yootil.toUUID(data.get("uuid").getAsString()),
 					// cosmetics
 					data.get("doHats").getAsBoolean(),
 					data.get("doShoulderBuddies").getAsBoolean(),
@@ -250,7 +250,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public ServerResponse<List<String>> getLoreList(LoreType type) throws IllegalArgumentException {
-		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for getLoreList: " + type);
+		if (type == LoreType.DISCORD || type == LoreType.TWITCH || type == LoreType.NONE) throw new IllegalArgumentException("Invalid lore type for getLoreList: " + type);
 
 		SafeURL url = createLimited("/get/lorelists?type=" + type.toString().toLowerCase(Locale.ROOT));
 		this.urlLogger.accept(url.safeUrl());
@@ -341,7 +341,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				for (JsonElement element : jUpdates) {
 					JsonObject individual = element.getAsJsonObject();
 
-					UUID uuid = UUID.fromString(Yootil.dashifyUUID(individual.get("uuid").getAsString()));
+					UUID uuid = Yootil.toUUID(individual.get("uuid").getAsString());
 
 					users.add(new User(uuid, individual.get("username").getAsString()));
 				}

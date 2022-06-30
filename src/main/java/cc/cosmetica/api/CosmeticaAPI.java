@@ -200,10 +200,10 @@ public interface CosmeticaAPI {
 
 	/**
 	 *
-	 * @param type the type of lore to be set. Can be either {@link LoreType#PRONOUNS} or {@link LoreType#TITLES}.
+	 * @param type the type of lore to be set. Can be either {@link LoreType#PRONOUNS}, {@link LoreType#TITLES}, or {@link LoreType#NONE}.
 	 * @param lore the lore string to set as the lore.
 	 * @return the new lore string of the player (including colour codes) if successful. Otherwise the server response will have an error.
-	 * @throws IllegalArgumentException if the lore type cannot be set through this endpoint (if it's not "Pronouns" or "Titles").
+	 * @throws IllegalArgumentException if the lore type cannot be set through this endpoint (if it's not "Pronouns," "Titles," or "None").
 	 * @apiNote requires full authentication (a master token).
 	 */
 	ServerResponse<String> setLore(LoreType type, String lore) throws IllegalArgumentException;

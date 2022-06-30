@@ -18,6 +18,7 @@ package cc.cosmetica.impl;
 
 import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.User;
+import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,7 +98,7 @@ class BaseCape implements Cape {
 		boolean cosmeticaAlternative = data.get("isCosmeticaAlternative").getAsBoolean();
 
 		if ("Cosmetica".equals(origin)) {
-			User owner = new User(UUID.fromString(data.get("owner").getAsString()), data.get("ownerName").getAsString());
+			User owner = new User(Yootil.toUUID(data.get("owner").getAsString()), data.get("ownerName").getAsString());
 			return Optional.of(new CosmeticaCape(id, name, origin, image, cosmeticaAlternative, frameDelay, data.get("uploaded").getAsLong(), owner));
 		}
 		else {
