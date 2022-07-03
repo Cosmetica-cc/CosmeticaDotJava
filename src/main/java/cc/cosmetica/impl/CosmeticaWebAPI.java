@@ -632,12 +632,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			final String apiGetHost = "https://cosmetica.cc/getapi";
 
 			String apiGetData = null;
-			Exception eStored = new NullPointerException("Response succeeded but API GET entity was null"); // in case response succeeds but somehow get data is null
+			Exception eStored = new NullPointerException("Response succeeded but cosmetica.cc/getapi entity was null"); // in case response succeeds but somehow get data is null
 
 			try (Response apiGetResponse = Response.get(apiGetHost)) {
 				apiGetData = apiGetResponse.getAsString();
 			} catch (Exception e) {
-				System.err.println("(Cosmetica API) Connection error to API GET. Trying to retrieve from local cache...");
+				System.err.println("(Cosmetica API) Connection error to cosmetica.cc/getapi. Trying to retrieve from local cache...");
 				eStored = e;
 			}
 

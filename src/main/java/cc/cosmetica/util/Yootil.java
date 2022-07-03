@@ -22,15 +22,14 @@ import com.google.gson.JsonObject;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -100,9 +99,7 @@ public class Yootil {
 					writer.write(value);
 				}
 			} else if (file.isFile()) {
-				try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-					value = reader.readLine().trim();
-				}
+				value = new String(Files.readAllBytes(file.toPath())).trim();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
