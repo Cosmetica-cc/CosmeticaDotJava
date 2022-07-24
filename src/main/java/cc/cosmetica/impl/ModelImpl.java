@@ -98,7 +98,7 @@ class ModelImpl implements Model {
 
 	@Override
 	public boolean isBuiltin() {
-		return this.name.charAt(0) == '-';
+		return this.id.charAt(0) == '-';
 	}
 
 	@Override
