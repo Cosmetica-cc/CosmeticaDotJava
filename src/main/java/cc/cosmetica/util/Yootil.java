@@ -154,7 +154,8 @@ public class Yootil {
 	public static <T> Map<String, T> mapObject(JsonObject arr, Function<JsonElement, T> mapping) {
 		Map<String, T> result = new HashMap<>();
 
-		for (String key : arr.keySet()) {
+		for (Map.Entry<String, JsonElement> entry : arr.entrySet()) {
+			String key = entry.getKey();
 			result.put(key, mapping.apply(arr.get(key)));
 		}
 

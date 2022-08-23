@@ -93,17 +93,17 @@ public class Response implements Closeable {
 
 	public JsonObject getAsJson() throws IOException, JsonParseException {
 		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
-		return JsonParser.parseString(s).getAsJsonObject();
+		return new JsonParser().parse(s).getAsJsonObject();
 	}
 
 	public JsonArray getAsJsonArray() throws IOException, JsonParseException {
 		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
-		return JsonParser.parseString(s).getAsJsonArray();
+		return new JsonParser().parse(s).getAsJsonArray();
 	}
 
 	public JsonElement getAsJsonElement() throws IOException, JsonParseException {
 		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
-		return JsonParser.parseString(s);
+		return new JsonParser().parse(s);
 	}
 
 	@Override
@@ -183,7 +183,7 @@ public class Response implements Closeable {
 
 		if (code >= 500) {
 			try {
-				JsonParser.parseString(this.getAsString());
+				new JsonParser().parse(this.getAsString());
 			}
 			catch (JsonParseException e) {
 				// probably xml or something we can't handle. i.e. not an actual API response with 500

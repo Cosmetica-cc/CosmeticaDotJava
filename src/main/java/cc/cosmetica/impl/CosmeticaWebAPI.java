@@ -156,7 +156,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject capeSettings = data.get("capeSettings").getAsJsonObject();
 			Map<String, CapeServer> oCapeServerSettings = new HashMap<>();
 
-			for (String key : capeSettings.keySet()) {
+			for (Map.Entry<String, JsonElement> entry : capeSettings.entrySet()) {
+				String key = entry.getKey();
 				JsonObject setting = capeSettings.get(key).getAsJsonObject();
 
 				oCapeServerSettings.put(key, new CapeServer(
@@ -647,7 +648,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				throw new IllegalStateException("Could not receive Cosmetica API host. Mod functionality will be disabled!", eStored);
 			}
 
-			JsonObject data = JsonParser.parseString(apiGetData).getAsJsonObject();
+			JsonObject data = new JsonParser().parse(apiGetData).getAsJsonObject();
 			apiServerHost = data.get("api").getAsString();
 			authApiServerHost = data.get("auth-api").getAsString();
 			fastInsecureApiServerHost = "http" + apiServerHost.substring(5);
