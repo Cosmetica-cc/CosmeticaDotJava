@@ -49,8 +49,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		this.loginInfo = Optional.empty();
 	}
 
-	private CosmeticaWebAPI(UUID uuid, String limitedToken) throws FatalServerErrorException, IOException {
-		this.loginInfo = Optional.of(this.exchangeTokens(uuid, limitedToken));
+	private CosmeticaWebAPI(UUID uuid, String limitedToken, @Nullable String client) throws FatalServerErrorException, IOException {
+		this.loginInfo = Optional.of(this.exchangeTokens(uuid, limitedToken, client));
 	}
 
 	private final Optional<LoginInfo> loginInfo;
@@ -59,8 +59,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private int timeout = 20 * 1000;
 	private Consumer<String> urlLogger = s -> {};
 
-	private LoginInfo exchangeTokens(UUID uuid, String authToken) throws IllegalStateException, FatalServerErrorException, IOException {
-		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid, authToken);
+	private LoginInfo exchangeTokens(UUID uuid, String authToken, @Nullable String client) throws IllegalStateException, FatalServerErrorException, IOException {
+		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid + "&client=" + Yootil.urlEncode(client), authToken);
 
 		try (Response response = Response.get(url, this.timeout)) {
 			JsonObject object = response.getAsJson();
@@ -549,12 +549,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		return websiteHost;
 	}
 
-	public static CosmeticaAPI fromTempToken(String tempToken, UUID uuid) throws IllegalStateException, IOException, FatalServerErrorException {
+	public static CosmeticaAPI fromTempToken(String tempToken, UUID uuid, @Nullable String client) throws IllegalStateException, IOException, FatalServerErrorException {
 		retrieveAPIIfNoneCached();
-		return new CosmeticaWebAPI(uuid, tempToken);
+		return new CosmeticaWebAPI(uuid, tempToken, client);
 	}
 
-	public static CosmeticaAPI fromMinecraftToken(String minecraftToken, String username, UUID uuid) throws IllegalStateException, IOException, FatalServerErrorException {
+	public static CosmeticaAPI fromMinecraftToken(String minecraftToken, String username, UUID uuid, @Nullable String client) throws IllegalStateException, IOException, FatalServerErrorException {
 		retrieveAPIIfNoneCached();
 
 		byte[] publicKey;
@@ -586,7 +586,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject data = response.getAsJson();
 			checkErrors(SafeURL.direct(authApiServerHost + "/verify"), data);
 
-			return new CosmeticaWebAPI(uuid, data.get("token").getAsString());
+			return new CosmeticaWebAPI(uuid, data.get("token").getAsString(), client);
 		}
 	}
 

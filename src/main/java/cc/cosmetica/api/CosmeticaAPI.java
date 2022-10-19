@@ -348,7 +348,20 @@ public interface CosmeticaAPI {
 	 * @throws IOException if there is an I/O exception while contacting the servers.
 	 */
 	static CosmeticaAPI fromTemporaryToken(String temporaryToken, UUID uuid) throws FatalServerErrorException, IOException {
-		return CosmeticaWebAPI.fromTempToken(temporaryToken, uuid);
+		return CosmeticaWebAPI.fromTempToken(temporaryToken, uuid, null);
+	}
+
+	/**
+	 * Creates a new authenticated {@link CosmeticaAPI} instance using a cosmetica temporary authentication token: a special token used as an intermediate step between initial authentication and receiving the master and limited token.
+	 * @param temporaryToken the temporary token.
+	 * @param uuid the player's UUID.
+	 * @param client the id of the client to connect as. You can provide null to use the default, "cosmetica".
+	 * @return an authenticated instance of {@link CosmeticaAPI} with both a master and limited token.
+	 * @throws FatalServerErrorException if there is a 5XX error while contacting the servers.
+	 * @throws IOException if there is an I/O exception while contacting the servers.
+	 */
+	static CosmeticaAPI fromTemporaryToken(String temporaryToken, UUID uuid, @Nullable String client) throws FatalServerErrorException, IOException {
+		return CosmeticaWebAPI.fromTempToken(temporaryToken, uuid, client);
 	}
 
 	/**
@@ -363,7 +376,23 @@ public interface CosmeticaAPI {
 	 * @apiNote this can take a couple seconds as it has to make 2 POST requests and a GET request to authenticate.
 	 */
 	static CosmeticaAPI fromMinecraftToken(String minecraftToken, String username, UUID uuid) throws IllegalStateException, IOException, FatalServerErrorException {
-		return CosmeticaWebAPI.fromMinecraftToken(minecraftToken, username, uuid);
+		return CosmeticaWebAPI.fromMinecraftToken(minecraftToken, username, uuid, null);
+	}
+
+	/**
+	 * Login to Cosmetica with a minecraft account's token, username, and UUID directly. The resulting {@link CosmeticaAPI} instance will be fully authenticated with a master and limited token, as with using a temporary token in {@link CosmeticaAPI#fromToken(String)}.
+	 * @param minecraftToken the user's minecraft authentication token.
+	 * @param username the user's username.
+	 * @param uuid the user's UUID.
+	 * @param client the id of the client to connect as. You can provide null to use the default, "cosmetica".
+	 * @return an instance of the cosmetica web api, configured with the given account.
+	 * @throws IllegalStateException if an api instance cannot be retrieved.
+	 * @throws IOException if there is an I/O exception while contacting the minecraft auth servers or cosmetica servers to authenticate the user.
+	 * @throws FatalServerErrorException if there is a 5XX error while contacting the servers.
+	 * @apiNote this can take a couple seconds as it has to make 2 POST requests and a GET request to authenticate.
+	 */
+	static CosmeticaAPI fromMinecraftToken(String minecraftToken, String username, UUID uuid, @Nullable String client) throws IllegalStateException, IOException, FatalServerErrorException {
+		return CosmeticaWebAPI.fromMinecraftToken(minecraftToken, username, uuid, client);
 	}
 
 	/**

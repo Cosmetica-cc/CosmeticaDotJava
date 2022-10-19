@@ -18,7 +18,6 @@ package cc.cosmetica.test;
 
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
-import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.google.gson.JsonParser;
 
 import java.util.Scanner;
@@ -40,7 +39,7 @@ public class NewAuthTest {
 		System.out.println("Upload test model? y/n");
 		boolean uploadModel = scanner.nextLine().charAt(0) == 'y';
 
-		CosmeticaAPI api = CosmeticaWebAPI.fromMinecraftToken(token, username, uuid);
+		CosmeticaAPI api = CosmeticaAPI.fromMinecraftToken(token, username, uuid);
 
 		if (uploadModel) { // NOTE: Will respond by throwing the error "error: duplicate" if the upload is successful because the model here is already a cosmetic on cosmetica.
 			System.out.println("Uploading Model");
