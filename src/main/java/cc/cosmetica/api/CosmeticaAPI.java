@@ -306,6 +306,16 @@ public interface CosmeticaAPI {
 	void setRequestTimeout(int timeout);
 
 	/**
+	 * Gets whether this instance of {@linkplain CosmeticaAPI} will require https for all connections.
+	 * This is off by default. However, Cosmetica API will ALWAYS use HTTPS for sensitive data
+	 * transactions regardless of this setting (anything that uses your master token). The kind of
+	 * endpoints this will affect the HTTPS status of are non-information-sensitive ones such as getting
+	 * another player's cosmetics.
+	 * @param forceHttps whether to force https for all connections.
+	 */
+	void setForceHttps(boolean forceHttps);
+
+	/**
 	 * @return whether this cosmetica api instance has a master API token.
 	 */
 	boolean isFullyAuthenticated();
@@ -314,6 +324,16 @@ public interface CosmeticaAPI {
 	 * @return whether this cosmetica api instance has any API token (master or limited).
 	 */
 	boolean isAuthenticated();
+
+	/**
+	 * Gets whether this instance of {@linkplain CosmeticaAPI} will require https for all connections.
+	 * This is off by default. However, Cosmetica API will ALWAYS use HTTPS for sensitive data
+	 * transactions regardless of this setting (anything that uses your master token). The kind of
+	 * endpoints this will affect the HTTPS status of are non-information-sensitive ones such as getting
+	 * another player's cosmetics.
+	 * @return whether HTTPS connections for all connections are forced.
+	 */
+	boolean isHttpsForced();
 
 	/**
 	 * Create an instance with which to access the cosmetica web api via one token. Cannot accept a temporary token. To use a cosmetica temporary authentication token, see {@link CosmeticaAPI#fromTemporaryToken(String, UUID)}.

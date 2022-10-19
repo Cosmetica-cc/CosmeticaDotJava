@@ -58,6 +58,9 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private String limitedToken;
 	private int timeout = 20 * 1000;
 	private Consumer<String> urlLogger = s -> {};
+	// Note: the API will ALWAYS use HTTPS for connections that use your master token.
+	// The only endpoints that don't use your master token are non-info-sensitive ones such as getting another player's cosmetics.
+	private boolean forceHttps = false;
 
 	private LoginInfo exchangeTokens(UUID uuid, String authToken, @Nullable String client) throws IllegalStateException, FatalServerErrorException, IOException {
 		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid + "&client=" + Yootil.urlEncode(client), authToken);
@@ -488,7 +491,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private SafeURL createLimited(String target) {
-		if (this.limitedToken != null) return SafeURL.of(fastInsecureApiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
+		final String limitedAPIServerHost = this.forceHttps ? apiServerHost : fastInsecureApiServerHost;
+		if (this.limitedToken != null) return SafeURL.of(limitedAPIServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
 		else return create(target, OptionalLong.empty());
 	}
 
@@ -512,6 +516,11 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public void setForceHttps(boolean forceHttps) {
+		this.forceHttps = forceHttps;
+	}
+
+	@Override
 	public boolean isFullyAuthenticated() {
 		return this.masterToken != null;
 	}
@@ -519,6 +528,11 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	@Override
 	public boolean isAuthenticated() {
 		return this.isFullyAuthenticated() || this.limitedToken != null;
+	}
+
+	@Override
+	public boolean isHttpsForced() {
+		return this.forceHttps;
 	}
 
 	/**
