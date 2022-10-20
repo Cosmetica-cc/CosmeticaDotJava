@@ -405,8 +405,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<String> setLore(LoreType type, String lore) {
 		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for setLore(LoreType, String): " + type);
 
-		SafeURL target = create("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&value=" + Yootil.base64(lore), OptionalLong.empty());
+		SafeURL target = create("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&value=" + Yootil.base64(Yootil.urlEncode(lore)), OptionalLong.empty());
 		return requestSet(target);
+	}
+
+	@Override
+	public ServerResponse<String> removeLore() {
+		return this.setLore(LoreType.NONE, "");
 	}
 
 	@Override

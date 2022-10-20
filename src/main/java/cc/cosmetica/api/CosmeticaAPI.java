@@ -190,7 +190,7 @@ public interface CosmeticaAPI {
 	ServerResponse<List<Panorama>> getPanoramas();
 
 	/**
-	 * Sets the cosmetic for this user.
+	 * Sets the cosmetic at the given position for this user.
 	 * @param position the position of the cosmetic to set.
 	 * @param id the id of the cosmetic. Set the id to "none" to remove a cosmetic.
 	 * @return true if successful. Otherwise the server response will have an error.
@@ -199,7 +199,7 @@ public interface CosmeticaAPI {
 	ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id);
 
 	/**
-	 *
+	 * Sets the lore for this user.
 	 * @param type the type of lore to be set. Can be either {@link LoreType#PRONOUNS}, {@link LoreType#TITLES}, or {@link LoreType#NONE}.
 	 * @param lore the lore string to set as the lore.
 	 * @return the new lore string of the player (including colour codes) if successful. Otherwise the server response will have an error.
@@ -207,6 +207,13 @@ public interface CosmeticaAPI {
 	 * @apiNote requires full authentication (a master token).
 	 */
 	ServerResponse<String> setLore(LoreType type, String lore) throws IllegalArgumentException;
+
+	/**
+	 * Removes this user's lore. Equivalent to {@code setLore(LoreType.NONE, "")}.
+	 * @return the new lore string of the player (including colour codes) if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<String> removeLore();
 
 	/**
 	 * Sets the panorama for this user.
