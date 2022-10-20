@@ -240,6 +240,14 @@ public interface CosmeticaAPI {
 	ServerResponse<Boolean> updateUserSettings(Map<String, Object> settings);
 
 	/**
+	 * Updates the icon settings for the given user. These affect how the icon
+	 * @apiNote requires full authentication (a master token).<br>
+	 * This is identical to calling {@linkplain CosmeticaAPI#updateUserSettings(Map)} with the "iconsettings" property set
+	 * as the {@linkplain IconSettings#packToInt() packed integer representation} of the given icon settings.
+	 */
+	ServerResponse<Boolean> updateIconSettings(IconSettings iconSettings);
+
+	/**
 	 * Uploads a static cape to the server under this account.
 	 * @param name the name of the cape to upload.
 	 * @param base64Image the image in base64 form. Ensure it is a png that starts with "data:image/png;base64,"

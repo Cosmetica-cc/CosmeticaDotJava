@@ -449,6 +449,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public ServerResponse<Boolean> updateIconSettings(IconSettings iconSettings) {
+		Map<String, Object> settings = new HashMap<>();
+		settings.put("iconsettings", iconSettings.packToInt());
+		return this.updateUserSettings(settings);
+	}
+
+	@Override
 	public ServerResponse<String> uploadCape(String name, String base64Image, int frameDelay) throws IllegalArgumentException {
 		if (frameDelay < 0 || frameDelay > 500) throw new IllegalArgumentException("Frame delay must be between 0 and 500 (inclusive)");
 		if (frameDelay % 50 != 0) throw new IllegalArgumentException("Frame delay must be a multiple of 50");
