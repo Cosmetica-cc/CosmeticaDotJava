@@ -68,6 +68,21 @@ public class DummyUserInfo implements UserInfo {
 	}
 
 	@Override
+	public Optional<String> getClient() {
+		return Optional.empty();
+	}
+
+	@Override
+	public boolean isOnline() {
+		return false;
+	}
+
+	@Override
+	public String getIcon() {
+		return "";
+	}
+
+	@Override
 	public List<Model> getHats() {
 		return new ArrayList<>();
 	}

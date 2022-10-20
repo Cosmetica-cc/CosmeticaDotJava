@@ -66,6 +66,17 @@ public interface UserInfo {
 	String getSuffix();
 
 	/**
+	 * @return the client the user last connected with. Returns {@linkplain Optional#empty()} if the user has never used cosmetica or an associated client.
+	 */
+	Optional<String> getClient();
+
+	/**
+	 * @return whether the player is currently online. If the user chooses not to share this status, they will appear online regardless.
+	 * If the user is not registered with cosmetica, they will appear offline.
+	 */
+	boolean isOnline();
+
+	/**
 	 * @return a list of the hats worn by this user.
 	 */
 	List<Model> getHats();
@@ -84,6 +95,13 @@ public interface UserInfo {
 	 * @return the cape worn by this user.
 	 */
 	Optional<Cape> getCape();
+
+	/**
+	 * Get the icon's base64 image string. Each frame of an icon will be square. If the icon is of a different aspect ratio,
+	 * assume it is composed of multiple square frames stacked vertically. No icon is represented with an empty string.
+	 * @return the icon, in base64 image format. If the user has no icon, the string will be blank.
+	 */
+	String getIcon();
 
 	/**
 	 * A {@link UserInfo} instance with dummy values for everything which can be used as a placeholder.

@@ -20,12 +20,14 @@ import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.UserInfo;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 
 public class UserInfoImpl implements UserInfo {
-	public UserInfoImpl(String skin, boolean slim, String lore, String platform, String role, boolean upsideDown, String prefix, String suffix, List<Model> hats, Optional<ShoulderBuddies> shoulderBuddies, Optional<Model> backBling, Optional<Cape> cape) {
+	public UserInfoImpl(String skin, boolean slim, String lore, String platform, String role, boolean upsideDown, String prefix, String suffix, @Nullable String client, boolean online,
+						List<Model> hats, Optional<ShoulderBuddies> shoulderBuddies, Optional<Model> backBling, Optional<Cape> cape, String icon) {
 		this.skin = skin;
 		this.slim = slim;
 		this.lore = lore;
@@ -34,10 +36,14 @@ public class UserInfoImpl implements UserInfo {
 		this.upsideDown = upsideDown;
 		this.prefix = prefix;
 		this.suffix = suffix;
+		this.client = client;
+		this.online = online;
+
 		this.hats = hats;
 		this.shoulderBuddies = shoulderBuddies;
 		this.backBling = backBling;
 		this.cape = cape;
+		this.icon = icon;
 	}
 
 	private final String skin;
@@ -48,10 +54,13 @@ public class UserInfoImpl implements UserInfo {
 	private final boolean upsideDown;
 	private final String prefix;
 	private final String suffix;
+	private final @Nullable String client;
+	private final boolean online;
 	private final List<Model> hats;
 	private final Optional<ShoulderBuddies> shoulderBuddies;
 	private final Optional<Model> backBling;
 	private final Optional<Cape> cape;
+	private final String icon;
 
 	@Override
 	public String getSkin() {
@@ -94,6 +103,16 @@ public class UserInfoImpl implements UserInfo {
 	}
 
 	@Override
+	public Optional<String> getClient() {
+		return Optional.ofNullable(this.client);
+	}
+
+	@Override
+	public boolean isOnline() {
+		return online;
+	}
+
+	@Override
 	public List<Model> getHats() {
 		return hats;
 	}
@@ -111,6 +130,11 @@ public class UserInfoImpl implements UserInfo {
 	@Override
 	public Optional<Cape> getCape() {
 		return cape;
+	}
+
+	@Override
+	public String getIcon() {
+		return icon;
 	}
 
 	@Override

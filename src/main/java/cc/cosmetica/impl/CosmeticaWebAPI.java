@@ -135,10 +135,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					jsonObject.get("upsideDown").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
 					jsonObject.get("suffix").getAsString(),
+					Yootil.readJsonString(jsonObject.get("client")),
+					jsonObject.get("online").getAsBoolean(),
 					hats == null ? new ArrayList<>() : Yootil.mapObjects(hats, ModelImpl::_parse),
 					sbObj,
 					ModelImpl.parse(backBling),
-					BaseCape.parse(cloak)
+					BaseCape.parse(cloak),
+					jsonObject.get("icon").getAsString()
 			), target);
 		} catch (IOException ie) {
 			return new ServerResponse<>(ie, target);
