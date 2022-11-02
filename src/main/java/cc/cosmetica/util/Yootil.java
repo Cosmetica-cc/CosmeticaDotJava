@@ -45,13 +45,17 @@ import java.util.regex.Pattern;
  * General utilities used by the implementation.
  */
 public class Yootil {
+	private static final Pattern UNDASHED_UUID_GAPS = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
+	private static final String UUID_DASHIFIER_REPLACEMENT = "$1-$2-$3-$4-$5";
+	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
 	/**
 	 * Read json string but only if the element is a JSON primitive. Otherwise return null.
 	 * @param elem the json element.
 	 * @return the parsed value, see method description.
 	 */
 	@Nullable
-	public static String readJsonString(JsonElement elem) {
+	public static String readNullableJsonString(JsonElement elem) {
 		if (elem.isJsonPrimitive()) {
 			return elem.getAsString();
 		}
@@ -59,10 +63,6 @@ public class Yootil {
 			return null;
 		}
 	}
-
-	private static final Pattern UNDASHED_UUID_GAPS = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
-	private static final String UUID_DASHIFIER_REPLACEMENT = "$1-$2-$3-$4-$5";
-	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
 	public static String urlFlag(String flag, boolean toggle) {
 		return toggle ? flag : "";

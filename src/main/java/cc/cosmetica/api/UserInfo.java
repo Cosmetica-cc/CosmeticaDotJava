@@ -17,6 +17,7 @@
 package cc.cosmetica.api;
 
 import cc.cosmetica.impl.DummyUserInfo;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +27,9 @@ import java.util.Optional;
  */
 public interface UserInfo {
 	/**
-	 * @return the skin of this user, in base64 format.
+	 * @return the skin of this user, in base64 format. Returns null if there is no string.
 	 */
+	@Nullable
 	String getSkin();
 
 	/**

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserInfoImpl implements UserInfo {
-	public UserInfoImpl(String skin, boolean slim, String lore, String platform, String role, boolean upsideDown, String prefix, String suffix, @Nullable String client, boolean online,
+	public UserInfoImpl(@Nullable String skin, boolean slim, String lore, String platform, String role, boolean upsideDown, String prefix, String suffix, @Nullable String client, boolean online,
 						List<Model> hats, Optional<ShoulderBuddies> shoulderBuddies, Optional<Model> backBling, Optional<Cape> cape, String icon) {
 		this.skin = skin;
 		this.slim = slim;
@@ -46,7 +46,7 @@ public class UserInfoImpl implements UserInfo {
 		this.icon = icon;
 	}
 
-	private final String skin;
+	private final @Nullable String skin;
 	private final boolean slim;
 	private final String lore;
 	private final String platform;
@@ -63,6 +63,7 @@ public class UserInfoImpl implements UserInfo {
 	private final String icon;
 
 	@Override
+	@Nullable
 	public String getSkin() {
 		return this.skin;
 	}

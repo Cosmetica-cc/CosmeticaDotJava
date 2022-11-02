@@ -127,7 +127,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			}
 
 			return new ServerResponse<>(new UserInfoImpl(
-					jsonObject.get("skin").getAsString(),
+					Yootil.readNullableJsonString(jsonObject.get("skin")),
 					jsonObject.get("slim").getAsBoolean(),
 					jsonObject.get("lore").getAsString(),
 					jsonObject.get("platform").getAsString(),
@@ -135,7 +135,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					jsonObject.get("upsideDown").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
 					jsonObject.get("suffix").getAsString(),
-					Yootil.readJsonString(jsonObject.get("client")),
+					Yootil.readNullableJsonString(jsonObject.get("client")),
 					jsonObject.get("online").getAsBoolean(),
 					hats == null ? new ArrayList<>() : Yootil.mapObjects(hats, ModelImpl::_parse),
 					sbObj,
