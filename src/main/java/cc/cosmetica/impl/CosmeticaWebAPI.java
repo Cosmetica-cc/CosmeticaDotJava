@@ -126,6 +126,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 				));
 			}
 
+			JsonObject icon = jsonObject.get("icon").getAsJsonObject();
+
 			return new ServerResponse<>(new UserInfoImpl(
 					Yootil.readNullableJsonString(jsonObject.get("skin")),
 					jsonObject.get("slim").getAsBoolean(),
@@ -135,13 +137,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					jsonObject.get("upsideDown").getAsBoolean(),
 					jsonObject.get("prefix").getAsString(),
 					jsonObject.get("suffix").getAsString(),
-					Yootil.readNullableJsonString(jsonObject.get("client")),
-					jsonObject.get("online").getAsBoolean(),
+					Yootil.readNullableJsonString(icon.get("client")),
+					icon.get("online").getAsBoolean(),
 					hats == null ? new ArrayList<>() : Yootil.mapObjects(hats, ModelImpl::_parse),
 					sbObj,
 					ModelImpl.parse(backBling),
 					BaseCape.parse(cloak),
-					jsonObject.get("icon").getAsString()
+					icon.get("icon").getAsString()
 			), target);
 		} catch (IOException ie) {
 			return new ServerResponse<>(ie, target);
@@ -253,6 +255,39 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<CosmeticsPage<CustomCosmetic>> getOfficialCosmetics(int page, int pageSize) {
 		SafeURL url = createTokenless("/get/systemcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.any());
+	}
+
+	@Override
+	public ServerResponse<List<OwnedCosmetic>> getCosmeticsOwnedBy(@Nullable UUID uuid, @Nullable String username) {
+		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
+
+		SafeURL url = createMinimalLimited("/get/userownedcosmetics?user=" + Yootil.firstNonNull(uuid, username));
+
+		this.urlLogger.accept(url.safeUrl());
+
+		try (Response response = Response.get(url, this.timeout)) {
+			JsonElement json = response.getAsJsonElement();
+
+			// if an object can only be an error
+			if (json.isJsonObject()) {
+				throw new CosmeticaAPIException(url, json.getAsJsonObject().get("error").getAsString());
+			}
+
+			// else, it is an array.
+			List<OwnedCosmetic> cosmetics = new ArrayList<>();
+
+			for (JsonElement element : json.getAsJsonArray()) {
+				cosmetics.add(OwnedCosmeticImpl.parse(element.getAsJsonObject()));
+			}
+
+			return new ServerResponse<>(cosmetics, url);
+		}
+		catch (IOException ie) {
+			return new ServerResponse<>(ie, url);
+		}
+		catch (RuntimeException e) {
+			return new ServerResponse<>(e, url);
+		}
 	}
 
 	@Override
@@ -516,6 +551,17 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		else return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
+	private SafeURL createMinimalLimited(String target) {
+		final String limitedAPIServerHost = this.forceHttps ? apiServerHost : fastInsecureApiServerHost;
+		if (this.limitedToken != null) return SafeURL.of(limitedAPIServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
+		else return createMinimal(target, OptionalLong.empty());
+	}
+
+	private SafeURL createMinimal(String target, OptionalLong timestamp) {
+		if (this.masterToken != null) return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
+		else return SafeURL.direct(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
+	}
+
 	private SafeURL createTokenless(String target, OptionalLong timestamp) {
 		return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
@@ -690,7 +736,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	private static void checkErrors(SafeURL url, JsonObject response) {
 		if (response.has("error")) {
-			throw new CosmeticaAPIException("API server request to " + url.safeUrl() + " responded with error: " + response.get("error").getAsString());
+			throw new CosmeticaAPIException(url, response.get("error").getAsString());
 		}
 	}
 

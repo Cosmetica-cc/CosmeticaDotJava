@@ -50,9 +50,9 @@ public class Yootil {
 	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
 	/**
-	 * Read json string but only if the element is a JSON primitive. Otherwise return null.
+	 * Read json string but only if the element is a JSON primitive. Otherwise, return null.
 	 * @param elem the json element.
-	 * @return the parsed value, see method description.
+	 * @return the parsed value; see method description.
 	 */
 	@Nullable
 	public static String readNullableJsonString(JsonElement elem) {
@@ -181,5 +181,15 @@ public class Yootil {
 		byte[] result = new byte[number];
 		SECURE_RANDOM.nextBytes(result);
 		return result;
+	}
+
+	public static String firstNonNull(Object... objects) throws IllegalArgumentException {
+		for (Object o : objects) {
+			if (o != null) {
+				return String.valueOf(o);
+			}
+		}
+
+		throw new IllegalArgumentException("All objects are null!");
 	}
 }

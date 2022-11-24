@@ -166,6 +166,18 @@ public interface CosmeticaAPI {
 	ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize);
 
 	/**
+	 * Retrieves user info from the api server via either the UUID or username. If both are provided, UUID is used preferentially.
+	 * This will only show {@linkplain UploadState#APPROVED approved} cosmetics unless you are requesting cosmetics you own while authenticated.
+	 * @param uuid the uuid of the player to retrieve data of.
+	 * @param username the username of the player to retrieve data of.
+	 * @return a list of cosmetics owned by the given player.
+	 * @throws IllegalArgumentException if both {@code uuid} and {@code username} are null.
+	 * @apiNote do note that the data sent for each cosmetic by this endpoint is slightly different to the data sent by others.
+	 * To get data not available from this endpoint, use {@link CosmeticaAPI#getCosmetic(CosmeticType, String)} after {@linkplain OwnedCosmetic#getId() retrieving the id} using this endpoint.
+	 */
+	ServerResponse<List<OwnedCosmetic>> getCosmeticsOwnedBy(@Nullable UUID uuid, @Nullable String username);
+
+	/**
 	 * Gets the list of available lore of that type the user can set to.
 	 * @param type a type of lore that uses a list of options. Namely {@link LoreType#PRONOUNS} or {@link LoreType#TITLES}.
 	 * @return a list of lore strings the user can select from.

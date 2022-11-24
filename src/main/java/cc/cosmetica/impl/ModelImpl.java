@@ -130,7 +130,7 @@ class ModelImpl implements Model {
 
 	static Model _parse(JsonObject json) {
 		String id = json.get("id").getAsString();
-		int flags = json.get("extra info").getAsInt();
+		int flags = json.get("extraInfo").getAsInt();
 		JsonArray unparsedBounds = json.get("bounds").getAsJsonArray();
 		JsonArray lowerBounds = unparsedBounds.get(0).getAsJsonArray();
 		JsonArray upperBounds = unparsedBounds.get(1).getAsJsonArray();

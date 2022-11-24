@@ -22,10 +22,12 @@ import java.util.Optional;
  * A set of types of cosmetics.
  */
 public class CosmeticType<T extends CustomCosmetic> {
-	private CosmeticType(String urlstring) {
+	private CosmeticType(String typeString, String urlstring) {
+		this.typeString = typeString;
 		this.urlString = urlstring;
 	}
 
+	private final String typeString;
 	private final String urlString;
 
 	/**
@@ -35,10 +37,17 @@ public class CosmeticType<T extends CustomCosmetic> {
 		return this.urlString;
 	}
 
-	public static final CosmeticType<CustomCape> CAPE = new CosmeticType<>("cape");
-	public static final CosmeticType<Model> HAT = new CosmeticType<>("hat");
-	public static final CosmeticType<Model> SHOULDER_BUDDY = new CosmeticType<>("shoulderbuddy");
-	public static final CosmeticType<Model> BACK_BLING = new CosmeticType<>("backbling");
+	/**
+	 * @return the case-sensitive type string associated with this cosmetic in api responses.
+	 */
+	public String getTypeString() {
+		return this.typeString;
+	}
+
+	public static final CosmeticType<CustomCape> CAPE = new CosmeticType<>("Cape", "cape");
+	public static final CosmeticType<Model> HAT = new CosmeticType<>("Hat", "hat");
+	public static final CosmeticType<Model> SHOULDER_BUDDY = new CosmeticType<>("Shoulder Buddy", "shoulderbuddy");
+	public static final CosmeticType<Model> BACK_BLING = new CosmeticType<>("Back Bling", "backbling");
 
 	/**
 	 * Gets the cosmetic type instance from the case-sensitive url string.
@@ -78,5 +87,10 @@ public class CosmeticType<T extends CustomCosmetic> {
 		default:
 			return Optional.empty();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return this.typeString;
 	}
 }

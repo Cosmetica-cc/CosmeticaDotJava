@@ -18,12 +18,14 @@ package cc.cosmetica.test;
 
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.CosmeticaAPIException;
 import cc.cosmetica.api.CosmeticsPage;
 import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.LoreType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Tests for contacting api endpoints that are typically used by the website. Stuff like getting a page of popular cosmetics.
@@ -77,5 +79,21 @@ public class WebsiteFunctionTests {
 
 		// info
 		System.out.println("Valo's lore: " + api.getUserInfo(null, "Valoeghese").get().getLore());
+
+		// user owned cosmetics
+		System.out.println();
+		System.out.println("Lythogeor's Cosmetics:");
+		api.getCosmeticsOwnedBy(UUID.fromString("cd19cb6e-c829-46b3-a6df-63bbe2c5a0dd"), "Lythogeor").get().stream().map(c -> "- " + c.getName() + " (" + c.getType() + ")").forEach(System.out::println);
+
+		// catch an error from user owned cosmetics
+		System.out.println();
+		System.out.println("The following should be an error:");
+
+		try {
+			api.getCosmeticsOwnedBy(null, "asdasdfas937").get();
+		}
+		catch (CosmeticaAPIException e) {
+			e.printStackTrace();
+		}
 	}
 }

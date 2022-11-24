@@ -16,10 +16,12 @@
 
 package cc.cosmetica.api;
 
+import java.util.UUID;
+
 /**
- * Represents a cosmetic stored on cosmetica servers. This could be either a cape or model.
+ * Represents the data of a cosmetic owned by a player, retrieved from {@link CosmeticaAPI#getCosmeticsOwnedBy(UUID, String)}. The data here is slightly different to that which you get from other endpoints.
  */
-public interface CustomCosmetic {
+public interface OwnedCosmetic {
 	/**
 	 * Gets the type of cosmetic this is.
 	 * @return the cosmetic type.
@@ -27,16 +29,10 @@ public interface CustomCosmetic {
 	CosmeticType<?> getType();
 
 	/**
-	 * Gets the owner of this cosmetic.
-	 * @return the owner of this cosmetic. Can be a hyphenless UUID of a player, or "system" (e.g. for the starter capes).
+	 * Gets the cosmetic server this originates from.
+	 * @return the origin of this cape. Whether it be "Cosmetica" or "Optifine," etc...
 	 */
-	User getOwner();
-
-	/**
-	 * Get the upload time of this cosmetic.
-	 * @return the UTC unix timestamp, in seconds, at which this model was uploaded.
-	 */
-	long getUploadTime();
+	String getOrigin();
 
 	/**
 	 * Gets the name of this cosmetic.
@@ -47,7 +43,24 @@ public interface CustomCosmetic {
 	/**
 	 * Gets the id of this cosmetic.
 	 * @return the id of this cosmetic.
-	 * @apiNote It is useful to use this field along with caching to ensure each model is only built once on the application end.
 	 */
 	String getId();
+
+	/**
+	 * Get the upload time of this cosmetic.
+	 * @return the UTC unix timestamp, in seconds, at which this model was uploaded.
+	 */
+	long getUploadTime();
+
+	/**
+	 * Gets how many users currently have this cosmetic equipped.
+	 * @return the number of users with this cosmetic currently equipped, as an int.
+	 */
+	int getUsers();
+
+	/**
+	 * Gets the current upload state of this cosmetic.
+	 * @return the upload state of this cosmetic.
+	 */
+	UploadState getUploadState();
 }

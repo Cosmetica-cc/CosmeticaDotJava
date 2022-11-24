@@ -16,10 +16,16 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.util.SafeURL;
+
 /**
  * Thrown when the cosmetica web api returns a response, but that response is an error.
  */
 public class CosmeticaAPIException extends RuntimeException {
+	public CosmeticaAPIException(SafeURL url, String message) {
+		this("API server request to " + url.safeUrl() + " responded with error: " + message);
+	}
+
 	public CosmeticaAPIException(String message) {
 		super(message);
 	}

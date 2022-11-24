@@ -30,6 +30,7 @@ public interface Cape {
 	String getId();
 
 	/**
+	 * Gets the cosmetic server this originates from.
 	 * @return the origin of this cape. Whether it be "Cosmetica" or "Optifine," etc...
 	 */
 	String getOrigin();
