@@ -58,17 +58,7 @@ public interface UserInfo {
 	boolean isUpsideDown();
 
 	/**
-	 * @return A prefix to the user's name.
-	 */
-	String getPrefix();
-
-	/**
-	 * @return a suffix to the user's name.
-	 */
-	String getSuffix();
-
-	/**
-	 * @return the client the user last connected with. Returns {@linkplain Optional#empty()} if the user has never used cosmetica or an associated client.
+	 * @return the client the user last connected with. Returns {@linkplain Optional#empty()} if the user has not recently used cosmetica or an associated client.
 	 */
 	Optional<String> getClient();
 
@@ -77,6 +67,16 @@ public interface UserInfo {
 	 * If the user is not registered with cosmetica, they will appear offline.
 	 */
 	boolean isOnline();
+
+	/**
+	 * @return A prefix to the user's name.
+	 */
+	String getPrefix();
+
+	/**
+	 * @return a suffix to the user's name.
+	 */
+	String getSuffix();
 
 	/**
 	 * @return a list of the hats worn by this user.
