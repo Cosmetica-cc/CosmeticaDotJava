@@ -27,18 +27,22 @@ import java.util.UUID;
  * An object containing a user's settings and preferences.
  */
 public final class UserSettingsImpl implements UserSettings {
-	public UserSettingsImpl(UUID uuid, boolean doHats, boolean doShoulderBuddies, boolean doBackBlings, boolean doLore, long joined, String role, String countryCode, boolean perRegionEffects, boolean perRegionEffectsSet, int panorama, Map<String, CapeServer> capeServerSettings) {
+	public UserSettingsImpl(UUID uuid, boolean doHats, boolean doShoulderBuddies, boolean doBackBlings, boolean doLore, int iconSettings,
+							long joined, String role, String countryCode, boolean perRegionEffects, boolean perRegionEffectsSet, int panorama,
+							boolean doOnlineActivity, Map<String, CapeServer> capeServerSettings) {
 		this.uuid = uuid;
 		this.doHats = doHats;
 		this.doShoulderBuddies = doShoulderBuddies;
 		this.doBackBlings = doBackBlings;
 		this.doLore = doLore;
+		this.iconSettings = iconSettings;
 		this.joined = joined;
 		this.role = role;
 		this.countryCode = countryCode;
 		this.perRegionEffects = perRegionEffects;
 		this.perRegionEffectsSet = perRegionEffectsSet;
 		this.panorama = panorama;
+		this.onlineActivity = doOnlineActivity;
 		this.capeServerSettings = capeServerSettings;
 	}
 
@@ -47,12 +51,14 @@ public final class UserSettingsImpl implements UserSettings {
 	private final boolean doShoulderBuddies;
 	private final boolean doBackBlings;
 	private final boolean doLore;
+	private final int iconSettings;
 	private final long joined;
 	private final String role;
 	private final String countryCode;
 	private final boolean perRegionEffects;
 	private final boolean perRegionEffectsSet;
 	private final int panorama;
+	private final boolean onlineActivity;
 	private final Map<String, CapeServer> capeServerSettings;
 
 	/**
@@ -97,6 +103,11 @@ public final class UserSettingsImpl implements UserSettings {
 	}
 
 	@Override
+	public int getIconSettings() {
+		return this.iconSettings;
+	}
+
+	@Override
 	public String getCountryCode() {
 		return countryCode;
 	}
@@ -114,6 +125,11 @@ public final class UserSettingsImpl implements UserSettings {
 	@Override
 	public int getPanorama() {
 		return panorama;
+	}
+
+	@Override
+	public boolean doOnlineActivity() {
+		return this.onlineActivity;
 	}
 
 	@Override

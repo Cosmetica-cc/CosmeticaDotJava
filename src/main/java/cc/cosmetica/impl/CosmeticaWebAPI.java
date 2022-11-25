@@ -183,6 +183,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					data.get("doShoulderBuddies").getAsBoolean(),
 					data.get("doBackBlings").getAsBoolean(),
 					data.get("doLore").getAsBoolean(),
+					data.get("iconSettings").getAsInt(),
 					// other stuff
 					data.get("joined").getAsLong(),
 					data.get("role").getAsString(),
@@ -190,6 +191,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					data.get("perRegionEffects").getAsBoolean(),
 					data.get("perRegionEffectsSet").getAsBoolean(),
 					data.get("panorama").getAsInt(),
+					data.get("onlineActivity").getAsBoolean(),
 					oCapeServerSettings
 			), target);
 		}

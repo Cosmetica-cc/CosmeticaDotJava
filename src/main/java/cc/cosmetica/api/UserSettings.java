@@ -61,6 +61,22 @@ public interface UserSettings {
 	boolean doLore();
 
 	/**
+	 * Gets whether the user has online activity enabled.
+	 * @return whether the user has online activity enabled. If this is on, their online status will be accurate. Otherwise, they will always appear online.
+	 */
+	boolean doOnlineActivity();
+
+	/**
+	 * Gets the icon settings of the user.
+	 * @return the icon settings of the user, as a packed integer. The individual flags are <ul>
+	 *     <li>{@link UserSettings#DISABLE_ICONS}</li>
+	 *     <li>{@link UserSettings#DISABLE_OFFLINE_ICONS}</li>
+	 *     <li>{@link UserSettings#DISABLE_SPECIAL_ICONS}</li>
+	 * </ul>
+	 */
+	int getIconSettings();
+
+	/**
 	 * @return the country code of this user.
 	 * @implNote Other users cannot see this user's country code. It is stored in any case so the servers can update the data they send immediately as soon as a user wishes to enable per-region effects.
 	 */
@@ -92,4 +108,22 @@ public interface UserSettings {
 	 * @implNote These dummy user settings have an empty map for cape server settings and a country code of AQ (antarctica).
 	 */
 	UserSettings DUMMY = new DummyUserSettings();
+
+	// icon flags
+
+	/**
+	 * Flag for whether to disable all icons, regardless of other flags.
+	 */
+	int DISABLE_ICONS = 0x1;
+
+	/**
+	 * Flag for whether to disable offline icons. When this flag is enabled, offline users will not have an icon sent.
+	 */
+	int DISABLE_OFFLINE_ICONS = 0x2;
+
+	/**
+	 * Flag for whether to disable "special" icons. Special icons include any icons other than the default Cosmetica icon: Cosmetica++ icons and affiliated third party icons.
+	 * When this flag is enabled, the default Cosmetica icon will be sent instead of these special icons.
+	 */
+	int DISABLE_SPECIAL_ICONS = 0x4;
 }

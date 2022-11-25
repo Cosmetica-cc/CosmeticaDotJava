@@ -85,4 +85,14 @@ public class DummyUserSettings implements UserSettings {
 	public Map<String, CapeServer> getCapeServerSettings() {
 		return new HashMap<>();
 	}
+
+	@Override
+	public int getIconSettings() {
+		return 0;
+	}
+
+	@Override
+	public boolean doOnlineActivity() {
+		return false;
+	}
 }

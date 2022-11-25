@@ -63,7 +63,7 @@ public interface UserInfo {
 	Optional<String> getClient();
 
 	/**
-	 * @return whether the player is currently online. If the user chooses not to share this status, they will appear online regardless.
+	 * @return whether the player is currently online and using cosmetica or another service that integrates with cosmetica. If the user chooses not to share this status, they will appear online regardless.
 	 * If the user is not registered with cosmetica, they will appear offline.
 	 */
 	boolean isOnline();
