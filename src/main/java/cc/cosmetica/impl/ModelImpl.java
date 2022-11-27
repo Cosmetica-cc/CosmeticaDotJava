@@ -67,6 +67,11 @@ class ModelImpl implements Model {
 	}
 
 	@Override
+	public int getFrameDelay() {
+		return 50 * ((this.flags >> 4) & 0x1F);
+	}
+
+	@Override
 	public Box getBoundingBox() {
 		return this.bounds;
 	}

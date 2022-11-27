@@ -93,7 +93,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 		try (Response response = Response.get(versionCheck, this.timeout)) {
 			JsonObject s = response.getAsJson();
-			return new ServerResponse<>(new VersionInfo(s.get("needsUpdate").getAsBoolean(), s.get("isVital").getAsBoolean(), s.get("minecraftMessage").getAsString(), s.get("plainMessage").getAsString()), versionCheck);
+			return new ServerResponse<>(new VersionInfo(
+					s.get("needsUpdate").getAsBoolean(),
+					s.get("isVital").getAsBoolean(),
+					s.get("minecraftMessage").getAsString(),
+					s.get("plainMessage").getAsString(),
+					s.get("megaInvasiveTutorial").getAsBoolean()
+			), versionCheck);
 		} catch (IOException ie) {
 			return new ServerResponse<>(ie, versionCheck);
 		} catch (RuntimeException e) {

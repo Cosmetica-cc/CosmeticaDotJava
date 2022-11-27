@@ -34,8 +34,7 @@ public interface Model extends CustomCosmetic {
 	String getModel();
 
 	/**
-	 * @return the texture, in base64 format.
-	 * @implNote as of the time of building this library, this texture is guaranteed to be 32x32, however this is subject to change in the future.
+	 * @return the texture, in base64 format. The texture will be a tilesheet of square textures representing each frame.
 	 */
 	String getTexture();
 
@@ -46,20 +45,16 @@ public interface Model extends CustomCosmetic {
 	boolean usesUVRotations();
 
 	/**
-	 * Retrieves the rendering flags of this model. The exact meaning depends on the type of cosmetic. As of the time of this library build, the current options are:
-	 * <br/><br/>
-	 * <h3>Hats</h3>
-	 * <ul>
-	 *     <li>0x1: Show Through Helmet</li>
-	 * </ul>
-	 * <br/>
-	 * <h3>Shoulder Buddies</h3>
-	 * 	 <ul>
-	 * 	     <li>0x1: Lock to body orientation</li>
-	 * 	 </ul>
+	 * Retrieves the rendering flags of this model. The exact meaning depends on the type of cosmetic, and can be found as constant fields in this class.
 	 * @return the rendering flags associated with this model.
 	 */
 	int flags();
+
+	/**
+	 * @return the delay between each frame of this model's texture, in ms. Will be 0 if static.
+	 * @implNote Equivalent to {@code 50 * ((flags() >> 4) & 0x1F)}
+	 */
+	int getFrameDelay();
 
 	/**
 	 * @return whether this is a built in model to cosmetica (e.g. for region specific effects), as opposed to a custom model stored on the server.
