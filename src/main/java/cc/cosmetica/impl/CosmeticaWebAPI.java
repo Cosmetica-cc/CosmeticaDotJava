@@ -60,7 +60,11 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private Consumer<String> urlLogger = s -> {};
 	// Note: the API will ALWAYS use HTTPS for connections that use your master token.
 	// The only endpoints that don't use your master token are non-info-sensitive ones such as getting another player's cosmetics.
-	private boolean forceHttps = false;
+	private Optional<Boolean> forceHttpsOverride = Optional.empty();
+
+	private boolean forceHttps() {
+		return this.forceHttpsOverride.orElse(enforceHttpsGlobal);
+	}
 
 	private LoginInfo exchangeTokens(UUID uuid, String authToken, @Nullable String client) throws IllegalStateException, FatalServerErrorException, IOException {
 		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid + "&client=" + Yootil.urlEncode(client), authToken);
@@ -549,7 +553,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private SafeURL createLimited(String target) {
-		final String limitedAPIServerHost = this.forceHttps ? apiServerHost : fastInsecureApiServerHost;
+		final String limitedAPIServerHost = this.forceHttps() ? apiServerHost : fastInsecureApiServerHost;
 		if (this.limitedToken != null) return SafeURL.of(limitedAPIServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
 		else return create(target, OptionalLong.empty());
 	}
@@ -560,7 +564,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private SafeURL createMinimalLimited(String target) {
-		final String limitedAPIServerHost = this.forceHttps ? apiServerHost : fastInsecureApiServerHost;
+		final String limitedAPIServerHost = this.forceHttps() ? apiServerHost : fastInsecureApiServerHost;
 		if (this.limitedToken != null) return SafeURL.of(limitedAPIServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
 		else return createMinimal(target, OptionalLong.empty());
 	}
@@ -586,7 +590,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public void setForceHttps(boolean forceHttps) {
-		this.forceHttps = forceHttps;
+		this.forceHttpsOverride = Optional.of(forceHttps);
 	}
 
 	@Override
@@ -601,7 +605,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public boolean isHttpsForced() {
-		return this.forceHttps;
+		return this.forceHttps();
 	}
 
 	/**
@@ -612,6 +616,19 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public String getMasterToken() {
 		return this.masterToken;
 	}
+
+	// Global Force Https
+	private static boolean enforceHttpsGlobal;
+
+	public static void setDefaultForceHttps(boolean forceHttps) {
+		enforceHttpsGlobal = forceHttps;
+	}
+
+	public static boolean getDefaultForceHttps() {
+		return enforceHttpsGlobal;
+	}
+
+	// Initialisation Stuff
 
 	private static String apiServerHost;
 	private static String authApiServerHost;
@@ -713,7 +730,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	private static void retrieveAPIIfNoneCached() throws IllegalStateException {
 		if (apiServerHost == null) { // if this sequence has not already been initiated
-			final String apiGetHost = "https://cosmetica.cc/getapi";
+			final String apiGetHost = enforceHttpsGlobal ? "https://cosmetica.cc/getapi" : "http://cosmetica.cc/getapi";
 
 			String apiGetData = null;
 			Exception eStored = new NullPointerException("Response succeeded but cosmetica.cc/getapi entity was null"); // in case response succeeds but somehow get data is null
@@ -728,7 +745,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			if (apiCache != null) apiGetData = Yootil.loadOrCache(apiCache, apiGetData);
 
 			if (apiGetData == null) {
-				throw new IllegalStateException("Could not receive Cosmetica API host. Mod functionality will be disabled!", eStored);
+				throw new IllegalStateException("Could not receive Cosmetica API host. Authenticated functionality will be disabled!", eStored);
 			}
 
 			JsonObject data = new JsonParser().parse(apiGetData).getAsJsonObject();

@@ -102,6 +102,8 @@ public interface UserInfo {
 	 * Get the icon's base64 image string. Each frame of an icon will be square. If the icon is of a different aspect ratio,
 	 * assume it is composed of multiple square frames stacked vertically. No icon is represented with an empty string.
 	 * @return the icon, in base64 image format. If the user has no icon, the string will be blank.
+	 * @apiNote it is recommended not to cache the icon image by the associated client, as one client (especially cosmetica itself) may have different icons for different people!
+	 *  If you wish to cache, it is recommended to instead depend on the image data itself. For example: using the hash of the base64 icon string.
 	 */
 	String getIcon();
 

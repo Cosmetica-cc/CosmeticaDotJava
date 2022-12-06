@@ -333,7 +333,8 @@ public interface CosmeticaAPI {
 	void setRequestTimeout(int timeout);
 
 	/**
-	 * Gets whether this instance of {@linkplain CosmeticaAPI} will require https for all connections.
+	 * Sets whether this instance of {@linkplain CosmeticaAPI} will require https for all connections.
+	 * When set, this instance will ignore the default value set in {@link CosmeticaAPI#setDefaultForceHttps(boolean)} and instead use the value given.
 	 * This is off by default. However, Cosmetica API will ALWAYS use HTTPS for sensitive data
 	 * transactions regardless of this setting (anything that uses your master token). The kind of
 	 * endpoints this will affect the HTTPS status of are non-information-sensitive ones such as getting
@@ -361,6 +362,32 @@ public interface CosmeticaAPI {
 	 * @return whether HTTPS connections for all connections are forced.
 	 */
 	boolean isHttpsForced();
+
+	/**
+	 * Gets whether instances of {@linkplain CosmeticaAPI} will require https by default for all connections.
+	 * Individual instances {@linkplain CosmeticaAPI#setForceHttps(boolean) can override this}.
+	 * This is off by default. However, Cosmetica API will ALWAYS use HTTPS for sensitive data
+	 * transactions regardless of this setting (anything that uses your master token). The kind of
+	 * endpoints this will affect the HTTPS status of are non-information-sensitive ones such as getting
+	 * another player's cosmetics.
+	 * @return whether HTTPS connections for all connections are forced.
+	 */
+	static boolean isHttpsForcedByDefault() {
+		return CosmeticaWebAPI.getDefaultForceHttps();
+	}
+
+	/**
+	 * Sets whether instances of {@linkplain CosmeticaAPI} will require https by default for all connections.
+	 * Individual instances {@linkplain CosmeticaAPI#setForceHttps(boolean) can override this}.
+	 * This is off by default. However, Cosmetica API will ALWAYS use HTTPS for sensitive data
+	 * transactions regardless of this setting (anything that uses your master token). The kind of
+	 * endpoints this will affect the HTTPS status of are non-information-sensitive ones such as getting
+	 * another player's cosmetics.
+	 * @return whether HTTPS connections for all connections are forced.
+	 */
+	static void setDefaultForceHttps(boolean forceHttps) {
+		CosmeticaWebAPI.setDefaultForceHttps(forceHttps);
+	}
 
 	/**
 	 * Create an instance with which to access the cosmetica web api via one token. Cannot accept a temporary token. To use a cosmetica temporary authentication token, see {@link CosmeticaAPI#fromTemporaryToken(String, UUID)}.
