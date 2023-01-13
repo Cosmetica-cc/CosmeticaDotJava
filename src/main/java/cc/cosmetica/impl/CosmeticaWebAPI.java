@@ -446,8 +446,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id) {
-		SafeURL target = create("/client/setcosmetic?type=" + position.getUrlString() + "&id=" + id, OptionalLong.empty());
+	public ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id, boolean requireOfficial) {
+		SafeURL target = create("/client/setcosmetic?type=" + position.getUrlString() + "&id=" + id + (requireOfficial ? "&requireofficial" : ""), OptionalLong.empty());
 		return requestSetZ(target);
 	}
 

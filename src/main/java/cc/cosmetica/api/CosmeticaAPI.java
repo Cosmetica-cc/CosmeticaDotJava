@@ -208,7 +208,19 @@ public interface CosmeticaAPI {
 	 * @return true if successful. Otherwise the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
 	 */
-	ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id);
+	default ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id) {
+		return this.setCosmetic(position, id, false);
+	}
+
+	/**
+	 * Sets the cosmetic at the given position for this user.
+	 * @param position the position of the cosmetic to set.
+	 * @param id the id of the cosmetic. Set the id to "none" to remove a cosmetic.
+	 * @param requireOfficial whether to only allow official capes. If this is set, then trying to set a non-official cape will return an error.
+	 * @return true if successful. Otherwise the server response will have an error.
+	 * @apiNote requires full authentication (a master token).
+	 */
+	ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id, boolean requireOfficial);
 
 	/**
 	 * Sets the lore for this user.
