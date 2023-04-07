@@ -556,6 +556,7 @@ public interface CosmeticaAPI {
 
 	/**
 	 * Get the cosmetica api server url being used as an insecure http:// url, retrieved once a {@link CosmeticaAPI} instance is retrieved from {@link CosmeticaAPI#fromToken}, {@link CosmeticaAPI#fromMinecraftToken(String, String, UUID)}, {@link CosmeticaAPI#fromTemporaryToken(String, UUID)}, {@link CosmeticaAPI#fromTokens}, or another method that forces initial API data to be fetched is called.
+	 * @implNote may not actually give an http url! If global force https is on, will be https.
 	 */
 	@Nullable
 	static String getHttpAPIServer() {

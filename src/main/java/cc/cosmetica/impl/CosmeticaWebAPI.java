@@ -17,6 +17,7 @@
 package cc.cosmetica.impl;
 
 import cc.cosmetica.api.*;
+import cc.cosmetica.util.HostProvider;
 import cc.cosmetica.util.Response;
 import cc.cosmetica.util.SafeURL;
 import cc.cosmetica.util.Yootil;
@@ -47,27 +48,27 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		this.masterToken = masterToken;
 		this.limitedToken = limited;
 		this.loginInfo = Optional.empty();
+		this.apiHostProvider = apiHostProviderTemplate.clone();
 	}
 
 	private CosmeticaWebAPI(UUID uuid, String limitedToken, @Nullable String client) throws FatalServerErrorException, IOException {
 		this.loginInfo = Optional.of(this.exchangeTokens(uuid, limitedToken, client));
+		this.apiHostProvider = apiHostProviderTemplate.clone();
 	}
 
 	private final Optional<LoginInfo> loginInfo;
+	private final HostProvider apiHostProvider;
 	private String masterToken;
 	private String limitedToken;
 	private int timeout = 20 * 1000;
 	private Consumer<String> urlLogger = s -> {};
-	// Note: the API will ALWAYS use HTTPS for connections that use your master token.
-	// The only endpoints that don't use your master token are non-info-sensitive ones such as getting another player's cosmetics.
-	private Optional<Boolean> forceHttpsOverride = Optional.empty();
 
 	private boolean forceHttps() {
-		return this.forceHttpsOverride.orElse(enforceHttpsGlobal);
+		return this.apiHostProvider.isForceHttps();
 	}
 
 	private LoginInfo exchangeTokens(UUID uuid, String authToken, @Nullable String client) throws IllegalStateException, FatalServerErrorException, IOException {
-		SafeURL url = SafeURL.of(apiServerHost + "/client/verifyforauthtokens?uuid=" + uuid + "&client=" + Yootil.urlEncode(client), authToken);
+		SafeURL url = SafeURL.of(this.apiHostProvider.getSecureUrl() + "/client/verifyforauthtokens?uuid=" + uuid + "&client=" + Yootil.urlEncode(client), authToken);
 
 		try (Response response = Response.get(url, this.timeout)) {
 			JsonObject object = response.getAsJson();
@@ -553,29 +554,27 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private SafeURL createLimited(String target) {
-		final String limitedAPIServerHost = this.forceHttps() ? apiServerHost : fastInsecureApiServerHost;
-		if (this.limitedToken != null) return SafeURL.of(limitedAPIServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
+		if (this.limitedToken != null) return SafeURL.of(this.apiHostProvider.getFastInsecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
 		else return create(target, OptionalLong.empty());
 	}
 
 	private SafeURL create(String target, OptionalLong timestamp) {
-		if (this.masterToken != null) return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
-		else return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
+		if (this.masterToken != null) return SafeURL.of(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
+		else return SafeURL.of(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
 	private SafeURL createMinimalLimited(String target) {
-		final String limitedAPIServerHost = this.forceHttps() ? apiServerHost : fastInsecureApiServerHost;
-		if (this.limitedToken != null) return SafeURL.of(limitedAPIServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
+		if (this.limitedToken != null) return SafeURL.of(this.apiHostProvider.getFastInsecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + System.currentTimeMillis(), this.limitedToken);
 		else return createMinimal(target, OptionalLong.empty());
 	}
 
 	private SafeURL createMinimal(String target, OptionalLong timestamp) {
-		if (this.masterToken != null) return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
-		else return SafeURL.direct(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
+		if (this.masterToken != null) return SafeURL.of(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
+		else return SafeURL.direct(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
 	private SafeURL createTokenless(String target, OptionalLong timestamp) {
-		return SafeURL.of(apiServerHost + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
+		return SafeURL.of(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
 	}
 
 	@Override
@@ -590,7 +589,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	@Override
 	public void setForceHttps(boolean forceHttps) {
-		this.forceHttpsOverride = Optional.of(forceHttps);
+		this.apiHostProvider.setForceHttps(forceHttps);
 	}
 
 	@Override
@@ -622,6 +621,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	public static void setDefaultForceHttps(boolean forceHttps) {
 		enforceHttpsGlobal = forceHttps;
+		// update api host provider too
+		apiHostProviderTemplate.setForceHttps(forceHttps);
 	}
 
 	public static boolean getDefaultForceHttps() {
@@ -630,9 +631,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	// Initialisation Stuff
 
-	private static String apiServerHost;
+	private static HostProvider apiHostProviderTemplate;
 	private static String authApiServerHost;
-	private static String fastInsecureApiServerHost;
 
 	private static String websiteHost;
 	private static String authServerHost;
@@ -697,19 +697,19 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 	public static CosmeticaAPI newUnauthenticatedInstance() throws IllegalStateException {
 		retrieveAPIIfNoneCached();
-		return new CosmeticaWebAPI((String) null, null);
+		return new CosmeticaWebAPI(null, null);
 	}
 
 	@Nullable
 	public static String getApiServerHost(boolean requireResult) throws IllegalStateException {
 		if (requireResult) retrieveAPIIfNoneCached();
-		return apiServerHost;
+		return apiHostProviderTemplate == null ? null : apiHostProviderTemplate.getSecureUrl();
 	}
 
 	@Nullable
 	public static String getFastInsecureApiServerHost(boolean requireResult) throws IllegalStateException {
 		if (requireResult) retrieveAPIIfNoneCached();
-		return fastInsecureApiServerHost;
+		return apiHostProviderTemplate == null ? null : apiHostProviderTemplate.getFastInsecureUrl();
 	}
 
 	@Nullable
@@ -729,7 +729,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private static void retrieveAPIIfNoneCached() throws IllegalStateException {
-		if (apiServerHost == null) { // if this sequence has not already been initiated
+		if (apiHostProviderTemplate == null) { // if this sequence has not already been initiated
 			final String apiGetHost = enforceHttpsGlobal ? "https://cosmetica.cc/getapi" : "http://cosmetica.cc/getapi";
 
 			String apiGetData = null;
@@ -745,13 +745,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			if (apiCache != null) apiGetData = Yootil.loadOrCache(apiCache, apiGetData);
 
 			if (apiGetData == null) {
-				throw new IllegalStateException("Could not receive Cosmetica API host. Authenticated functionality will be disabled!", eStored);
+				throw new IllegalStateException("Could not receive Cosmetica API host", eStored);
 			}
 
 			JsonObject data = new JsonParser().parse(apiGetData).getAsJsonObject();
-			apiServerHost = data.get("api").getAsString();
+			apiHostProviderTemplate = new HostProvider(data.get("api").getAsString(), enforceHttpsGlobal);
 			authApiServerHost = data.get("auth-api").getAsString();
-			fastInsecureApiServerHost = "http" + apiServerHost.substring(5);
 			websiteHost = data.get("website").getAsString();
 			JsonObject auth = data.get("auth-server").getAsJsonObject();
 			authServerHost = auth.get("hostname").getAsString() + ":" + auth.get("port").getAsInt();
