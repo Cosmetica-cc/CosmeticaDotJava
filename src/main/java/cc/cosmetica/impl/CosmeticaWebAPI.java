@@ -622,7 +622,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public static void setDefaultForceHttps(boolean forceHttps) {
 		enforceHttpsGlobal = forceHttps;
 		// update api host provider too
-		apiHostProviderTemplate.setForceHttps(forceHttps);
+		if (apiHostProviderTemplate != null) apiHostProviderTemplate.setForceHttps(forceHttps);
 	}
 
 	public static boolean getDefaultForceHttps() {
