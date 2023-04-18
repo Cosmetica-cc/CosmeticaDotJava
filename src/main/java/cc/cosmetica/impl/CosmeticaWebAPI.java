@@ -52,8 +52,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	private CosmeticaWebAPI(UUID uuid, String limitedToken, @Nullable String client) throws FatalServerErrorException, IOException {
-		this.loginInfo = Optional.of(this.exchangeTokens(uuid, limitedToken, client));
 		this.apiHostProvider = apiHostProviderTemplate.clone();
+		this.loginInfo = Optional.of(this.exchangeTokens(uuid, limitedToken, client));
 	}
 
 	private final Optional<LoginInfo> loginInfo;

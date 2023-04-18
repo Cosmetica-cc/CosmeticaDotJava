@@ -22,16 +22,21 @@ import cc.cosmetica.api.CosmeticaAPIException;
 import cc.cosmetica.api.CosmeticsPage;
 import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.LoreType;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.fail;
+
 /**
  * Tests for contacting api endpoints that are typically used by the website. Stuff like getting a page of popular cosmetics.
  */
-public class WebsiteFunctionTests {
-	public static void main(String[] args) {
+public class WebsiteFunctionTest {
+	@Test
+	public void testPopular() {
 		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
 		long time = System.currentTimeMillis();
@@ -41,59 +46,84 @@ public class WebsiteFunctionTests {
 		for (CustomCosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
+	}
+	
+	@Test
+	public void testRecent() {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
-		System.out.println();
-
-		// recent
-		time = System.currentTimeMillis();
-		page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, Optional.empty()).get();
-		System.out.println("Contacted recent in " + (System.currentTimeMillis() - time) + "ms");
+		long time = System.currentTimeMillis();
+		CosmeticsPage<?> page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, Optional.empty()).get();
+		System.out.println("Contacted recent shoulder buddies in " + (System.currentTimeMillis() - time) + "ms");
 
 		for (CustomCosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
+	}
+	
+	@Test
+	public void testSystem() {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
-		System.out.println();
-
-		// system
-		time = System.currentTimeMillis();
-		page = api.getOfficialCosmetics(1, 87).get(); // the api caps it at 30 cosmetics
+		long time = System.currentTimeMillis();
+		CosmeticsPage<?> page = api.getOfficialCosmetics(1, 87).get(); // the api caps it at 30 cosmetics
 		System.out.println("Contacted system in " + (System.currentTimeMillis() - time) + "ms");
 
 		for (CustomCosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
+	}
+	
+	@Test
+	public void testLoreLists() {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
-		System.out.println();
-
-		// lore lists
-		time = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 		List<String> pronouns = api.getLoreList(LoreType.PRONOUNS).get();
-		System.out.println("Contacted lore lists in " + (System.currentTimeMillis() - time) + "ms");
+		System.out.println("Contacted pronoun lore list in " + (System.currentTimeMillis() - time) + "ms");
+
+		if (pronouns.isEmpty()) {
+			fail("Pronoun Lore List should not be empty.");
+		}
+
 		pronouns.forEach(System.out::println);
+	}
 
-		System.out.println();
+	@Test
+	public void testCosmeticInfo() {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
+		String cosmeticName = api.getCosmetic(CosmeticType.CAPE, "MDhhS1ZiWmpwMVVzT3c").get().getName();
 
-		// cosmetic
-		System.out.println(api.getCosmetic(CosmeticType.CAPE, "MDhhS1ZiWmpwMVVzT3c").get().getName());
+		System.out.println("`MDhhS1ZiWmpwMVVzT3c` is: " + cosmeticName);
+		assertEquals(cosmeticName, "PoggerBottle's Cape");
+	}
 
-		// info
+	@Test
+	public void testUserInfo() {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 		System.out.println("Valo's lore: " + api.getUserInfo(null, "Valoeghese").get().getLore());
+	}
 
-		// user owned cosmetics
-		System.out.println();
+	@Test
+	public void testUserOwnedCosmetics() {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 		System.out.println("Lythogeor's Cosmetics:");
 		api.getCosmeticsOwnedBy(UUID.fromString("cd19cb6e-c829-46b3-a6df-63bbe2c5a0dd"), "Lythogeor").get().stream().map(c -> "- " + c.getName() + " (" + c.getType() + ")").forEach(System.out::println);
+	}
 
-		// catch an error from user owned cosmetics
-		System.out.println();
-		System.out.println("The following should be an error:");
+	@Test(expected = CosmeticaAPIException.class)
+	public void testInvalidUserErrors() {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
 		try {
 			api.getCosmeticsOwnedBy(null, "asdasdfas937").get();
 		}
 		catch (CosmeticaAPIException e) {
-			e.printStackTrace();
+			if (!e.getMessage().contains("error: no user")) {
+				fail("Did not find expected error message 'error: no user'");
+			}
+
+			throw e;
 		}
 	}
 }
