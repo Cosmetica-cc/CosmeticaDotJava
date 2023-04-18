@@ -24,6 +24,7 @@ import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.LoreType;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

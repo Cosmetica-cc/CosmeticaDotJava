@@ -23,7 +23,7 @@ import com.google.gson.JsonParser;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class NewAuthTest {
+public class OldAuthTest {
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
 
