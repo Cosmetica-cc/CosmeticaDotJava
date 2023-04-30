@@ -20,7 +20,7 @@ Add in your dependencies block as follows:
 
 ```gradle
 dependencies {
-    implementation 'com.github.Cosmetica-cc:CosmeticaDotJava:1.5.2'
+    implementation 'com.github.Cosmetica-cc:CosmeticaDotJava:1.11.2'
 }
 ```
 
@@ -30,7 +30,7 @@ You'll likely want to distribute it as part of your project as well. To do this,
 
 ```gradle
 dependencies {
-    include 'com.github.Cosmetica-cc:CosmeticaDotJava:1.5.2'
+    include 'com.github.Cosmetica-cc:CosmeticaDotJava:1.11.2'
 }
 ```
 
