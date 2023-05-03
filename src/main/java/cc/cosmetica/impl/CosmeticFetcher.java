@@ -16,10 +16,10 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.Cape;
-import cc.cosmetica.api.CosmeticType;
+import cc.cosmetica.api.cosmetic.Cape;
+import cc.cosmetica.api.cosmetic.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
-import cc.cosmetica.api.Model;
+import cc.cosmetica.api.cosmetic.Model;
 import org.jetbrains.annotations.Nullable;
 
 /**

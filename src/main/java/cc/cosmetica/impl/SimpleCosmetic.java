@@ -17,6 +17,9 @@
 package cc.cosmetica.impl;
 
 import cc.cosmetica.api.*;
+import cc.cosmetica.api.cosmetic.Cosmetic;
+import cc.cosmetica.api.cosmetic.CosmeticType;
+import cc.cosmetica.api.cosmetic.UploadState;
 import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;

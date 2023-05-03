@@ -16,6 +16,8 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.api.cosmetic.Cosmetic;
+import cc.cosmetica.api.cosmetic.ShoulderBuddies;
 import cc.cosmetica.impl.DummyUserInfo;
 import org.jetbrains.annotations.Nullable;
 

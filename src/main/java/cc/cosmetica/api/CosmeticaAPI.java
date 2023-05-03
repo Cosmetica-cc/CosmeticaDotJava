@@ -16,6 +16,16 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.api.cosmetic.Cosmetic;
+import cc.cosmetica.api.cosmetic.CosmeticType;
+import cc.cosmetica.api.cosmetic.LoreType;
+import cc.cosmetica.api.cosmetic.Model;
+import cc.cosmetica.api.cosmetic.OwnedCosmetic;
+import cc.cosmetica.api.cosmetic.UploadState;
+import cc.cosmetica.api.settings.CapeDisplay;
+import cc.cosmetica.api.settings.IconSettings;
+import cc.cosmetica.api.settings.Panorama;
+import cc.cosmetica.api.settings.UserSettings;
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;

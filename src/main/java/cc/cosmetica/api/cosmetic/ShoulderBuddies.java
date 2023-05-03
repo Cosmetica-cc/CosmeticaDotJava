@@ -14,31 +14,23 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.api.cosmetic;
+
+import cc.cosmetica.api.cosmetic.Cosmetic;
+
+import java.util.Optional;
 
 /**
- * How the cosmetics from a cape service are handled by cosmetica for this user.
+ * Data class which stores the player's shoulder buddies.
  */
-public enum CapeDisplay {
-	REPLACE(0),
-	HIDE(1),
-	SHOW(2);
+public interface ShoulderBuddies {
+	/**
+	 * @return the player's left shoulder buddy.
+	 */
+	Optional<? extends Cosmetic> getLeft();
 
-	CapeDisplay(int id) {
-		this.id = id;
-	}
-
-	public final int id;
-
-	private static final CapeDisplay[] BY_ID = new CapeDisplay[CapeDisplay.values().length]; // because apparently using ordinal is small brain
-
-	public static CapeDisplay byId(int id) {
-		return BY_ID[id];
-	}
-
-	static {
-		for (CapeDisplay entry : CapeDisplay.values()) {
-			BY_ID[entry.id] = entry;
-		}
-	}
+	/**
+	 * @return the player's right shoulder buddy.
+	 */
+	Optional<? extends Cosmetic> getRight();
 }

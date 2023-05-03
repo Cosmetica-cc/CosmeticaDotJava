@@ -17,6 +17,9 @@
 package cc.cosmetica.test;
 
 import cc.cosmetica.api.*;
+import cc.cosmetica.api.cosmetic.Cosmetic;
+import cc.cosmetica.api.cosmetic.CosmeticType;
+import cc.cosmetica.api.cosmetic.LoreType;
 import org.junit.Test;
 
 import java.util.List;

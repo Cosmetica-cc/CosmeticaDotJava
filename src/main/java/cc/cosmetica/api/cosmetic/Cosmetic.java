@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.api.cosmetic;
 
+import cc.cosmetica.api.User;
 import cc.cosmetica.impl.SimpleCosmetic;
 
 import java.util.Optional;

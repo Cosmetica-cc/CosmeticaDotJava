@@ -1,4 +1,4 @@
-package cc.cosmetica.api;
+package cc.cosmetica.api.settings;
 
 /**
  * The settings for a cape server.

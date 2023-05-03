@@ -16,6 +16,8 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.api.cosmetic.Cosmetic;
+
 import java.util.List;
 import java.util.Objects;
 

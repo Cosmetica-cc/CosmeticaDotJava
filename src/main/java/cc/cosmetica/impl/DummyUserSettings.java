@@ -16,8 +16,8 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.CapeServer;
-import cc.cosmetica.api.UserSettings;
+import cc.cosmetica.api.settings.CapeServer;
+import cc.cosmetica.api.settings.UserSettings;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -16,7 +16,7 @@
 
 package cc.cosmetica.test;
 
-import cc.cosmetica.api.CosmeticType;
+import cc.cosmetica.api.cosmetic.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import com.google.gson.JsonParser;
 

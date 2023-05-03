@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.api.cosmetic;
+
+import cc.cosmetica.api.CosmeticaAPI;
 
 /**
  * An enum representing the types of lore a user can have.

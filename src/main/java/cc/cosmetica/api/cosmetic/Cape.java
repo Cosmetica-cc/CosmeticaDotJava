@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.api.cosmetic;
 
 import cc.cosmetica.impl.CosmeticFetcher;
 import org.jetbrains.annotations.Nullable;

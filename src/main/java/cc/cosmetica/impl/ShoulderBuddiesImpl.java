@@ -16,8 +16,8 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.Cosmetic;
-import cc.cosmetica.api.ShoulderBuddies;
+import cc.cosmetica.api.cosmetic.Cosmetic;
+import cc.cosmetica.api.cosmetic.ShoulderBuddies;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;

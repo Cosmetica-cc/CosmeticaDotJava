@@ -17,6 +17,11 @@
 package cc.cosmetica.impl;
 
 import cc.cosmetica.api.*;
+import cc.cosmetica.api.cosmetic.BoundingBox;
+import cc.cosmetica.api.cosmetic.Cosmetic;
+import cc.cosmetica.api.cosmetic.CosmeticType;
+import cc.cosmetica.api.cosmetic.Model;
+import cc.cosmetica.api.cosmetic.UploadState;
 import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -26,7 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 class ModelImpl implements Model {
-	ModelImpl(CosmeticType<?> type, String id, String name, int flags, Box bounds,
+	ModelImpl(CosmeticType<?> type, String id, String name, int flags, BoundingBox bounds,
 			  String model, String base64Texture, User owner, String origin,
 			  UploadState uploadState, String reason, long uploadTime, boolean usesUVRotations) {
 		this.id = id;
@@ -48,7 +53,7 @@ class ModelImpl implements Model {
 
 	private final String id;
 	private final int flags;
-	private final Box bounds;
+	private final BoundingBox bounds;
 
 	private final String model;
 	private final String texture;
@@ -78,7 +83,7 @@ class ModelImpl implements Model {
 	}
 
 	@Override
-	public Box getBoundingBox() {
+	public BoundingBox getBoundingBox() {
 		return this.bounds;
 	}
 
@@ -172,7 +177,7 @@ class ModelImpl implements Model {
 		JsonArray lowerBounds = unpasedBounds.get(0).getAsJsonArray();
 		JsonArray upperBounds = unpasedBounds.get(1).getAsJsonArray();
 
-		Box bounds = new Box(
+		BoundingBox bounds = new BoundingBox(
 				lowerBounds.get(0).getAsInt(),
 				lowerBounds.get(1).getAsInt(),
 				lowerBounds.get(2).getAsInt(),

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.api.cosmetic;
 
 import cc.cosmetica.impl.CosmeticFetcher;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,7 @@ public interface Model extends Cosmetic {
 	/**
 	 * @return the bounding box of this model.
 	 */
-	Box getBoundingBox();
+	BoundingBox getBoundingBox();
 
 	/**
 	 * @return the model json string associated with the custom model. Follows the minecraft block model format.

@@ -16,9 +16,9 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.CosmeticType;
-import cc.cosmetica.api.OwnedCosmetic;
-import cc.cosmetica.api.UploadState;
+import cc.cosmetica.api.cosmetic.CosmeticType;
+import cc.cosmetica.api.cosmetic.OwnedCosmetic;
+import cc.cosmetica.api.cosmetic.UploadState;
 import com.google.gson.JsonObject;
 
 /**

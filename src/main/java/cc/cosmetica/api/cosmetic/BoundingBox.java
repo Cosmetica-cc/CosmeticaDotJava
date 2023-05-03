@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.api.cosmetic;
 
 import java.util.Objects;
 
 /**
  * A bounding box constructed from 2 corners. Objects of this type are required to have {@code x0 <= x1}, {@code y0 <= y1}, {@code z0 <= z1}.
  */
-public final class Box {
-	public Box(double x0, double y0, double z0,
-			   double x1, double y1, double z1) {
+public final class BoundingBox {
+	public BoundingBox(double x0, double y0, double z0,
+					   double x1, double y1, double z1) {
 		this.x0 = x0;
 		this.y0 = y0;
 		this.z0 = z0;
@@ -101,7 +101,7 @@ public final class Box {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != this.getClass()) return false;
-		Box that = (Box) obj;
+		BoundingBox that = (BoundingBox) obj;
 		return this.x0 == that.x0
 				&& this.y0 == that.y0
 				&& this.z0 == that.z0

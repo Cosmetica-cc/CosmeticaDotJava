@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api;
+package cc.cosmetica.api.settings;
 
 /**
  * Class containing the settings for icon display for the given user. These settings control how the user

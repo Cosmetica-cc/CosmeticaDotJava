@@ -16,6 +16,8 @@
 
 package cc.cosmetica.api;
 
+import cc.cosmetica.api.cosmetic.CosmeticType;
+
 /**
  * A position at which a cosmetic can be placed on a player. Used in {@link CosmeticaAPI#setCosmetic(CosmeticPosition, String)}.
  */
