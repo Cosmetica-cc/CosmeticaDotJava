@@ -25,10 +25,10 @@ public interface ShoulderBuddies {
 	/**
 	 * @return the player's left shoulder buddy.
 	 */
-	Optional<Model> getLeft();
+	Optional<? extends Cosmetic> getLeft();
 
 	/**
 	 * @return the player's right shoulder buddy.
 	 */
-	Optional<Model> getRight();
+	Optional<? extends Cosmetic> getRight();
 }

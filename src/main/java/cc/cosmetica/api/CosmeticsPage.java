@@ -21,9 +21,9 @@ import java.util.Objects;
 
 /**
  * A page of cosmetics on the website.
- * @param <T> the type of cosmetic found on this page. Could be {@link CustomCosmetic} if a general page.
+ * @param <T> the type of cosmetic found on this page. Could be {@link Cosmetic} if a general page.
  */
-public final class CosmeticsPage<T extends CustomCosmetic> {
+public final class CosmeticsPage<T extends Cosmetic> {
 	private final List<T> cosmetics;
 	private final boolean nextPage;
 

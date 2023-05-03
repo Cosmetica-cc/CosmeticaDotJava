@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Represents a cosmetica user.
+ * Represents a cosmetica user. If from an endpoint that generates reduced data, the username may be blank.
  */
 public final class User {
 	public User(UUID uuid, String username) {

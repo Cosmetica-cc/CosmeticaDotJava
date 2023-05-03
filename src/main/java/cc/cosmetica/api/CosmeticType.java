@@ -21,7 +21,7 @@ import java.util.Optional;
 /**
  * A set of types of cosmetics.
  */
-public class CosmeticType<T extends CustomCosmetic> {
+public class CosmeticType<T extends Cosmetic> {
 	private CosmeticType(String typeString, String urlstring) {
 		this.typeString = typeString;
 		this.urlString = urlstring;
@@ -44,7 +44,7 @@ public class CosmeticType<T extends CustomCosmetic> {
 		return this.typeString;
 	}
 
-	public static final CosmeticType<CustomCape> CAPE = new CosmeticType<>("Cape", "cape");
+	public static final CosmeticType<Cape> CAPE = new CosmeticType<>("Cape", "cape");
 	public static final CosmeticType<Model> HAT = new CosmeticType<>("Hat", "hat");
 	public static final CosmeticType<Model> SHOULDER_BUDDY = new CosmeticType<>("Shoulder Buddy", "shoulderbuddy");
 	public static final CosmeticType<Model> BACK_BLING = new CosmeticType<>("Back Bling", "backbling");

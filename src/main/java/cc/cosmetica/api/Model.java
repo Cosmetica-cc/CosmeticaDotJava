@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A cosmetica model. Can be a built-in model, or a custom model. See {@link Model#isBuiltin()} for more details.
  */
-public interface Model extends CustomCosmetic {
+public interface Model extends Cosmetic {
 	/**
 	 * @return the bounding box of this model.
 	 */
@@ -118,13 +118,6 @@ public interface Model extends CustomCosmetic {
 	 * Flag for whether to lock the shoulder buddy orientation to the torso.
 	 */
 	int LOCK_SHOULDER_BUDDY_ORIENTATION = 0x1;
-
-	/**
-	 * Flag for whether the shoulder buddy should mirror when being used on the right shoulder/arm instead of the left.
-	 * @deprecated use the more correctly named constant {@link Model#DONT_MIRROR_SHOULDER_BUDDY}.
-	 */
-	@Deprecated
-	int MIRROR_SHOULDER_BUDDY = 0x2;
 
 	/**
 	 * Flag for whether the shoulder buddy should mirror when being used on the right shoulder/arm instead of the left. If this is set, the shoulder buddy will not be mirrored.

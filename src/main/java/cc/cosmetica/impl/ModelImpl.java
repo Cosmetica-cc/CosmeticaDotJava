@@ -16,10 +16,7 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.Box;
-import cc.cosmetica.api.CosmeticType;
-import cc.cosmetica.api.Model;
-import cc.cosmetica.api.User;
+import cc.cosmetica.api.*;
 import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -30,7 +27,8 @@ import java.util.Optional;
 
 class ModelImpl implements Model {
 	ModelImpl(CosmeticType<?> type, String id, String name, int flags, Box bounds,
-			  String model, String base64Texture, User owner, long uploadTime, boolean usesUVRotations) {
+			  String model, String base64Texture, User owner, String origin,
+			  UploadState uploadState, String reason, long uploadTime, boolean usesUVRotations) {
 		this.id = id;
 		this.flags = flags;
 		this.bounds = bounds;
@@ -38,10 +36,14 @@ class ModelImpl implements Model {
 		this.model = model;
 		this.texture = base64Texture;
 		this.owner = owner;
-		this.uploadTime = uploadTime;
 		this.usesUVRotations = usesUVRotations;
 		this.type = type;
 		this.name = name;
+		this.origin = origin;
+
+		this.uploadTime = uploadTime;
+		this.uploadState = uploadState;
+		this.reason = reason;
 	}
 
 	private final String id;
@@ -51,10 +53,14 @@ class ModelImpl implements Model {
 	private final String model;
 	private final String texture;
 	private final User owner;
-	private final long uploadTime;
 	private final boolean usesUVRotations;
 	private final CosmeticType<?> type;
 	private final String name;
+	private final String origin;
+
+	private final long uploadTime;
+	private final UploadState uploadState;
+	private final String reason;
 
 	@Override
 	public String getId() {
@@ -87,8 +93,8 @@ class ModelImpl implements Model {
 	}
 
 	@Override
-	public User getOwner() {
-		return this.owner;
+	public Optional<User> getOwner() {
+		return Optional.of(this.owner);
 	}
 
 	@Override
@@ -117,28 +123,54 @@ class ModelImpl implements Model {
 	}
 
 	@Override
+	public String getOrigin() {
+		return this.origin;
+	}
+
+	@Override
+	public UploadState getUploadState() {
+		return this.uploadState;
+	}
+
+	@Override
+	public String getReason() {
+		return this.reason;
+	}
+
+	@Override
+	public boolean hasReducedData() {
+		return false;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ModelImpl that = (ModelImpl) o;
-		return id.equals(that.id);
+		Cosmetic cosmetic = (Cosmetic) o;
+		return this.id.equals(cosmetic.getId()) && this.type.equals(cosmetic.getType());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(this.type, this.id);
 	}
 
 	static Optional<Model> parse(@Nullable JsonObject json) {
-		return json == null ? Optional.empty() : Optional.of(_parse(json));
-	}
+		if (json == null) {
+			return Optional.empty();
+		}
 
-	static Model _parse(JsonObject json) {
+		Optional<CosmeticType<?>> type = CosmeticType.fromTypeString(json.get("type").getAsString());
+
+		if (!type.isPresent()) {
+			return Optional.empty();
+		}
+
 		String id = json.get("id").getAsString();
 		int flags = json.get("extraInfo").getAsInt();
-		JsonArray unparsedBounds = json.get("bounds").getAsJsonArray();
-		JsonArray lowerBounds = unparsedBounds.get(0).getAsJsonArray();
-		JsonArray upperBounds = unparsedBounds.get(1).getAsJsonArray();
+		JsonArray unpasedBounds = json.get("bounds").getAsJsonArray();
+		JsonArray lowerBounds = unpasedBounds.get(0).getAsJsonArray();
+		JsonArray upperBounds = unpasedBounds.get(1).getAsJsonArray();
 
 		Box bounds = new Box(
 				lowerBounds.get(0).getAsInt(),
@@ -148,8 +180,8 @@ class ModelImpl implements Model {
 				upperBounds.get(1).getAsInt(),
 				upperBounds.get(2).getAsInt());
 
-		return new ModelImpl(
-				CosmeticType.fromTypeString(json.get("type").getAsString()).get(),
+		return Optional.of(new ModelImpl(
+				type.get(),
 				id,
 				json.get("name").getAsString(),
 				flags,
@@ -157,8 +189,11 @@ class ModelImpl implements Model {
 				json.get("model").getAsString(),
 				json.get("texture").getAsString(),
 				new User(Yootil.toUUID(json.get("owner").getAsString()), json.get("ownerName").getAsString()),
+				json.get("origin").getAsString(),
+				UploadState.getById(json.get("uploadState").getAsInt()),
+				json.get("reason").getAsString(),
 				json.get("uploaded").getAsLong(),
 				json.get("usesUvRotations").getAsBoolean()
-		);
+		));
 	}
 }

@@ -16,9 +16,9 @@
 
 package cc.cosmetica.impl;
 
+import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
-import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.Model;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ public final class CosmeticFetcher {
 	private static final CosmeticaAPI API = CosmeticaWebAPI.newUnauthenticatedInstance();
 
 	@Nullable
-	public static CustomCape getCape(String id) {
+	public static Cape getCape(String id) {
 		return API.getCosmetic(CosmeticType.CAPE, id).getOrNull();
 	}
 

@@ -20,13 +20,11 @@ import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.CosmeticaAPIException;
 import cc.cosmetica.api.CosmeticsPage;
-import cc.cosmetica.api.CustomCosmetic;
+import cc.cosmetica.api.Cosmetic;
 import cc.cosmetica.api.LoreType;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
@@ -44,7 +42,7 @@ public class WebsiteFunctionTest {
 		CosmeticsPage<?> page = api.getPopularCosmetics(1, 8).get();
 		System.out.println("Contacted popular in " + (System.currentTimeMillis() - time) + "ms");
 
-		for (CustomCosmetic cosmetic : page.getCosmetics()) {
+		for (Cosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
 	}
@@ -54,10 +52,10 @@ public class WebsiteFunctionTest {
 		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
 		long time = System.currentTimeMillis();
-		CosmeticsPage<?> page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, Optional.empty()).get();
+		CosmeticsPage<?> page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, null).get();
 		System.out.println("Contacted recent shoulder buddies in " + (System.currentTimeMillis() - time) + "ms");
 
-		for (CustomCosmetic cosmetic : page.getCosmetics()) {
+		for (Cosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
 	}
@@ -70,7 +68,7 @@ public class WebsiteFunctionTest {
 		CosmeticsPage<?> page = api.getOfficialCosmetics(1, 87).get(); // the api caps it at 30 cosmetics
 		System.out.println("Contacted system in " + (System.currentTimeMillis() - time) + "ms");
 
-		for (CustomCosmetic cosmetic : page.getCosmetics()) {
+		for (Cosmetic cosmetic : page.getCosmetics()) {
 			System.out.println(cosmetic.getName());
 		}
 	}

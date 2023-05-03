@@ -81,7 +81,7 @@ public interface UserInfo {
 	/**
 	 * @return a list of the hats worn by this user.
 	 */
-	List<Model> getHats();
+	List<? extends Cosmetic> getHats();
 
 	/**
 	 * @return the shoulder buddies worn by this user.
@@ -91,12 +91,12 @@ public interface UserInfo {
 	/**
 	 * @return the back bling worn by this user.
 	 */
-	Optional<Model> getBackBling();
+	Optional<? extends Cosmetic> getBackBling();
 
 	/**
 	 * @return the cape worn by this user.
 	 */
-	Optional<Cape> getCape();
+	Optional<? extends Cosmetic> getCape();
 
 	/**
 	 * Get the icon's base64 image string. Each frame of an icon will be square. If the icon is of a different aspect ratio,

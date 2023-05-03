@@ -16,26 +16,26 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.Model;
+import cc.cosmetica.api.Cosmetic;
 import cc.cosmetica.api.ShoulderBuddies;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
 public final class ShoulderBuddiesImpl implements ShoulderBuddies {
-	public ShoulderBuddiesImpl(Optional<Model> left, Optional<Model> right) {
+	public ShoulderBuddiesImpl(Optional<? extends Cosmetic> left, Optional<? extends Cosmetic> right) {
 		this.left = left;
 		this.right = right;
 	}
 
-	private final Optional<Model> left;
-	private final Optional<Model> right;
+	private final Optional<? extends Cosmetic> left;
+	private final Optional<? extends Cosmetic> right;
 
 	/**
 	 * @return the player's left shoulder buddy.
 	 */
 	@Nullable
-	public Optional<Model> getLeft() {
+	public Optional<? extends Cosmetic> getLeft() {
 		return this.left;
 	}
 
@@ -43,7 +43,7 @@ public final class ShoulderBuddiesImpl implements ShoulderBuddies {
 	 * @return the player's right shoulder buddy.
 	 */
 	@Nullable
-	public Optional<Model> getRight() {
+	public Optional<? extends Cosmetic> getRight() {
 		return this.right;
 	}
 }

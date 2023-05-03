@@ -25,21 +25,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalLong;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -116,7 +109,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	public ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean noThirdParty, boolean excludeModels, boolean forceShow) throws IllegalArgumentException {
 		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
 
-		SafeURL target = createLimited("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid) + Yootil.urlFlag("nothirdparty", excludeModels) + Yootil.urlFlag("excludemodels", excludeModels) + Yootil.urlFlag("forceshow", forceShow));
+		SafeURL target = createLimited("/v2/get/info?username=" + Yootil.urlEncode(username) + "&uuid=" + Yootil.urlEncode(uuid) + Yootil.urlFlag("nothirdparty", noThirdParty) + Yootil.urlFlag("excludemodels", excludeModels) + Yootil.urlFlag("forceshow", forceShow));
 		this.urlLogger.accept(target.safeUrl());
 
 		try (Response response = Response.get(target, this.timeout)) {
@@ -132,8 +125,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			if (shoulderBuddies != null) {
 				sbObj = Optional.of(new ShoulderBuddiesImpl(
-						ModelImpl.parse(shoulderBuddies.has("left") ? shoulderBuddies.get("left").getAsJsonObject() : null),
-						ModelImpl.parse(shoulderBuddies.has("right") ? shoulderBuddies.get("right").getAsJsonObject() : null)
+						parse(shoulderBuddies.has("left") ? shoulderBuddies.get("left").getAsJsonObject() : null),
+						parse(shoulderBuddies.has("right") ? shoulderBuddies.get("right").getAsJsonObject() : null)
 				));
 			}
 
@@ -150,10 +143,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					jsonObject.get("suffix").getAsString(),
 					Yootil.readNullableJsonString(icon.get("client")),
 					icon.get("online").getAsBoolean(),
-					hats == null ? new ArrayList<>() : Yootil.mapObjects(hats, ModelImpl::_parse),
+					hats == null ? new ArrayList<>() : Yootil.mapObjects(hats, h -> parse(h).get()),
 					sbObj,
-					ModelImpl.parse(backBling),
-					BaseCape.parse(cloak),
+					parse(backBling),
+					parse(cloak),
 					icon.get("icon").getAsString()
 			), target);
 		} catch (IOException ie) {
@@ -218,17 +211,17 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	 * Generics hack.
 	 * @param <T> the class to force it to reference through generics so the darn thing compiles.
 	 */
-	private static class GeneralCosmeticType<T extends CustomCosmetic> {
-		private static <T extends CustomCosmetic> GeneralCosmeticType<T> from(CosmeticType<T> type) {
+	private static class GeneralCosmeticType<T extends Cosmetic> {
+		private static <T extends Cosmetic> GeneralCosmeticType<T> from(CosmeticType<T> type) {
 			return new GeneralCosmeticType<>();
 		}
 
-		private static GeneralCosmeticType<CustomCosmetic> any() {
+		private static GeneralCosmeticType<Cosmetic> any() {
 			return new GeneralCosmeticType<>();
 		}
 	}
 
-	private <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getCosmeticsPage(SafeURL url, GeneralCosmeticType<T> cosmeticType) {
+	private <T extends Cosmetic> ServerResponse<CosmeticsPage<T>> getCosmeticsPage(SafeURL url, GeneralCosmeticType<T> cosmeticType) {
 		this.urlLogger.accept(url.safeUrl());
 
 		try (Response response = Response.get(url, this.timeout)) {
@@ -239,7 +232,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			List<T> cosmetics = new ArrayList<>();
 
 			for (JsonElement element : json.getAsJsonArray("list")) {
-				cosmetics.add((T) parse(element.getAsJsonObject()));
+				cosmetics.add((T) parse(element.getAsJsonObject()).get());
 			}
 
 			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage), url);
@@ -253,19 +246,19 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query) {
-		SafeURL url = createTokenless("/get/recentcosmetics?type=" + type.getUrlString() + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Yootil.base64(query.orElse("")), OptionalLong.empty());
+	public <T extends Cosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, @NotNull String query) {
+		SafeURL url = createTokenless("/get/recentcosmetics?type=" + type.getUrlString() + "&page=" + page + "&pagesize=" + pageSize + "&query=" + Yootil.base64(query), OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.from(type));
 	}
 
 	@Override
-	public ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize) {
+	public ServerResponse<CosmeticsPage<Cosmetic>> getPopularCosmetics(int page, int pageSize) {
 		SafeURL url = createTokenless("/get/popularcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.any());
 	}
 
 	@Override
-	public ServerResponse<CosmeticsPage<CustomCosmetic>> getOfficialCosmetics(int page, int pageSize) {
+	public ServerResponse<CosmeticsPage<Cosmetic>> getOfficialCosmetics(int page, int pageSize) {
 		SafeURL url = createTokenless("/get/systemcosmetics?page=" + page + "&pagesize=" + pageSize, OptionalLong.empty());
 		return getCosmeticsPage(url, GeneralCosmeticType.any());
 	}
@@ -322,7 +315,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public <T extends CustomCosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id) {
+	public <T extends Cosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id) {
 		SafeURL url = createTokenless("/get/cosmetic?type=" + type.getUrlString() + "&id=" + id, OptionalLong.empty());
 		this.urlLogger.accept(url.safeUrl());
 
@@ -330,7 +323,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject json = response.getAsJson();
 			checkErrors(url, json);
 
-			return new ServerResponse<>((T) parse(json), url);
+			return new ServerResponse<>((T) parse(json).get(), url);
 		}
 		catch (IOException ie) {
 			return new ServerResponse<>(ie, url);
@@ -713,12 +706,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Nullable
-	public static String getAuthServerHost(boolean requireResult) throws IllegalStateException {
-		if (requireResult) retrieveAPIIfNoneCached();
-		return authServerHost;
-	}
-
-	@Nullable
 	public static String getAuthApiServerHost(boolean requireResult) throws IllegalStateException {
 		if (requireResult) retrieveAPIIfNoneCached();
 		return authApiServerHost;
@@ -752,8 +739,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			apiHostProviderTemplate = new HostProvider(data.get("api").getAsString(), enforceHttpsGlobal);
 			authApiServerHost = data.get("auth-api").getAsString();
 			websiteHost = data.get("website").getAsString();
-			JsonObject auth = data.get("auth-server").getAsJsonObject();
-			authServerHost = auth.get("hostname").getAsString() + ":" + auth.get("port").getAsInt();
 			message = data.get("message").getAsString();
 		}
 	}
@@ -764,16 +749,19 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		}
 	}
 
-	private static CustomCosmetic parse(JsonObject object) {
+	private static Optional<? extends Cosmetic> parse(JsonObject object) {
 		// yes this code is (marginally) better
 		// no I will not use it instead of the above
 		CosmeticType<?> type = CosmeticType.fromTypeString(object.get("type").getAsString()).get();
 
-		if (type == CosmeticType.CAPE) {
-			return (CustomCosmetic) BaseCape.parse(object).get();
+		if ("".equals(object.get("extraInfo").getAsString())) {
+			return SimpleCosmetic.parse(object);
+		}
+		else if (type == CosmeticType.CAPE) {
+			return CapeImpl.parse(object);
 		}
 		else {
-			return ModelImpl.parse(object).get();
+			return ModelImpl.parse(object);
 		}
 	}
 

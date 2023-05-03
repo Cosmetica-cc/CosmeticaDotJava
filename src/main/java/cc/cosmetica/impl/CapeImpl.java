@@ -16,24 +16,28 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.Cape;
-import cc.cosmetica.api.User;
+import cc.cosmetica.api.*;
 import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
-class BaseCape implements Cape {
-	BaseCape(String id, String name, String origin, String image, boolean cosmeticaAlternative, int frameDelay) {
+class CapeImpl implements Cape {
+	CapeImpl(String id, String name, String origin, String image, boolean cosmeticaAlternative, int frameDelay,
+			 UploadState uploadState, String reason, long uploadTime, @Nullable User owner) {
 		this.id = id;
 		this.name = name;
 		this.origin = origin;
 		this.image = image;
 		this.cosmeticaAlternative = cosmeticaAlternative;
 		this.frameDelay = frameDelay;
+
+		this.owner = owner;
+		this.uploadState = uploadState;
+		this.reason = reason;
+		this.uploadTime = uploadTime;
 	}
 
 	private final String id;
@@ -42,6 +46,11 @@ class BaseCape implements Cape {
 	private final String image;
 	private final boolean cosmeticaAlternative;
 	private final int frameDelay;
+
+	private final @Nullable User owner;
+	private final UploadState uploadState;
+	private final String reason;
+	private final long uploadTime;
 
 	@Override
 	public String getId() {
@@ -74,16 +83,48 @@ class BaseCape implements Cape {
 	}
 
 	@Override
+	public Optional<User> getOwner() {
+		return Optional.ofNullable(this.owner);
+	}
+
+	@Override
+	public long getUploadTime() {
+		return this.uploadTime;
+	}
+
+	@Override
+	public UploadState getUploadState() {
+		return this.uploadState;
+	}
+
+	@Override
+	public String getReason() {
+		return this.reason;
+	}
+
+	@Override
+	public boolean hasReducedData() {
+		return false;
+	}
+
+	@Override
+	public CosmeticType<?> getType() {
+		return CosmeticType.CAPE;
+	}
+
+	// Java stuff
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		BaseCape baseCape = (BaseCape) o;
-		return id.equals(baseCape.id);
+		Cosmetic cosmetic = (Cosmetic) o;
+		return this.id.equals(cosmetic.getId()) && CosmeticType.CAPE.equals(cosmetic.getType());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(CosmeticType.CAPE, this.id);
 	}
 
 	static Optional<Cape> parse(@Nullable JsonObject data) {
@@ -97,12 +138,8 @@ class BaseCape implements Cape {
 
 		boolean cosmeticaAlternative = data.get("isCosmeticaAlternative").getAsBoolean();
 
-		if ("Cosmetica".equals(origin)) {
-			User owner = new User(Yootil.toUUID(data.get("owner").getAsString()), data.get("ownerName").getAsString());
-			return Optional.of(new CosmeticaCape(id, name, origin, image, cosmeticaAlternative, frameDelay, data.get("uploaded").getAsLong(), owner));
-		}
-		else {
-			return Optional.of(new BaseCape(id, name, origin, image, cosmeticaAlternative, frameDelay));
-		}
+		User owner = new User(Yootil.toUUID(data.get("owner").getAsString()), data.get("ownerName").getAsString());
+		return Optional.of(new CapeImpl(id, name, origin, image, cosmeticaAlternative, frameDelay,
+				UploadState.getById(data.get("uploadState").getAsInt()), data.get("reason").getAsString(), data.get("uploaded").getAsLong(), owner));
 	}
 }

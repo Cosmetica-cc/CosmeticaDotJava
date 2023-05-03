@@ -18,6 +18,7 @@ package cc.cosmetica.api;
 
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -86,9 +87,7 @@ public interface CosmeticaAPI {
 	 * @param forceShow whether to ignore your cosmetic visibility settings when retrieving data for yourself. Only has an effect when getting your own user info.
 	 * @return a representation of the cosmetics data of the given player.
 	 * @throws IllegalArgumentException if both {@code uuid} and {@code username} are null.
-	 * @deprecated use {@link CosmeticaAPI#getUserInfo(UUID, String, boolean, boolean, boolean)}.
 	 */
-	@Deprecated
 	default ServerResponse<UserInfo> getUserInfo(@Nullable UUID uuid, @Nullable String username, boolean excludeModels, boolean forceShow) throws IllegalArgumentException {
 		return this.getUserInfo(uuid, username, false, excludeModels, forceShow);
 	}
@@ -117,8 +116,19 @@ public interface CosmeticaAPI {
 	 * @param page the page number to browse.
 	 * @return a page of cosmetics.
 	 */
-	default <T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page) {
-		return getRecentCosmetics(type, page, 16, Optional.empty());
+	default <T extends Cosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page) {
+		return this.getRecentCosmetics(type, page, 16, "");
+	}
+
+	/**
+	 * Gets a page of cosmetics sorted by upload date.
+	 * @param type the type of cosmetic to search for.
+	 * @param page the page number to browse.
+	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
+	 * @return a page of cosmetics sorted by upload date.
+	 */
+	default <T extends Cosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize) {
+		return this.getRecentCosmetics(type, page, pageSize, "");
 	}
 
 	/**
@@ -126,17 +136,18 @@ public interface CosmeticaAPI {
 	 * @param type the type of cosmetic to search for.
 	 * @param page the page number to browse.
 	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
-	 * @param query the search term. If a query is provided, 'official' cosmetica cosmetics may be returned in addition to user-uploaded cosmetics.
+	 * @param query the search term. To not provide a query, use a blank string.
+	 *              Note that if a query is provided, 'official' cosmetica cosmetics may be returned in addition to user-uploaded cosmetics.
 	 * @return a page of cosmetics sorted by upload date.
 	 */
-	<T extends CustomCosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, Optional<String> query);
+	<T extends Cosmetic> ServerResponse<CosmeticsPage<T>> getRecentCosmetics(CosmeticType<T> type, int page, int pageSize, @NotNull String query);
 
 	/**
 	 * Gets a page of 16 cosmetics sorted by popularity.
 	 * @param page the page number to browse.
 	 * @return a page of cosmetics sorted by popularity.
 	 */
-	default ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page) {
+	default ServerResponse<CosmeticsPage<Cosmetic>> getPopularCosmetics(int page) {
 		return getPopularCosmetics(page, 16);
 	}
 
@@ -146,14 +157,14 @@ public interface CosmeticaAPI {
 	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
 	 * @return a page of official cosmetics.
 	 */
-	ServerResponse<CosmeticsPage<CustomCosmetic>> getOfficialCosmetics(int page, int pageSize);
+	ServerResponse<CosmeticsPage<Cosmetic>> getOfficialCosmetics(int page, int pageSize);
 
 	/**
 	 * Gets a page of 16 official ("system") cosmetics.
 	 * @param page the page number to browse.
 	 * @return a page of official cosmetics.
 	 */
-	default ServerResponse<CosmeticsPage<CustomCosmetic>> getOfficialCosmetics(int page) {
+	default ServerResponse<CosmeticsPage<Cosmetic>> getOfficialCosmetics(int page) {
 		return getOfficialCosmetics(page, 16);
 	}
 
@@ -163,7 +174,7 @@ public interface CosmeticaAPI {
 	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
 	 * @return a page of cosmetics sorted by popularity.
 	 */
-	ServerResponse<CosmeticsPage<CustomCosmetic>> getPopularCosmetics(int page, int pageSize);
+	ServerResponse<CosmeticsPage<Cosmetic>> getPopularCosmetics(int page, int pageSize);
 
 	/**
 	 * Retrieves user info from the api server via either the UUID or username. If both are provided, UUID is used preferentially.
@@ -191,7 +202,7 @@ public interface CosmeticaAPI {
 	 * @param id the id of the cosmetic.
 	 * @return an object representing the cosmetic.
 	 */
-	<T extends CustomCosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id);
+	<T extends Cosmetic> ServerResponse<T> getCosmetic(CosmeticType<T> type, String id);
 
 	/**
 	 * Gets the list of panoramas the user can select from. The cosmetica website displays a panorama behind the user on their user page.
@@ -276,10 +287,8 @@ public interface CosmeticaAPI {
 	 * @param name the name of the cape to upload.
 	 * @param base64Image the image in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
 	 * @return the id of the cape if successful. Otherwise the server response will have an error.
-	 * @deprecated use {@link CosmeticaAPI#uploadCape(String, String, int)}.
 	 * @apiNote requires full authentication (a master token).
 	 */
-	@Deprecated
 	default ServerResponse<String> uploadCape(String name, String base64Image) {
 		return this.uploadCape(name, base64Image, 0);
 	}
@@ -294,21 +303,6 @@ public interface CosmeticaAPI {
 	 * @apiNote requires full authentication (a master token).
 	 */
 	ServerResponse<String> uploadCape(String name, String base64Image, int frameDelay) throws IllegalArgumentException;
-
-	/**
-	 * Uploads a model-based cosmetic to the server under this account.
-	 * @param type the type of cosmetic to upload.
-	 * @param name the name of the cosmetic to upload.
-	 * @param base64Texture the 32x32 texture in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
-	 * @param model the json model to upload
-	 * @return the id of the cosmetic if successful. Otherwise the server response will have an error.
-	 * @deprecated use {@link CosmeticaAPI#uploadModel(CosmeticType, String, String, JsonObject, int)}.
-	 * @apiNote requires full authentication (a master token).
-	 */
-	@Deprecated
-	default ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model) {
-		return this.uploadModel(type, name, base64Texture, model, type == CosmeticType.SHOULDER_BUDDY ? 1 : 0);
-	}
 
 	/**
 	 * Uploads a model-based cosmetic to the server under this account.
@@ -501,15 +495,6 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Sets the file to cache the API endpoints to, and retrieve from in case of the Github CDN or "getapi" endpoints go offline.
-	 * @deprecated CosmeticaDotJava skips contacting the Github CDN now and goes straight to /getapi. Use {@link CosmeticaAPI#setAPICache(File)} instead.
-	 */
-	@Deprecated
-	static void setAPICaches(File apiCache, File apiGetCache) {
-		CosmeticaWebAPI.setAPICache(apiCache);
-	}
-
-	/**
 	 * Sets the file to cache the API endpoints to, and retrieve from in case the node balancer goes offline.
 	 */
 	static void setAPICache(File apiCache) {
@@ -522,13 +507,6 @@ public interface CosmeticaAPI {
 	@Nullable
 	static String getMessage() {
 		return CosmeticaWebAPI.getMessage();
-	}
-
-	/**
-	 * Get the auth server url. Will force the initial API data to be fetched if it is not.
-	 */
-	static String getAuthServer() {
-		return CosmeticaWebAPI.getAuthServerHost(true);
 	}
 
 	/**

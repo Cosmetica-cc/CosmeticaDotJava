@@ -16,7 +16,7 @@
 
 package cc.cosmetica.impl;
 
-import cc.cosmetica.api.Cape;
+import cc.cosmetica.api.Cosmetic;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.UserInfo;
@@ -27,7 +27,7 @@ import java.util.Optional;
 
 public class UserInfoImpl implements UserInfo {
 	public UserInfoImpl(@Nullable String skin, boolean slim, String lore, String platform, String role, boolean upsideDown, String prefix, String suffix, @Nullable String client, boolean online,
-						List<Model> hats, Optional<ShoulderBuddies> shoulderBuddies, Optional<Model> backBling, Optional<Cape> cape, String icon) {
+						List<? extends Cosmetic> hats, Optional<ShoulderBuddies> shoulderBuddies, Optional<? extends Cosmetic> backBling, Optional<? extends Cosmetic> cape, String icon) {
 		this.skin = skin;
 		this.slim = slim;
 		this.lore = lore;
@@ -56,10 +56,10 @@ public class UserInfoImpl implements UserInfo {
 	private final String suffix;
 	private final @Nullable String client;
 	private final boolean online;
-	private final List<Model> hats;
+	private final List<? extends Cosmetic> hats;
 	private final Optional<ShoulderBuddies> shoulderBuddies;
-	private final Optional<Model> backBling;
-	private final Optional<Cape> cape;
+	private final Optional<? extends Cosmetic> backBling;
+	private final Optional<? extends Cosmetic> cape;
 	private final String icon;
 
 	@Override
@@ -114,7 +114,7 @@ public class UserInfoImpl implements UserInfo {
 	}
 
 	@Override
-	public List<Model> getHats() {
+	public List<? extends Cosmetic> getHats() {
 		return hats;
 	}
 
@@ -124,12 +124,12 @@ public class UserInfoImpl implements UserInfo {
 	}
 
 	@Override
-	public Optional<Model> getBackBling() {
+	public Optional<? extends Cosmetic> getBackBling() {
 		return backBling;
 	}
 
 	@Override
-	public Optional<Cape> getCape() {
+	public Optional<? extends Cosmetic> getCape() {
 		return cape;
 	}
 
