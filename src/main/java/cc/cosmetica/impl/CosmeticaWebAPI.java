@@ -749,9 +749,11 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		}
 	}
 
-	private static Optional<? extends Cosmetic> parse(JsonObject object) {
-		// yes this code is (marginally) better
-		// no I will not use it instead of the above
+	private static Optional<? extends Cosmetic> parse(@Nullable JsonObject object) {
+		if (object == null) {
+			return Optional.empty();
+		}
+
 		CosmeticType<?> type = CosmeticType.fromTypeString(object.get("type").getAsString()).get();
 
 		if ("".equals(object.get("extraInfo").getAsString())) {

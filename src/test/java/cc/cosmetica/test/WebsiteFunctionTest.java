@@ -16,12 +16,7 @@
 
 package cc.cosmetica.test;
 
-import cc.cosmetica.api.CosmeticType;
-import cc.cosmetica.api.CosmeticaAPI;
-import cc.cosmetica.api.CosmeticaAPIException;
-import cc.cosmetica.api.CosmeticsPage;
-import cc.cosmetica.api.Cosmetic;
-import cc.cosmetica.api.LoreType;
+import cc.cosmetica.api.*;
 import org.junit.Test;
 
 import java.util.List;
@@ -52,7 +47,7 @@ public class WebsiteFunctionTest {
 		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
 		long time = System.currentTimeMillis();
-		CosmeticsPage<?> page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8, null).get();
+		CosmeticsPage<?> page = api.getRecentCosmetics(CosmeticType.SHOULDER_BUDDY, 1, 8).get();
 		System.out.println("Contacted recent shoulder buddies in " + (System.currentTimeMillis() - time) + "ms");
 
 		for (Cosmetic cosmetic : page.getCosmetics()) {
@@ -100,7 +95,7 @@ public class WebsiteFunctionTest {
 	@Test
 	public void testUserInfo() {
 		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
-		System.out.println("Valo's lore: " + api.getUserInfo(null, "Valoeghese").get().getLore());
+		System.out.println("Valo's lore: " + api.getUserInfo(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5"), "Valoeghese").get().getLore());
 	}
 
 	@Test
@@ -124,5 +119,13 @@ public class WebsiteFunctionTest {
 
 			throw e;
 		}
+	}
+
+	@Test
+	public void testReducedInfo() {
+		CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
+
+		ServerResponse<UserInfo> info = api.getUserInfo(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5"), "Valoeghese", true, false);
+		System.out.println("Valo's First Hat: " + (info.get().getHats().isEmpty() ? "(no hats equipped)" : info.get().getHats().get(0).getName()));
 	}
 }
