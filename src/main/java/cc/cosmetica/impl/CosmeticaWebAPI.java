@@ -482,7 +482,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			throw new IllegalArgumentException("Cannot set cosmetic status to \"Unknown\"");
 		}
 
-		SafeURL target = create("/client/cosmeticstatus?type=" + type.getUrlString() + "&id=" + id + "&value=" + state.getId() + "&reason=" + Yootil.base64(Yootil.urlEncode(reason)), OptionalLong.empty());
+		SafeURL target = create("/client/cosmeticstatus?type=" + type.getUrlString() + "&id=" + id + "&value=" + state.getId() + "&reason=" + Yootil.base64(reason), OptionalLong.empty());
 		return requestSetZ(target);
 	}
 
