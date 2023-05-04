@@ -114,15 +114,15 @@ public static void main(String[] args) {
 	CosmeticaAPI cosmetica = CosmeticaAPI.newUnauthenticatedInstance();
 	
 	// command line input
-    System.out.println("Whose cape do you wish to investigate?");
+	System.out.println("Whose cape do you wish to investigate?");
 	String username = new Scanner(System.in).nextLine();
 	
 	// Make request and handle result
 	cosmetica.getUserInfo(null, username).ifSuccessfulOrElse(info -> {
-		Optional<Cape> optionalCape = info.getCape();
+		Optional<Cosmetic> optionalCape = info.getCape();
 		
 		if (optionalCape.isPresent()){
-			Cape cape = optionalCape.get();
+			Cosmetic cape = optionalCape.get();
 
 			if (cape.getOrigin().equals("Cosmetica")) {
 				System.out.println(username + " has the cape \"" + cape.getName() + "\" from cosmetica!");
