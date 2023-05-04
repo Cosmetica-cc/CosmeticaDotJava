@@ -17,6 +17,7 @@
 package cc.cosmetica.impl;
 
 import cc.cosmetica.api.*;
+import cc.cosmetica.api.cosmetic.UploadState;
 import cc.cosmetica.api.settings.CapeDisplay;
 import cc.cosmetica.api.settings.CapeServer;
 import cc.cosmetica.api.cosmetic.Cosmetic;
@@ -26,7 +27,7 @@ import cc.cosmetica.api.cosmetic.Model;
 import cc.cosmetica.api.cosmetic.OwnedCosmetic;
 import cc.cosmetica.api.cosmetic.ShoulderBuddies;
 import cc.cosmetica.api.settings.IconSettings;
-import cc.cosmetica.api.settings.Panorama;
+import cc.cosmetica.api.Panorama;
 import cc.cosmetica.api.settings.UserSettings;
 import cc.cosmetica.util.HostProvider;
 import cc.cosmetica.util.Response;
@@ -275,6 +276,25 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public ServerResponse<CosmeticsPage<Cosmetic>> getPendingCosmetics() {
+		SafeURL url = createLimited("/get/unverifiedcosmetics");
+
+		try (Response response = Response.get(url)) {
+			List<Cosmetic> cosmetics = new ArrayList<>();
+
+			for (JsonElement element : response.getAsJsonArray()) {
+				parse(element.getAsJsonObject()).ifPresent(cosmetics::add);
+			}
+
+			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, false), url);
+		} catch (IOException ie) {
+			return new ServerResponse<>(ie, url);
+		} catch (RuntimeException e) {
+			return new ServerResponse<>(e, url);
+		}
+	}
+
+	@Override
 	public ServerResponse<List<OwnedCosmetic>> getCosmeticsOwnedBy(@Nullable UUID uuid, @Nullable String username) {
 		if (uuid == null && username == null) throw new IllegalArgumentException("Both uuid and username are null!");
 
@@ -457,7 +477,17 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
-	public ServerResponse<String> setLore(LoreType type, String lore) {
+	public ServerResponse<Boolean> setCosmeticStatus(CosmeticType<?> type, String id, UploadState state, String reason) throws IllegalArgumentException {
+		if (state == UploadState.UNKNOWN) {
+			throw new IllegalArgumentException("Cannot set cosmetic status to \"Unknown\"");
+		}
+
+		SafeURL target = create("/client/cosmeticstatus?type=" + type.getUrlString() + "&id=" + id + "&value=" + state.getId() + "&reason=" + Yootil.base64(Yootil.urlEncode(id)), OptionalLong.empty());
+		return requestSetZ(target);
+	}
+
+	@Override
+	public ServerResponse<String> setLore(LoreType type, String lore) throws IllegalArgumentException {
 		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for setLore(LoreType, String): " + type);
 
 		SafeURL target = create("/client/setlore?type=" + type.toString().toLowerCase(Locale.ROOT) + "&value=" + Yootil.base64(Yootil.urlEncode(lore)), OptionalLong.empty());
@@ -562,6 +592,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		else return create(target, OptionalLong.empty());
 	}
 
+	/**
+	 * Create a fully authenticated request url to the cosmetica server. If no full token is provided, token will be left empty.
+	 * @param target the target endpoint, starting with, e.g., /client/... or /get/..., and including url parameters.
+	 * @param timestamp the timestamp, if manually setting.
+	 * @return the url to request to.
+	 */
 	private SafeURL create(String target, OptionalLong timestamp) {
 		if (this.masterToken != null) return SafeURL.of(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
 		else return SafeURL.of(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
@@ -572,6 +608,13 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		else return createMinimal(target, OptionalLong.empty());
 	}
 
+	/**
+	 * Create a fully authenticated request url to the cosmetica server. If no full token is provided, <b>no token will be provided</b>.
+	 * @param target the target endpoint, starting with, e.g., /client/... or /get/..., and including url parameters.
+	 * @param timestamp the timestamp, if manually setting.
+	 * @return the url to request to.
+	 * @apiNote Use this where both authenticated and non-authenticated functionality can be provided, and an empty token isn't treated as an unauthenticated request.
+	 */
 	private SafeURL createMinimal(String target, OptionalLong timestamp) {
 		if (this.masterToken != null) return SafeURL.of(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis), this.masterToken);
 		else return SafeURL.direct(this.apiHostProvider.getSecureUrl() + target + (target.indexOf('?') == -1 ? "?" : "&") + "timestamp=" + timestamp.orElseGet(System::currentTimeMillis));
@@ -694,7 +737,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 		}
 	}
 
-	public static CosmeticaAPI fromTokens(String masterToken, @Nullable String limitedToken) throws IllegalStateException {
+	public static CosmeticaAPI fromTokens(@Nullable String masterToken, @Nullable String limitedToken) throws IllegalStateException {
 		retrieveAPIIfNoneCached();
 		return new CosmeticaWebAPI(masterToken, limitedToken);
 	}

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.api.settings;
+package cc.cosmetica.api;
 
 import java.util.Objects;
 
 /**
- * Represents information about a panorama background on the cosmetica website.
+ * Represents a panorama background on the cosmetica website.
  */
 public final class Panorama {
 	/**

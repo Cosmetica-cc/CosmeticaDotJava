@@ -24,7 +24,6 @@ import cc.cosmetica.api.cosmetic.OwnedCosmetic;
 import cc.cosmetica.api.cosmetic.UploadState;
 import cc.cosmetica.api.settings.CapeDisplay;
 import cc.cosmetica.api.settings.IconSettings;
-import cc.cosmetica.api.settings.Panorama;
 import cc.cosmetica.api.settings.UserSettings;
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.google.gson.JsonObject;
@@ -41,7 +40,11 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * A general interface with the Cosmetica Web API. Methods that throw IOException typically throw it when there is an issue contacting the API server, and {@link CosmeticaAPIException} if the api server can be contacted, but returns an error.
+ * A general interface with the Cosmetica Web API.
+ * Methods that throw IOException typically throw it when there is an issue contacting the API server, and {@link CosmeticaAPIException} if the api server can be contacted, but returns an error.
+ * All responses from the api are wrapped in {@link ServerResponse}, including errors sent by the server and I/O errors.
+ * The documentation of the api may refer to "this user" or "the user". This refers to the user associated with an authenticated
+ * instance of this interface.
  */
 public interface CosmeticaAPI {
 	//////////////////////
@@ -162,12 +165,12 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Gets a page of official ("system") cosmetics.
+	 * Gets a page of cosmetics sorted by popularity.
 	 * @param page the page number to browse.
 	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
-	 * @return a page of official cosmetics.
+	 * @return a page of cosmetics sorted by popularity.
 	 */
-	ServerResponse<CosmeticsPage<Cosmetic>> getOfficialCosmetics(int page, int pageSize);
+	ServerResponse<CosmeticsPage<Cosmetic>> getPopularCosmetics(int page, int pageSize);
 
 	/**
 	 * Gets a page of 16 official ("system") cosmetics.
@@ -179,12 +182,19 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Gets a page of cosmetics sorted by popularity.
+	 * Gets a page of official ("system") cosmetics.
 	 * @param page the page number to browse.
 	 * @param pageSize how large each page should be. For example, the desktop website uses 16, whereas mobile uses 8.
-	 * @return a page of cosmetics sorted by popularity.
+	 * @return a page of official cosmetics.
 	 */
-	ServerResponse<CosmeticsPage<Cosmetic>> getPopularCosmetics(int page, int pageSize);
+	ServerResponse<CosmeticsPage<Cosmetic>> getOfficialCosmetics(int page, int pageSize);
+
+	/**
+	 * Get a page containing all cosmetics pending approval. The cosmetics returned will have {@linkplain Cosmetic#hasReducedData() reduced info}.
+	 * @return a page of all cosmetics pending approval.
+	 * @since 2.0.0
+	 */
+	ServerResponse<CosmeticsPage<Cosmetic>> getPendingCosmetics();
 
 	/**
 	 * Retrieves user info from the api server via either the UUID or username. If both are provided, UUID is used preferentially.
@@ -234,7 +244,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Sets the cosmetic at the given position for this user.
+	 * Set the cosmetic at the given position for this user.
 	 * @param position the position of the cosmetic to set.
 	 * @param id the id of the cosmetic. Set the id to "none" to remove a cosmetic.
 	 * @param requireOfficial whether to only allow official capes. If this is set, then trying to set a non-official cape will return an error.
@@ -244,7 +254,20 @@ public interface CosmeticaAPI {
 	ServerResponse<Boolean> setCosmetic(CosmeticPosition position, String id, boolean requireOfficial);
 
 	/**
-	 * Sets the lore for this user.
+	 * Set the {@linkplain UploadState upload state} of a cosmetic (its "status"). The user must have moderation permissions to do this.
+	 * In the future, non-moderator users will be able to delete their own cosmetics from this endpoint.
+	 * @param type the type of cosmetic to set the status of.
+	 * @param id the id of the cosmetic to set the status of.
+	 * @param state the new upload state the cosmetic should be in.
+	 * @param reason the reason for the new state. You should provide this for a denial.
+	 * @return true if successful. Otherwise, the server response will have an error.
+	 * @throws IllegalArgumentException if the upload state being set is {@link UploadState#UNKNOWN}.
+	 * @since 2.0.0
+	 */
+	ServerResponse<Boolean> setCosmeticStatus(CosmeticType<?> type, String id, UploadState state, String reason) throws IllegalArgumentException;
+
+	/**
+	 * Set the lore for this user.
 	 * @param type the type of lore to be set. Can be either {@link LoreType#PRONOUNS}, {@link LoreType#TITLES}, or {@link LoreType#NONE}.
 	 * @param lore the lore string to set as the lore.
 	 * @return the new lore string of the player (including colour codes) if successful. Otherwise the server response will have an error.
@@ -254,14 +277,14 @@ public interface CosmeticaAPI {
 	ServerResponse<String> setLore(LoreType type, String lore) throws IllegalArgumentException;
 
 	/**
-	 * Removes this user's lore. Equivalent to {@code setLore(LoreType.NONE, "")}.
+	 * Remove this user's lore. Equivalent to {@code setLore(LoreType.NONE, "")}.
 	 * @return the new lore string of the player (including colour codes) if successful. Otherwise the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
 	 */
 	ServerResponse<String> removeLore();
 
 	/**
-	 * Sets the panorama for this user.
+	 * Set the panorama for this user.
 	 * @param id the id of the panorama to set. Panorama ids this user can use can be gotten with {@link CosmeticaAPI#getPanoramas}.
 	 * @return true if successful. Otherwise the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
@@ -269,7 +292,7 @@ public interface CosmeticaAPI {
 	ServerResponse<Boolean> setPanorama(int id);
 
 	/**
-	 * Sets how cosmetica should handle each cape service for this user. In addition, <b>ANY CAPE NOT SPECIFIED IS RESET TO THE DEFAULT VALUE. You should call {@link CosmeticaAPI#getUserSettings()} at least ONCE before calling this to get the current settings of the user! You have been warned.</b>
+	 * Set how cosmetica should handle each cape service for this user. In addition, <b>ANY CAPE NOT SPECIFIED IS RESET TO THE DEFAULT VALUE. You should call {@link CosmeticaAPI#getUserSettings()} at least ONCE before calling this to get the current settings of the user! You have been warned.</b>
 	 * @param settings the settings to set as the settings.
 	 * @return the new cape settings if successful. Otherwise, the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
@@ -277,7 +300,7 @@ public interface CosmeticaAPI {
 	ServerResponse<Map<String, CapeDisplay>> setCapeServerSettings(Map<String, CapeDisplay> settings);
 
 	/**
-	 * Updates the specified settings for the user. You do not need to specify every setting, unlike {@link CosmeticaAPI#setCapeServerSettings(Map)}
+	 * Update the specified settings for the user. You do not need to specify every setting, unlike {@link CosmeticaAPI#setCapeServerSettings(Map)}
 	 * @param settings
 	 * @return true if successful. Otherwise the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
@@ -285,7 +308,7 @@ public interface CosmeticaAPI {
 	ServerResponse<Boolean> updateUserSettings(Map<String, Object> settings);
 
 	/**
-	 * Updates the icon settings for the given user. These affect how the icon
+	 * Update the icon settings for this user. These affect how icons are shown to the user.
 	 * @apiNote requires full authentication (a master token).<br>
 	 * This is identical to calling {@linkplain CosmeticaAPI#updateUserSettings(Map)} with the "iconsettings" property set
 	 * as the {@linkplain IconSettings#packToInt() packed integer representation} of the given icon settings.
@@ -293,7 +316,7 @@ public interface CosmeticaAPI {
 	ServerResponse<Boolean> updateIconSettings(IconSettings iconSettings);
 
 	/**
-	 * Uploads a static cape to the server under this account.
+	 * Upload a static cape to the server under this account.
 	 * @param name the name of the cape to upload.
 	 * @param base64Image the image in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
 	 * @return the id of the cape if successful. Otherwise the server response will have an error.
@@ -304,7 +327,7 @@ public interface CosmeticaAPI {
 	}
 
 	/**
-	 * Uploads a cape to the server under this account.
+	 * Upload a cape to the server under this account.
 	 * @param name the name of the cape to upload.
 	 * @param base64Image the image in base64 form. Ensure it is a png that starts with "data:image/png;base64,"
 	 * @param frameDelay the frame delay (in ms) of the cape to upload. Set this to 0 if the cape is static (not animated).
@@ -315,7 +338,7 @@ public interface CosmeticaAPI {
 	ServerResponse<String> uploadCape(String name, String base64Image, int frameDelay) throws IllegalArgumentException;
 
 	/**
-	 * Uploads a model-based cosmetic to the server under this account.
+	 * Upload a model-based cosmetic to the server under this account.
 	 * @param type the type of cosmetic to upload.
 	 * @param name the name of the cosmetic to upload.
 	 * @param base64Texture the 32x32 texture in base64 form. Ensure it is a png that starts with "data:image/png;base64,"

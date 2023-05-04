@@ -82,9 +82,12 @@ public interface Cosmetic {
 	String getReason();
 
 	/**
-	 * Get whether this custom cosmetic has reduced data.
+	 * Get whether this custom cosmetic has reduced data. Cosmetics with reduced data
+	 * will only have the info required by this interface, minus the username.
 	 * @return whether this cosmetic has reduced data.
 	 * @since 2.0.0
+	 * @apiNote to get a cosmetic will full info given one with reduced info, make a call to
+	 * {@link cc.cosmetica.api.CosmeticaAPI#getCosmetic(CosmeticType, String)}
 	 */
 	boolean hasReducedData();
 
