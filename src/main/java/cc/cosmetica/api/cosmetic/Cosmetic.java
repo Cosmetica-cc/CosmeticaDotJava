@@ -104,6 +104,12 @@ public interface Cosmetic {
 	boolean hasReducedData();
 
 	/**
+	 * Get whether this cosmetic is an official cosmetica cosmetic.
+	 * @return whether this cosmetic is an official cosmetica cosmetic.
+	 */
+	boolean isOfficial();
+
+	/**
 	 * Get this custom cosmetic as a {@linkplain Model}.
 	 * @return this value, cast to model.
 	 * @throws ClassCastException if this is not an instance of {@link Model}

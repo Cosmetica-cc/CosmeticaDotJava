@@ -17,6 +17,7 @@
 package cc.cosmetica.api;
 
 import cc.cosmetica.util.SafeURL;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -24,10 +25,13 @@ import java.io.UncheckedIOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * An immutable object of a value or a runtime exception, for use in passing API responses. Basically Optional on steroids.
- * Common errors are {@link CosmeticaAPIException} for an error response from the cosmetica api, {@link FatalServerErrorException} for a 500 that was not otherwise sent as an intentional api error response by the server, and {@link java.io.UncheckedIOException} for various I/O exceptions.
+ * Common errors are {@link CosmeticaAPIException} for an error response from the cosmetica api,
+ * {@link FatalServerErrorException} for a 500 that was not otherwise sent as an intentional api error response by the server,
+ * and {@link java.io.UncheckedIOException} for various I/O exceptions.
  */
 public class ServerResponse<T> {
 	public ServerResponse(T t, SafeURL url) throws IllegalArgumentException {
@@ -101,12 +105,36 @@ public class ServerResponse<T> {
 	/**
 	 * @param fallback the value to return if there was an error.
 	 * @return the resolved value.
-	 * @apiNote nullable if and only if the error resolver passed can return null.
+	 * @apiNote nullable if and only if the fallback value is null.
 	 */
-	@Nullable
-	public T or(T fallback) {
+	@Contract(value = "!null -> !null", pure = true)
+	public T or(@Nullable T fallback) {
 		if (this.value == null) return fallback;
 		return this.value;
+	}
+
+	/**
+	 * Map the value inside with the given mapping function, if a value is present.
+	 * @param mappingFunction the mapping function to use.
+	 * @return a new server response with the mapped value, if this contains a value. Otherwise, returns this.
+	 */
+	public ServerResponse<T> map(UnaryOperator<T> mappingFunction) {
+		return this.value == null ? this : new ServerResponse<T>(mappingFunction.apply(this.value), this.url);
+	}
+
+	/**
+	 * Map the value inside with the given mapping function, if an error is present.
+	 * @param mappingFunction the mapping function to use. If it returns null, the mapping fails and the error persists.
+	 * @return a new server response with the mapped value, if this contains an error, and the mapping function did not
+	 * return null. Otherwise, returns this.
+	 */
+	public ServerResponse<T> mapIfError(Function<RuntimeException, T> mappingFunction) {
+		if (this.exception == null) {
+			return this;
+		} else {
+			@Nullable T value = mappingFunction.apply(this.exception);
+			return value == null ? this : new ServerResponse<T>(value, this.url);
+		}
 	}
 
 	/**

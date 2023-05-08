@@ -68,4 +68,8 @@ public final class SafeURL {
 	public static SafeURL direct(String safeRequest) {
 		return new SafeURL(safeRequest, safeRequest);
 	}
+
+	public static SafeURL dummy() {
+		return direct("https://example.com/no-request-made");
+	}
 }
