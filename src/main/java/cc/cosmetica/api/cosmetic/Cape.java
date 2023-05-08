@@ -19,6 +19,8 @@ package cc.cosmetica.api.cosmetic;
 import cc.cosmetica.impl.CosmeticFetcher;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.OptionalInt;
+
 /**
  * Represents the data of a cape served by the cosmetica servers.
  */
@@ -33,6 +35,11 @@ public interface Cape extends Cosmetic {
 	 * @return the delay between each frame of this cape, in ms. Will be 0 if static.
 	 */
 	int getFrameDelay();
+
+	@Override
+	default OptionalInt getExtraInfo() {
+		return OptionalInt.of(this.getFrameDelay());
+	}
 
 	/**
 	 * @return whether this cape is an animated cape.

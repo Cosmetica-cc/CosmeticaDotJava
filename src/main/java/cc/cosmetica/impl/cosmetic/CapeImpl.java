@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 
 class CapeImpl extends AbstractCosmetic implements Cape {
 	private CapeImpl(String id, String name, String origin, String image, boolean cosmeticaAlternative, int frameDelay,

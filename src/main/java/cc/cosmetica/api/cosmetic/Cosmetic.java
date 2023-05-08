@@ -20,6 +20,7 @@ import cc.cosmetica.api.User;
 import cc.cosmetica.impl.cosmetic.AbstractCosmetic;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * Represents any cosmetic. This could be either a cape or model. This is not guaranteed to be an instance of
@@ -68,6 +69,15 @@ public interface Cosmetic {
 	 * @since 2.0.0
 	 */
 	String getOrigin();
+
+	/**
+	 * Get the extra info of this cosmetic. The extra info is a generalisation of the extra data contained in subclasses
+	 * of this field: {@linkplain Cape#getFrameDelay() for capes}, {@linkplain Model#flags()} for models.<br/>
+	 * In general, you should use the specific methods where possible. However, there are uncommon cases where you may
+	 * need to be able to handle the general case of these, such as updating the metadata of a cosmetic.
+	 * @return an optional containing the extra info of this cosmetic. Will be empty if this cosmetic has reduced data.
+	 */
+	OptionalInt getExtraInfo();
 
 	/**
 	 * Get the current upload state of this cosmetic.

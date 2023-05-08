@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 
 /**
@@ -95,6 +96,11 @@ class SimpleCosmetic extends AbstractCosmetic {
 	@Override
 	public boolean hasReducedData() {
 		return true;
+	}
+
+	@Override
+	public OptionalInt getExtraInfo() {
+		return OptionalInt.empty();
 	}
 
 	/**

@@ -19,6 +19,8 @@ package cc.cosmetica.api.cosmetic;
 import cc.cosmetica.impl.CosmeticFetcher;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.OptionalInt;
+
 /**
  * A cosmetica model. Can be a built-in model, or a custom model. See {@link Model#isBuiltin()} for more details.
  */
@@ -49,6 +51,11 @@ public interface Model extends Cosmetic {
 	 * @return the rendering flags associated with this model.
 	 */
 	int flags();
+
+	@Override
+	default OptionalInt getExtraInfo() {
+		return OptionalInt.of(this.flags());
+	}
 
 	/**
 	 * @return the delay between each frame of this model's texture, in ms. Will be 0 if static.
