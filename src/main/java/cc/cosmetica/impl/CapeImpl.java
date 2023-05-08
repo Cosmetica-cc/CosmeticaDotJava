@@ -120,10 +120,16 @@ class CapeImpl implements Cape {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Cosmetic cosmetic = (Cosmetic) o;
-		return this.id.equals(cosmetic.getId()) && CosmeticType.CAPE.equals(cosmetic.getType());
+		if (this == o) {
+			return true;
+		}
+
+		if (o instanceof Cosmetic) {
+			Cosmetic otherCosmetic = (Cosmetic) o;
+			return this.id.equals(otherCosmetic.getId()) && CosmeticType.CAPE.equals(otherCosmetic.getType());
+		}
+
+		return false;
 	}
 
 	@Override

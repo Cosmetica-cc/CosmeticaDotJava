@@ -149,10 +149,16 @@ class ModelImpl implements Model {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Cosmetic cosmetic = (Cosmetic) o;
-		return this.id.equals(cosmetic.getId()) && this.type.equals(cosmetic.getType());
+		if (this == o) {
+			return true;
+		}
+
+		if (o instanceof Cosmetic) {
+			Cosmetic otherCosmetic = (Cosmetic) o;
+			return this.id.equals(otherCosmetic.getId()) && this.type.equals(otherCosmetic.getType());
+		}
+
+		return false;
 	}
 
 	@Override

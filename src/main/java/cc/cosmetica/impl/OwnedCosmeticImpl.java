@@ -16,6 +16,7 @@
 
 package cc.cosmetica.impl;
 
+import cc.cosmetica.api.cosmetic.Cosmetic;
 import cc.cosmetica.api.cosmetic.CosmeticType;
 import cc.cosmetica.api.cosmetic.OwnedCosmetic;
 import cc.cosmetica.api.cosmetic.UploadState;

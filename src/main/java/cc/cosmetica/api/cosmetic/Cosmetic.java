@@ -25,6 +25,8 @@ import java.util.Optional;
  * Represents any cosmetic. This could be either a cape or model. This is not guaranteed to be an instance of
  * Cape or Model, however, as in some {@linkplain Cosmetic#hasReducedData() reduced-data contexts} a plain old
  * Cosmetic may be returned.
+ * @apiNote all classes that extend {@link Cosmetic cosmetic} will be considered "equal" to each other if they have
+ * the same id and type.
  */
 public interface Cosmetic {
 	/**
