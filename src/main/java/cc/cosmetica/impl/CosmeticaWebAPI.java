@@ -17,18 +17,18 @@
 package cc.cosmetica.impl;
 
 import cc.cosmetica.api.*;
-import cc.cosmetica.api.cosmetic.UploadState;
-import cc.cosmetica.api.settings.CapeDisplay;
-import cc.cosmetica.api.settings.CapeServer;
 import cc.cosmetica.api.cosmetic.Cosmetic;
 import cc.cosmetica.api.cosmetic.CosmeticType;
 import cc.cosmetica.api.cosmetic.LoreType;
 import cc.cosmetica.api.cosmetic.Model;
 import cc.cosmetica.api.cosmetic.OwnedCosmetic;
 import cc.cosmetica.api.cosmetic.ShoulderBuddies;
+import cc.cosmetica.api.cosmetic.UploadState;
+import cc.cosmetica.api.settings.CapeDisplay;
+import cc.cosmetica.api.settings.CapeServer;
 import cc.cosmetica.api.settings.IconSettings;
-import cc.cosmetica.api.Panorama;
 import cc.cosmetica.api.settings.UserSettings;
+import cc.cosmetica.impl.cosmetic.AbstractCosmetic;
 import cc.cosmetica.util.HostProvider;
 import cc.cosmetica.util.Response;
 import cc.cosmetica.util.SafeURL;
@@ -44,7 +44,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -137,8 +145,8 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 
 			if (shoulderBuddies != null) {
 				sbObj = Optional.of(new ShoulderBuddiesImpl(
-						parse(shoulderBuddies.has("left") ? shoulderBuddies.get("left").getAsJsonObject() : null),
-						parse(shoulderBuddies.has("right") ? shoulderBuddies.get("right").getAsJsonObject() : null)
+						AbstractCosmetic.parse(shoulderBuddies.has("left") ? shoulderBuddies.get("left").getAsJsonObject() : null),
+						AbstractCosmetic.parse(shoulderBuddies.has("right") ? shoulderBuddies.get("right").getAsJsonObject() : null)
 				));
 			}
 
@@ -155,10 +163,10 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 					jsonObject.get("suffix").getAsString(),
 					Yootil.readNullableJsonString(icon.get("client")),
 					icon.get("online").getAsBoolean(),
-					hats == null ? new ArrayList<>() : Yootil.mapObjects(hats, h -> parse(h).get()),
+					hats == null ? new ArrayList<>() : Yootil.flatMapObjects(hats, AbstractCosmetic::parse),
 					sbObj,
-					parse(backBling),
-					parse(cloak),
+					AbstractCosmetic.parse(backBling),
+					AbstractCosmetic.parse(cloak),
 					icon.get("icon").getAsString()
 			), target);
 		} catch (IOException ie) {
@@ -244,7 +252,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			List<T> cosmetics = new ArrayList<>();
 
 			for (JsonElement element : json.getAsJsonArray("list")) {
-				cosmetics.add((T) parse(element.getAsJsonObject()).get());
+				cosmetics.add((T) AbstractCosmetic.parse(element.getAsJsonObject()).get());
 			}
 
 			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, nextPage), url);
@@ -283,7 +291,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			List<Cosmetic> cosmetics = new ArrayList<>();
 
 			for (JsonElement element : response.getAsJsonArray()) {
-				parse(element.getAsJsonObject()).ifPresent(cosmetics::add);
+				AbstractCosmetic.parse(element.getAsJsonObject()).ifPresent(cosmetics::add);
 			}
 
 			return new ServerResponse<>(new CosmeticsPage<>(cosmetics, false), url);
@@ -354,7 +362,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 			JsonObject json = response.getAsJson();
 			checkErrors(url, json);
 
-			return new ServerResponse<>((T) parse(json).get(), url);
+			return new ServerResponse<>((T) AbstractCosmetic.parse(json).get(), url);
 		}
 		catch (IOException ie) {
 			return new ServerResponse<>(ie, url);
@@ -800,24 +808,6 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	private static void checkErrors(SafeURL url, JsonObject response) {
 		if (response.has("error")) {
 			throw new CosmeticaAPIException(url, response.get("error").getAsString());
-		}
-	}
-
-	private static Optional<? extends Cosmetic> parse(@Nullable JsonObject object) {
-		if (object == null) {
-			return Optional.empty();
-		}
-
-		CosmeticType<?> type = CosmeticType.fromTypeString(object.get("type").getAsString()).get();
-
-		if ("".equals(object.get("extraInfo").getAsString())) {
-			return SimpleCosmetic.parse(object);
-		}
-		else if (type == CosmeticType.CAPE) {
-			return CapeImpl.parse(object);
-		}
-		else {
-			return ModelImpl.parse(object);
 		}
 	}
 

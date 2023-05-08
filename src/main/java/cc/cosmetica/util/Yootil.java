@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -161,6 +162,16 @@ public class Yootil {
 
 		for (JsonElement e : arr) {
 			result.add(mapping.apply(e.getAsJsonObject()));
+		}
+
+		return result;
+	}
+
+	public static <T> List<T> flatMapObjects(JsonArray arr, Function<JsonObject, Optional<T>> mapping) {
+		List<T> result = new ArrayList<>();
+
+		for (JsonElement e : arr) {
+			mapping.apply(e.getAsJsonObject()).ifPresent(result::add);
 		}
 
 		return result;

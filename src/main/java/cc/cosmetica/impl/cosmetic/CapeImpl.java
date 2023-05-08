@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.impl;
+package cc.cosmetica.impl.cosmetic;
 
 import cc.cosmetica.api.*;
 import cc.cosmetica.api.cosmetic.Cape;
-import cc.cosmetica.api.cosmetic.Cosmetic;
 import cc.cosmetica.api.cosmetic.CosmeticType;
 import cc.cosmetica.api.cosmetic.UploadState;
 import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 
-class CapeImpl implements Cape {
+class CapeImpl extends AbstractCosmetic implements Cape {
 	CapeImpl(String id, String name, String origin, String image, boolean cosmeticaAlternative, int frameDelay,
 			 UploadState uploadState, String reason, long uploadTime, @Nullable User owner) {
 		this.id = id;
@@ -116,28 +114,7 @@ class CapeImpl implements Cape {
 		return CosmeticType.CAPE;
 	}
 
-	// Java stuff
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-
-		if (o instanceof Cosmetic) {
-			Cosmetic otherCosmetic = (Cosmetic) o;
-			return this.id.equals(otherCosmetic.getId()) && CosmeticType.CAPE.equals(otherCosmetic.getType());
-		}
-
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(CosmeticType.CAPE, this.id);
-	}
-
-	static Optional<Cape> parse(@Nullable JsonObject data) {
+	static Optional<Cape> parseAsCape(@Nullable JsonObject data) {
 		if (data == null) return Optional.empty();
 
 		String id = data.get("id").getAsString();

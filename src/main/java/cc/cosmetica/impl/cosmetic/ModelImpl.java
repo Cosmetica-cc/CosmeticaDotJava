@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.impl;
+package cc.cosmetica.impl.cosmetic;
 
-import cc.cosmetica.api.*;
+import cc.cosmetica.api.User;
 import cc.cosmetica.api.cosmetic.BoundingBox;
-import cc.cosmetica.api.cosmetic.Cosmetic;
 import cc.cosmetica.api.cosmetic.CosmeticType;
 import cc.cosmetica.api.cosmetic.Model;
 import cc.cosmetica.api.cosmetic.UploadState;
@@ -27,10 +26,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 
-class ModelImpl implements Model {
+class ModelImpl extends AbstractCosmetic implements Model {
 	ModelImpl(CosmeticType<?> type, String id, String name, int flags, BoundingBox bounds,
 			  String model, String base64Texture, User owner, String origin,
 			  UploadState uploadState, String reason, long uploadTime, boolean usesUVRotations) {
@@ -147,26 +145,7 @@ class ModelImpl implements Model {
 		return false;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-
-		if (o instanceof Cosmetic) {
-			Cosmetic otherCosmetic = (Cosmetic) o;
-			return this.id.equals(otherCosmetic.getId()) && this.type.equals(otherCosmetic.getType());
-		}
-
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.type, this.id);
-	}
-
-	static Optional<Model> parse(@Nullable JsonObject json) {
+	static Optional<Model> parseAsModel(@Nullable JsonObject json) {
 		if (json == null) {
 			return Optional.empty();
 		}

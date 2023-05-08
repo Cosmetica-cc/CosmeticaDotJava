@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.impl;
+package cc.cosmetica.impl.cosmetic;
 
 import cc.cosmetica.api.*;
-import cc.cosmetica.api.cosmetic.Cosmetic;
 import cc.cosmetica.api.cosmetic.CosmeticType;
 import cc.cosmetica.api.cosmetic.UploadState;
 import cc.cosmetica.util.Yootil;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,7 +30,7 @@ import java.util.UUID;
  * A simple cosmetic which only has surface info. More info can be loaded by looking up the cosmetic at {@link cc.cosmetica.api.CosmeticaAPI#getCosmetic(CosmeticType, String)}.
  * @since 2.0.0
  */
-public class SimpleCosmetic implements Cosmetic {
+class SimpleCosmetic extends AbstractCosmetic {
 	private SimpleCosmetic(CosmeticType<?> type, String name, String id, String origin, UUID ownerUUID,
 						   UploadState uploadState, String reason, long uploadTime) {
 		this.type = type;
@@ -99,31 +97,12 @@ public class SimpleCosmetic implements Cosmetic {
 		return true;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-
-		if (o instanceof Cosmetic) {
-			Cosmetic otherCosmetic = (Cosmetic) o;
-			return this.id.equals(otherCosmetic.getId()) && this.type.equals(otherCosmetic.getType());
-		}
-
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.type, this.id);
-	}
-
 	/**
 	 * Parse the given json object to a simple cosmetic.
 	 * @param data the json object to parse.
 	 * @return the SimpleCosmetic instance.
 	 */
-	static Optional<SimpleCosmetic> parse(@Nullable JsonObject data) {
+	static Optional<SimpleCosmetic> parseAsSimple(@Nullable JsonObject data) {
 		if (data == null) {
 			return Optional.empty();
 		}
