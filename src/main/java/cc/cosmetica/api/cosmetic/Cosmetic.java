@@ -17,7 +17,7 @@
 package cc.cosmetica.api.cosmetic;
 
 import cc.cosmetica.api.User;
-import cc.cosmetica.impl.cosmetic.SimpleCosmetic;
+import cc.cosmetica.impl.cosmetic.AbstractCosmetic;
 
 import java.util.Optional;
 
@@ -119,6 +119,6 @@ public interface Cosmetic {
 	 * @apiNote the id of the cape is guaranteed to be "DUMMY"
 	 */
 	static Cosmetic createDummy() {
-		return SimpleCosmetic.createDummy();
+		return AbstractCosmetic.createDummy();
 	}
 }

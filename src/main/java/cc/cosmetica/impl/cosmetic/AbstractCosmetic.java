@@ -2,11 +2,13 @@ package cc.cosmetica.impl.cosmetic;
 
 import cc.cosmetica.api.cosmetic.Cosmetic;
 import cc.cosmetica.api.cosmetic.CosmeticType;
+import cc.cosmetica.api.cosmetic.UploadState;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * An abstract cosmetic that declares some basic shared functionality.
@@ -52,5 +54,18 @@ public abstract class AbstractCosmetic implements Cosmetic {
 		else {
 			return ModelImpl.parseAsModel(json);
 		}
+	}
+
+	public static SimpleCosmetic createDummy() {
+		return new SimpleCosmetic(
+				CosmeticType.CAPE,
+				"Dummy Cape",
+				"DUMMY",
+				"Cosmetica",
+				UUID.randomUUID(),
+				UploadState.APPROVED,
+				"",
+				0
+		);
 	}
 }

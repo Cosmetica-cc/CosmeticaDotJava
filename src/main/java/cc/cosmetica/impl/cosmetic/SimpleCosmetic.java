@@ -31,7 +31,7 @@ import java.util.UUID;
  * @since 2.0.0
  */
 class SimpleCosmetic extends AbstractCosmetic {
-	private SimpleCosmetic(CosmeticType<?> type, String name, String id, String origin, UUID ownerUUID,
+	SimpleCosmetic(CosmeticType<?> type, String name, String id, String origin, UUID ownerUUID,
 						   UploadState uploadState, String reason, long uploadTime) {
 		this.type = type;
 		this.name = name;
@@ -119,18 +119,5 @@ class SimpleCosmetic extends AbstractCosmetic {
 				data.get("reason").getAsString(),
 				data.get("uploaded").getAsLong()
 		));
-	}
-
-	public static SimpleCosmetic createDummy() {
-		return new SimpleCosmetic(
-				CosmeticType.CAPE,
-				"Dummy Cape",
-				"DUMMY",
-				"Cosmetica",
-				UUID.randomUUID(),
-				UploadState.APPROVED,
-				"",
-				0
-		);
 	}
 }

@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 class ModelImpl extends AbstractCosmetic implements Model {
-	ModelImpl(CosmeticType<?> type, String id, String name, int flags, BoundingBox bounds,
+	private ModelImpl(CosmeticType<?> type, String id, String name, int flags, BoundingBox bounds,
 			  String model, String base64Texture, User owner, String origin,
 			  UploadState uploadState, String reason, long uploadTime, boolean usesUVRotations) {
 		this.id = id;

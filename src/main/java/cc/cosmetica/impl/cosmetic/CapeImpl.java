@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 class CapeImpl extends AbstractCosmetic implements Cape {
-	CapeImpl(String id, String name, String origin, String image, boolean cosmeticaAlternative, int frameDelay,
+	private CapeImpl(String id, String name, String origin, String image, boolean cosmeticaAlternative, int frameDelay,
 			 UploadState uploadState, String reason, long uploadTime, @Nullable User owner) {
 		this.id = id;
 		this.name = name;
