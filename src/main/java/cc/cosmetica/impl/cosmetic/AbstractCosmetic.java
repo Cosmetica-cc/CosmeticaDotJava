@@ -31,6 +31,11 @@ import java.util.UUID;
  */
 public abstract class AbstractCosmetic implements Cosmetic {
 	@Override
+	public boolean isOfficial() {
+		return this.getOwner().map(user -> OFFICIAL.equals(user.getUUID())).orElse(false);
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -48,6 +53,11 @@ public abstract class AbstractCosmetic implements Cosmetic {
 	public int hashCode() {
 		return Objects.hash(this.getType(), this.getId());
 	}
+
+	/**
+	 * The UUID of an official cosmetic from cosmetica.
+	 */
+	private static final UUID OFFICIAL = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
 	/**
 	 * Parse a {@link JsonObject} from the API representing a cosmetic into a an actual {@link Cosmetic} object.

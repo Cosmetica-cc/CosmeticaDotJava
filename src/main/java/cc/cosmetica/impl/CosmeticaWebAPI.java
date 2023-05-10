@@ -495,6 +495,12 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	@Override
+	public ServerResponse<Boolean> updateExtraInfo(CosmeticType<?> type, String cosmeticId, int extraInfo) {
+		SafeURL target = create("/client/modifyextrainfo?type=" + type.getUrlString() + "&id=" + cosmeticId + "&extrainfo=" + extraInfo, OptionalLong.empty());
+		return requestSetZ(target);
+	}
+
+	@Override
 	public ServerResponse<String> setLore(LoreType type, String lore) throws IllegalArgumentException {
 		if (type == LoreType.DISCORD || type == LoreType.TWITCH) throw new IllegalArgumentException("Invalid lore type for setLore(LoreType, String): " + type);
 

@@ -72,9 +72,11 @@ public interface Cosmetic {
 
 	/**
 	 * Get the extra info of this cosmetic. The extra info is a generalisation of the extra data contained in subclasses
-	 * of this field: {@linkplain Cape#getFrameDelay() for capes}, {@linkplain Model#flags()} for models.<br/>
-	 * In general, you should use the specific methods where possible. However, there are uncommon cases where you may
-	 * need to be able to handle the general case of these, such as updating the metadata of a cosmetic.
+	 * of this field: {@linkplain Cape#getFrameDelay()} for capes, {@linkplain Model#flags()} for models. This is the
+	 * representation of such data that gets directly passed via the web api.<br/>
+	 * In general, you should use the aforementioned specific methods where possible. However, there are uncommon cases where you may
+	 * need to be able to handle the general case of these, such as
+	 * {@linkplain cc.cosmetica.api.CosmeticaAPI#updateExtraInfo(CosmeticType, String, int) updating the extra info of any cosmetic}.
 	 * @return an optional containing the extra info of this cosmetic. Will be empty if this cosmetic has reduced data.
 	 */
 	OptionalInt getExtraInfo();
@@ -106,6 +108,7 @@ public interface Cosmetic {
 	/**
 	 * Get whether this cosmetic is an official cosmetica cosmetic.
 	 * @return whether this cosmetic is an official cosmetica cosmetic.
+	 * @implNote this checks if the UUID of the owner is {@code 00000000-0000-0000-0000-000000000000}.
 	 */
 	boolean isOfficial();
 

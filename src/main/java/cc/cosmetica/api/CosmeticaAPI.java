@@ -301,7 +301,7 @@ public interface CosmeticaAPI {
 
 	/**
 	 * Update the specified settings for the user. You do not need to specify every setting, unlike {@link CosmeticaAPI#setCapeServerSettings(Map)}
-	 * @param settings
+	 * @param settings a map of the settings to change.
 	 * @return true if successful. Otherwise the server response will have an error.
 	 * @apiNote requires full authentication (a master token).
 	 */
@@ -309,8 +309,9 @@ public interface CosmeticaAPI {
 
 	/**
 	 * Update the icon settings for this user. These affect how icons are shown to the user.
+	 * @param iconSettings the new values for the icon settings.
 	 * @apiNote requires full authentication (a master token).<br>
-	 * This is identical to calling {@linkplain CosmeticaAPI#updateUserSettings(Map)} with the "iconsettings" property set
+	 * This is equivalent to calling {@linkplain CosmeticaAPI#updateUserSettings(Map)} with the "iconsettings" property set
 	 * as the {@linkplain IconSettings#packToInt() packed integer representation} of the given icon settings.
 	 */
 	ServerResponse<Boolean> updateIconSettings(IconSettings iconSettings);
@@ -348,6 +349,16 @@ public interface CosmeticaAPI {
 	 * @apiNote requires full authentication (a master token).
 	 */
 	ServerResponse<String> uploadModel(CosmeticType<Model> type, String name, String base64Texture, JsonObject model, int flags);
+
+	/**
+	 * Update the {@linkplain Cosmetic#getExtraInfo() extra info} of a cosmetic.
+	 * @param type the type of cosmetic to update the extra info for.
+	 * @param cosmeticId the id of the cosmetic to update the extra info for.
+	 * @param extraInfo the extra info to set.
+	 * @return true if successful. Otherwise, the server response will have an error.
+	 * @apiNote requires full authentication (a master token), and for this user to have moderation privileges.
+	 */
+	ServerResponse<Boolean> updateExtraInfo(CosmeticType<?> type, String cosmeticId, int extraInfo);
 
 	///////////////////////////
 	//   Non-Web-API Methods //
