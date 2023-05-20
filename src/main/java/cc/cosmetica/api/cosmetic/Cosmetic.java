@@ -73,7 +73,7 @@ public interface Cosmetic {
 	/**
 	 * Get the extra info of this cosmetic. The extra info is a generalisation of the extra data contained in subclasses
 	 * of this field: {@linkplain Cape#getFrameDelay()} for capes, {@linkplain Model#flags()} for models. This is the
-	 * representation of such data that gets directly passed via the web api.<br/>
+	 * representation of such data that gets directly passed via the web api.<br>
 	 * In general, you should use the aforementioned specific methods where possible. However, there are uncommon cases where you may
 	 * need to be able to handle the general case of these, such as
 	 * {@linkplain cc.cosmetica.api.CosmeticaAPI#updateExtraInfo(CosmeticType, String, int) updating the extra info of any cosmetic}.

@@ -22,7 +22,7 @@ package cc.cosmetica.api.cosmetic;
 public enum UploadState {
 	/**
 	 * Used when the numerical cosmetic status is an identifier unknown to the program. This may be intentional
-	 * (such as capes from third-party services), or due to this instance not recognising the id of a status.<br/>
+	 * (such as capes from third-party services), or due to this instance not recognising the id of a status.<br>
 	 * For example, if a new status "12: foo" were to be added to the protocol and sent over, this value would be used.
 	 * @since 2.0.0
 	 * @apiNote Make sure you are using the latest version of CosmeticaDotJava so that newer status ids are fully

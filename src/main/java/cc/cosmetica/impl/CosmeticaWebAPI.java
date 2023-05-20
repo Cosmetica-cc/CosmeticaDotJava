@@ -669,7 +669,7 @@ public class CosmeticaWebAPI implements CosmeticaAPI {
 	}
 
 	/**
-	 * Use this method if you're cringe.<br/>
+	 * Use this method if you're cringe.<br>
 	 * (exists to stop reflection being necessary for the few times it's justified to manually get the token rather than going through the api)
 	 * @return the master token on this instance
 	 */

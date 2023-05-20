@@ -129,7 +129,13 @@ public class Response implements Closeable {
 	}
 
 	/**
+	 * Open a request with to a remote url and store the response data.
+	 * Please note that a 500 error response will throw an exception.
 	 * @param request the url to request to.
+	 * @return the opened {@link Response} containing the response data from the given URL.
+	 * @throws IOException if an IO error occurs.
+	 * @throws ParseException if a parse exception occurs.
+	 * @throws FatalServerErrorException if the server response code is 5XX.
 	 * @apiNote cosmetica api will include the safe url in an {@link FatalServerErrorException}.
 	 */
 	public static Response get(SafeURL request) throws ParseException, IOException, FatalServerErrorException {
@@ -137,9 +143,15 @@ public class Response implements Closeable {
 	}
 
 	/**
+	 * Open a request with the given timeout to a remote url and store the response data.
+	 * Please note that a 5XX error response will {@linkplain FatalServerErrorException throw an exception.}
 	 * @param request the url to request to.
 	 * @param timeout the request timeout, in milliseconds.
-	 * @apiNote cosmetica api will include the safe url in an {@link FatalServerErrorException}.
+	 * @return the opened {@link Response} containing the response data from the given URL.
+	 * @throws IOException if an IO error occurs.
+	 * @throws ParseException if a parse exception occurs.
+	 * @throws FatalServerErrorException if the server response code is 5XX.
+	 * @apiNote the safe url will be included in a {@link FatalServerErrorException} instance.
 	 */
 	public static Response get(SafeURL request, int timeout) throws ParseException, IOException, FatalServerErrorException {
 		return _get(request.url(), timeout).testForFatalError(request);
